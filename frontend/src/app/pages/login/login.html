@@ -1,0 +1,59 @@
+<div class="login-page">
+
+  <div class="login-card">
+
+    <h1>EduRoom's</h1>
+
+    <p>Gerenciamento de salas</p>
+
+    <form (ngSubmit)="entrar()">
+
+      <label for="email">E-mail</label>
+
+      <input
+        type="email"
+        id="email"
+        name="email"
+        [(ngModel)]="email"
+        placeholder="Digite seu e-mail"
+      >
+
+      <label for="senha">Senha</label>
+
+      <div class="senha-container">
+
+        <input
+          [type]="mostrarSenha ? 'text' : 'password'"
+          id="senha"
+          name="senha"
+          [(ngModel)]="senha"
+          placeholder="Digite sua senha"
+        >
+
+        <button
+          type="button"
+          class="olho-button"
+          (click)="alternarSenha()"
+        >
+          {{ mostrarSenha ? '👁' : '👁️' }}
+        </button>
+
+      </div>
+
+      <button type="submit">
+        Entrar
+      </button>
+
+    </form>
+
+    <div class="divider">
+      <span>ou continue com</span>
+    </div>
+
+    <button class="google-button">
+      Continuar com Google
+    </button>
+
+  </div>
+
+</div>

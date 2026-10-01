@@ -21,6 +21,26 @@ export class LoginComponent {
   entrar() {
     console.log('Botão Entrar funcionando');
 
+    if (!this.email){
+      alert('Digite seu e-mail.');
+      return;
+    }
+
+    if (!this.email.includes('@')){
+      alert('E-mail inválido!');
+      return;
+    }
+
+    if (!this.senha) {
+      alert('Digite sua senha.');
+      return;
+    }
+
+    if (this.senha.length < 6){
+      alert('Senha inválida. A senha deve conter no minimo 6 caracteres')
+      return;
+    }
+
     this.router.navigate(['/dashboard']);
   }
 

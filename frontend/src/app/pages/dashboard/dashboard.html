@@ -1,9 +1,111 @@
-<div class="dashboard-page">
+<div class="layout-container">
+  <!-- Componente Menu Lateral -->
+  <app-sidebar 
+    [activeCategory]="activeCategory" 
+    (categoryChange)="setCategory($event)">
+  </app-sidebar>
 
-  <h1>EduRoom's</h1>
+  <!-- Conteúdo Principal do Dashboard -->
+  <main class="main-content">
+    <!-- Cabeçalho -->
+    <header class="top-header">
+      <div class="header-titles">
+        <h1>EduRoom's</h1>
+        <p class="welcome-text">Bem-vindo ao sistema! Você entrou na página principal de gestão de salas.</p>
+      </div>
 
-  <h2>Bem-vindo ao sistema!</h2>
+      <div class="user-profile">
+        <div class="avatar">JS</div>
+        <button class="btn-logout">Sair</button>
+      </div>
+    </header>
 
-  <p>Você entrou na página principal.</p>
+    <!-- Navegação por Abas (Filtro por Tipo) -->
+    <nav class="tabs-nav">
+      <button 
+        [class.active]="activeCategory === 'especiais'" 
+        (click)="setCategory('especiais')">
+        Salas Especiais
+      </button>
+      <button 
+        [class.active]="activeCategory === 'laboratorios'" 
+        (click)="setCategory('laboratorios')">
+        Laboratórios
+      </button>
+    </nav>
 
+    <!-- Barra de Pesquisa -->
+    <div class="search-bar-container">
+      <span class="search-icon">🔍</span>
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Pesquisar por sala, número ou responsável..." 
+        [(ngModel)]="searchTerm" />
+    </div>
+
+    <!-- Tabela de Exibição das Salas -->
+    <section class="table-section">
+      <table class="rooms-table">
+        <thead>
+          <tr>
+            <th>Nº</th>
+            <th>Nome da Sala</th>
+            <th>Tipo</th>
+            <th>Responsável</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let room of filteredRooms">
+            <td class="col-id">{{ room.number }}</td>
+            <td><strong>{{ room.name }}</strong></td>
+            <td>{{ room.type }}</td>
+            <td>{{ room.responsible }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="getStatusClass(room.status)">
+                <span class="dot"></span>
+                {{ room.status }}
+              </span>
+            </td>
+            <td>
+              <button class="btn-action-dots" (click)="openActionModal(room)" title="Alterar Status">
+                ⋮
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredRooms.length === 0">
+            <td colspan="6" class="no-data">Nenhuma sala encontrada.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <!-- Modal Pop-up para Editar Status -->
+  <div class="modal-overlay" *ngIf="selectedRoom">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Alterar Status da Sala</h3>
+        <button class="btn-close" (click)="closeModal()">✕</button>
+      </div>
+      <p class="modal-subtitle">{{ selectedRoom.name }} ({{ selectedRoom.number }})</p>
+
+      <div class="status-options">
+        <button class="btn-status status-available" (click)="updateRoomStatus('Disponível')">
+          <span class="dot"></span> Disponível
+        </button>
+        <button class="btn-status status-occupied" (click)="updateRoomStatus('Ocupado')">
+          <span class="dot"></span> Ocupado
+        </button>
+        <button class="btn-status status-maintenance" (click)="updateRoomStatus('Manutenção')">
+          <span class="dot"></span> Manutenção
+        </button>
+        <button class="btn-status status-reserved" (click)="updateRoomStatus('Reservado')">
+          <span class="dot"></span> Reservado
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

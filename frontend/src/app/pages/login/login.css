@@ -228,13 +228,33 @@
 
   background: #e2e8f0;
 }
+/*botão esquecer senha*/
 
+.esquecerSenha {
+  border: 0px;
+  width: 100%;
+  height: 44px;
+  cursor: pointer;
+  font-size: 14;
+  background-color: #ffffff;
+}
+
+.esquecerSenha:hover {
+border: 0px;
+width: 100%;
+height: 44px;
+font-size: 14;
+text-decoration: underline;
+background-color: #ffffff;
+
+}
 
 /* GOOGLE */
 
 .google-button {
   width: 100%;
   height: 44px;
+
 
   border: 1px solid #cbd5e1;
   border-radius: 8px;

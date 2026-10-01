@@ -1,0 +1,25 @@
+.dashboard-page {
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background: #f8fafc;
+
+  color: #1e293b;
+}
+
+.dashboard-page h1 {
+  color: #1e3a8a;
+  margin-bottom: 10px;
+}
+
+.dashboard-page h2 {
+  margin-bottom: 8px;
+}
+
+.dashboard-page p {
+  color: #64748b;
+}

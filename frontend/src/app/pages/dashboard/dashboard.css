@@ -23,3 +23,167 @@
 .dashboard-page p {
   color: #64748b;
 }
+/* Estilos para o layout principal */
+
+.layout-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #ffffff; /* Fundo totalmente branco como no design */
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+}
+
+.tabs-nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.tabs-nav button {
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  padding-bottom: 0.5rem;
+}
+
+.tabs-nav button.active {
+  color: #000000;
+  font-weight: 700;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar-group {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+}
+
+.avatar-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.chevron {
+  font-size: 1.2rem;
+  color: #000000;
+}
+
+.btn-logout {
+  background-color: #000000;
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.table-section {
+  width: 100%;
+}
+
+.rooms-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.rooms-table th {
+  padding: 1rem 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #000000;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.rooms-table td {
+  padding: 1.2rem 0;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.9rem;
+}
+
+.col-xs {
+  width: 60px;
+}
+
+.col-muted {
+  color: #9ca3af;
+}
+
+.col-main {
+  color: #000000;
+  font-weight: 500;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* Cores exatas das bolinhas de estado */
+.status-available { background-color: #22c55e; } /* Verde */
+.status-occupied { background-color: #ef4444; } /* Vermelho */
+.status-maintenance { background-color: #eab308; } /* Amarelo */
+.status-reserved { background-color: #0ea5e9; } /* Azul Claro */
+
+.status-text {
+  font-size: 0.85rem;
+  color: #000000;
+}
+
+.responsible-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.responsible-avatar {
+  width: 24px;
+  height: 24px;
+  background-color: #e5e7eb;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.col-actions {
+  text-align: right;
+}
+
+.btn-action-dots {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #9ca3af;
+  cursor: pointer;
+}

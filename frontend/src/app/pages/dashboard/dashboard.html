@@ -1,9 +1,66 @@
-<div class="dashboard-page">
+<div class="layout-container">
+  <app-sidebar 
+    [activeCategory]="activeCategory" 
+    (categoryChange)="setCategory($event)">
+  </app-sidebar>
 
-  <h1>EduRoom's</h1>
+  <main class="main-content">
+    <header class="top-header">
+      <nav class="tabs-nav">
+        <button 
+          [class.active]="activeCategory === 'especiais'" 
+          (click)="setCategory('especiais')">
+          Salas Especiais
+        </button>
+        <button 
+          [class.active]="activeCategory === 'laboratorios'" 
+          (click)="setCategory('laboratorios')">
+          Laboratórios
+        </button>
+      </nav>
 
-  <h2>Bem-vindo ao sistema!</h2>
+      <div class="user-profile">
+        <div class="avatar-group">
+          <img src="https://ui-avatars.com/api/?name=User&background=random&rounded=true" alt="Avatar" class="avatar-img">
+          <span class="chevron">⌄</span>
+        </div>
+        <button class="btn-logout">Logout</button>
+      </div>
+    </header>
 
-  <p>Você entrou na página principal.</p>
-
+    <section class="table-section">
+      <table class="rooms-table">
+        <thead>
+          <tr>
+            <th class="col-xs">Nº</th>
+            <th>{{ activeCategory === 'especiais' ? 'Sala Especiais' : 'Laboratórios' }}</th>
+            <th>Status</th>
+            <th>Responsável</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let room of filteredRooms">
+            <td class="col-muted">{{ room.number }}</td>
+            <td class="col-main">{{ room.name }}</td>
+            <td>
+              <div class="status-indicator">
+                <span class="dot" [ngClass]="getStatusClass(room.status)"></span>
+                <span class="status-text">{{ room.status }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="responsible-cell" *ngIf="room.responsible">
+                <span class="responsible-avatar"></span>
+                <span class="col-muted">...</span>
+              </div>
+            </td>
+            <td class="col-actions">
+              <button class="btn-action-dots" (click)="openActionModal(room)">⋯</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
 </div>

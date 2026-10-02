@@ -1,111 +1,195 @@
 <div class="layout-container">
-  <!-- Componente Menu Lateral -->
+  <!-- Sidebar -->
   <app-sidebar 
     [activeCategory]="activeCategory" 
     (categoryChange)="setCategory($event)">
   </app-sidebar>
 
-  <!-- Conteúdo Principal do Dashboard -->
   <main class="main-content">
     <!-- Cabeçalho -->
     <header class="top-header">
-      <div class="header-titles">
-        <h1>EduRoom's</h1>
-        <p class="welcome-text">Bem-vindo ao sistema! Você entrou na página principal de gestão de salas.</p>
-      </div>
+      <nav class="tabs-nav">
+        <button 
+          [class.active]="activeCategory === 'especiais'" 
+          (click)="setCategory('especiais')">
+          Salas Especiais
+        </button>
+        <button 
+          [class.active]="activeCategory === 'laboratorios'" 
+          (click)="setCategory('laboratorios')">
+          Laboratórios
+        </button>
+        <button 
+          [class.active]="activeCategory === 'agendamentos'" 
+          (click)="setCategory('agendamentos')">
+          Agendamentos
+        </button>
+      </nav>
 
       <div class="user-profile">
-        <div class="avatar">JS</div>
-        <button class="btn-logout">Sair</button>
+        <div class="avatar-group">
+          <img src="https://ui-avatars.com/api/?name=User&background=random&rounded=true" alt="Avatar" class="avatar-img">
+          <span class="chevron">⌄</span>
+        </div>
+        <button class="btn-logout">Logout</button>
       </div>
     </header>
 
-    <!-- Navegação por Abas (Filtro por Tipo) -->
-    <nav class="tabs-nav">
-      <button 
-        [class.active]="activeCategory === 'especiais'" 
-        (click)="setCategory('especiais')">
-        Salas Especiais
-      </button>
-      <button 
-        [class.active]="activeCategory === 'laboratorios'" 
-        (click)="setCategory('laboratorios')">
-        Laboratórios
-      </button>
-    </nav>
-
-    <!-- Barra de Pesquisa -->
-    <div class="search-bar-container">
-      <span class="search-icon">🔍</span>
-      <input 
-        type="text" 
-        class="search-input" 
-        placeholder="Pesquisar por sala, número ou responsável..." 
-        [(ngModel)]="searchTerm" />
-    </div>
-
-    <!-- Tabela de Exibição das Salas -->
-    <section class="table-section">
+    <!-- VISTA 1: TABELA DE SALAS (Oculta quando em 'agendamentos') -->
+    <section class="table-section" *ngIf="activeCategory !== 'agendamentos'">
       <table class="rooms-table">
         <thead>
           <tr>
-            <th>Nº</th>
-            <th>Nome da Sala</th>
-            <th>Tipo</th>
-            <th>Responsável</th>
+            <th class="col-xs">Nº</th>
+            <th>{{ activeCategory === 'especiais' ? 'Salas Especiais' : 'Laboratórios' }}</th>
             <th>Status</th>
-            <th>Ações</th>
+            <th>Responsável</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let room of filteredRooms">
-            <td class="col-id">{{ room.number }}</td>
-            <td><strong>{{ room.name }}</strong></td>
-            <td>{{ room.type }}</td>
-            <td>{{ room.responsible }}</td>
+            <td class="col-muted">{{ room.number }}</td>
+            <td class="col-main">{{ room.name }}</td>
             <td>
-              <span class="status-badge" [ngClass]="getStatusClass(room.status)">
-                <span class="dot"></span>
-                {{ room.status }}
-              </span>
+              <div class="status-indicator">
+                <span class="dot" [ngClass]="getStatusClass(room.status)"></span>
+                <span class="status-text">{{ room.status }}</span>
+              </div>
             </td>
             <td>
-              <button class="btn-action-dots" (click)="openActionModal(room)" title="Alterar Status">
-                ⋮
-              </button>
+              <div class="responsible-cell" *ngIf="room.responsible">
+                <span class="responsible-avatar"></span>
+                <span class="col-muted">...</span>
+              </div>
+            </td>
+            <td class="col-actions">
+              <button class="btn-action-dots" (click)="openActionModal(room)">⋯</button>
             </td>
           </tr>
           <tr *ngIf="filteredRooms.length === 0">
-            <td colspan="6" class="no-data">Nenhuma sala encontrada.</td>
+            <td colspan="5" style="text-align: center; padding: 2rem; color: #9ca3af;">
+              Nenhuma sala encontrada.
+            </td>
           </tr>
         </tbody>
       </table>
     </section>
+
+    <!-- VISTA 2: AGENDA SEMANAL (Exibida apenas em 'agendamentos') -->
+    <section class="agenda-section" *ngIf="activeCategory === 'agendamentos'">
+      <div class="agenda-layout">
+        
+        <!-- Formulário à esquerda -->
+        <aside class="booking-form-card">
+          <h3>Faça seu Novo Agendamento</h3>
+          
+          <div class="form-group">
+            <label>Selecione a Sala</label>
+            <select class="form-select" [(ngModel)]="selectedRoomForBooking">
+              <option value="" disabled selected>Selecione...</option>
+              <option *ngFor="let room of rooms" [value]="room.name">{{ room.name }}</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Selecione a Data</label>
+            <input type="date" class="form-select" [(ngModel)]="selectedDate">
+          </div>
+
+          <div class="form-group">
+            <label>Selecione a Hora</label>
+            <select class="form-select" [(ngModel)]="selectedTime">
+              <option value="08:00">08:00</option>
+              <option value="09:00">09:00</option>
+              <option value="10:00">10:00</option>
+              <option value="11:00">11:00</option>
+              <option value="12:00">12:00</option>
+              <option value="13:00">13:00</option>
+              <option value="14:00">14:00</option>
+            </select>
+          </div>
+          
+          <button class="btn-agendar" (click)="confirmBooking()">Agendar</button>
+        </aside>
+
+        <!-- Calendário à direita -->
+        <div class="calendar-card">
+          <h2 class="calendar-title">AGENDA SEMANAL</h2>
+          <table class="schedule-table">
+            <thead>
+              <tr>
+                <th>Horário</th>
+                <th>Segunda</th>
+                <th>Terça</th>
+                <th>Quarta</th>
+                <th>Quinta</th>
+                <th>Sexta</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="time-cell">08:00</td>
+                <td></td>
+                <td class="booked-block">Sala 201<br><small>Matemática</small></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td class="time-cell">09:00</td>
+                <td></td>
+                <td class="booked-block">Sala 201<br><small>Matemática</small></td>
+                <td></td>
+                <td></td>
+                <td class="available-block">Livre</td>
+              </tr>
+              <tr>
+                <td class="time-cell">10:00</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="available-block">Livre</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td class="time-cell">11:00</td>
+                <td></td>
+                <td class="available-block">Livre</td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td class="time-cell">13:00</td>
+                <td></td>
+                <td></td>
+                <td class="booked-block">Sala 201<br><small>Informática</small></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td class="time-cell">14:00</td>
+                <td class="available-block">Livre</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td class="time-cell">17:00</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="booked-block">Sala 200<br><small>Informática</small></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </section>
+
   </main>
-
-  <!-- Modal Pop-up para Editar Status -->
-  <div class="modal-overlay" *ngIf="selectedRoom">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Alterar Status da Sala</h3>
-        <button class="btn-close" (click)="closeModal()">✕</button>
-      </div>
-      <p class="modal-subtitle">{{ selectedRoom.name }} ({{ selectedRoom.number }})</p>
-
-      <div class="status-options">
-        <button class="btn-status status-available" (click)="updateRoomStatus('Disponível')">
-          <span class="dot"></span> Disponível
-        </button>
-        <button class="btn-status status-occupied" (click)="updateRoomStatus('Ocupado')">
-          <span class="dot"></span> Ocupado
-        </button>
-        <button class="btn-status status-maintenance" (click)="updateRoomStatus('Manutenção')">
-          <span class="dot"></span> Manutenção
-        </button>
-        <button class="btn-status status-reserved" (click)="updateRoomStatus('Reservado')">
-          <span class="dot"></span> Reservado
-        </button>
-      </div>
-    </div>
-  </div>
 </div>

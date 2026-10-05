@@ -1,5 +1,10 @@
 {
   "dependencies": {
+    "@angular/common": "^20.0.7",
+    "@angular/compiler": "^20.0.7",
+    "@angular/core": "^20.0.7",
+    "@angular/platform-browser": "^20.0.7",
+    "@angular/platform-browser-dynamic": "^20.0.7",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1"
   }

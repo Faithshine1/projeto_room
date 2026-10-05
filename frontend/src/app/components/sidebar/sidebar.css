@@ -1,0 +1,83 @@
+.sidebar {
+  width: 260px;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1.5rem;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.brand h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 2.5rem 0;
+}
+
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  flex: 1;
+}
+
+.nav-item-simple {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  color: #000000;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.menu-section {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.menu-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  color: #000000;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+/* Estilo do botão ativo exatamente como no Figma (Azul Escuro) */
+.nav-item.active {
+  background-color: #1e3a8a;
+  color: #ffffff;
+}
+
+.icon {
+  font-size: 1.1rem;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+}

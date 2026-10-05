@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SidebarComponent, ActiveCategory } from '../../components/sidebar/sidebar';
+import { AgendaSemanalComponent } from '../../components/agenda-semanal/agenda-semanal';
 
 export interface Room {
   id: string;
@@ -22,7 +23,7 @@ export interface Booking {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, SidebarComponent],
+  imports: [CommonModule, FormsModule, SidebarComponent, AgendaSemanalComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })

@@ -1,91 +1,454 @@
 <div style="display: flex; gap: 20px; padding: 20px; font-family: sans-serif;">
-  
+
   <!-- PAINEL LATERAL: FORMULÁRIO -->
-  <div style="width: 280px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #f9f9f9;">
+  <div
+    style="
+      width: 280px;
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    "
+  >
+
     <h3>Faça seu Novo Agendamento</h3>
-    
-    <form (ngSubmit)="handleSubmit()" style="display: flex; flex-direction: column; gap: 15px;">
+
+    <form
+      (ngSubmit)="handleSubmit()"
+      style="display: flex; flex-direction: column; gap: 15px;"
+    >
+
+      <!-- SALA -->
       <div>
-        <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px;">
+        <label
+          style="
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+          "
+        >
           Selecione a Sala
         </label>
-        <select 
-          [(ngModel)]="form.sala" 
-          name="sala" 
-          style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;"
+
+        <select
+          [(ngModel)]="form.sala"
+          name="sala"
+          style="
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+          "
         >
-          <option value="Laboratório de Ciências">Laboratório de Ciências</option>
-          <option value="Sala 201">Sala 201</option>
-          <option value="Sala 200">Sala 200</option>
+          <option value="Laboratório de Ciências">
+            Laboratório de Ciências
+          </option>
+
+          <option value="Sala 201">
+            Sala 201
+          </option>
+
+          <option value="Sala 200">
+            Sala 200
+          </option>
         </select>
       </div>
 
+      <!-- DATA -->
       <div>
-        <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px;">
+        <label
+          style="
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+          "
+        >
           Selecione a Data
         </label>
-        <input 
-          type="date" 
-          [(ngModel)]="form.data" 
-          name="data" 
-          style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;"
+
+        <input
+          type="date"
+          [(ngModel)]="form.data"
+          name="data"
+          style="
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+          "
         />
       </div>
 
+      <!-- HORA -->
       <div>
-        <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px;">
+        <label
+          style="
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+          "
+        >
           Selecione a Hora
         </label>
-        <select 
-          [(ngModel)]="form.hora" 
-          name="hora" 
-          style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;"
+
+        <select
+          [(ngModel)]="form.hora"
+          name="hora"
+          style="
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+          "
         >
-          <option *ngFor="let h of horarios" [value]="h">{{ h }}</option>
+          <option
+            *ngFor="let h of horarios"
+            [value]="h"
+          >
+            {{ h }}
+          </option>
         </select>
       </div>
 
-      <button 
-        type="submit" 
-        style="background-color: #2b2d84; color: #fff; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;"
+      <!-- BOTÃO AGENDAR -->
+      <button
+        type="submit"
+        style="
+          background-color: #2b2d84;
+          color: #fff;
+          padding: 10px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: bold;
+        "
       >
         Agendar
       </button>
+
     </form>
   </div>
 
+
   <!-- PAINEL PRINCIPAL: AGENDA SEMANAL -->
   <div style="flex: 1;">
-    <h2 style="text-align: center; color: #2b2d84;">AGENDA SEMANAL</h2>
 
-    <table style="width: 100%; border-collapse: separate; border-spacing: 8px;">
+    <h2
+      style="
+        text-align: center;
+        color: #2b2d84;
+      "
+    >
+      AGENDA SEMANAL
+    </h2>
+
+    <table
+      style="
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 8px;
+      "
+    >
+
       <thead>
         <tr>
-          <th style="background-color: #2b2d84; color: #fff; padding: 10px; border-radius: 4px;">Horário</th>
-          <th *ngFor="let dia of diasSemana" style="background-color: #2b2d84; color: #fff; padding: 10px; border-radius: 4px;">
+
+          <th
+            style="
+              background-color: #2b2d84;
+              color: #fff;
+              padding: 10px;
+              border-radius: 4px;
+            "
+          >
+            Horário
+          </th>
+
+          <th
+            *ngFor="let dia of diasSemana"
+            style="
+              background-color: #2b2d84;
+              color: #fff;
+              padding: 10px;
+              border-radius: 4px;
+            "
+          >
             {{ dia }}
           </th>
+
         </tr>
       </thead>
+
+
       <tbody>
+
         <tr *ngFor="let hora of horarios">
-          <td style="text-align: center; background-color: #f0f0f0; font-weight: bold; padding: 10px; border-radius: 4px;">
+
+          <td
+            style="
+              text-align: center;
+              background-color: #f0f0f0;
+              font-weight: bold;
+              padding: 10px;
+              border-radius: 4px;
+            "
+          >
             {{ hora }}
           </td>
-          <td *ngFor="let dia of diasSemana" style="width: 18%; text-align: center; height: 60px;">
-            <ng-container *ngIf="getAgendamentoSlot(dia, hora) as item; else slotVazio">
-              <div style="background-color: #2b2d84; color: #fff; padding: 8px; border-radius: 4px; height: 100%;">
-                <div style="font-weight: bold; font-size: 13px;">{{ item.sala }}</div>
-                <div style="font-size: 11px;">{{ item.materia }}</div>
+
+
+          <td
+            *ngFor="let dia of diasSemana"
+            style="
+              width: 18%;
+              text-align: center;
+              height: 60px;
+            "
+          >
+
+            <ng-container
+              *ngIf="
+                getAgendamentoSlot(dia, hora) as item;
+                else slotVazio
+              "
+            >
+
+              <div
+                style="
+                  background-color: #2b2d84;
+                  color: #fff;
+                  padding: 8px;
+                  border-radius: 4px;
+                  height: 100%;
+                "
+              >
+
+                <div
+                  style="
+                    font-weight: bold;
+                    font-size: 13px;
+                  "
+                >
+                  {{ item.sala }}
+                </div>
+
+                <div
+                  style="
+                    font-size: 11px;
+                  "
+                >
+                  {{ item.materia }}
+                </div>
+
               </div>
+
             </ng-container>
+
+
             <ng-template #slotVazio>
-              <div style="background-color: #f9f9f9; border: 1px solid #f0f0f0; height: 100%; border-radius: 4px;"></div>
+
+              <div
+                style="
+                  background-color: #f9f9f9;
+                  border: 1px solid #f0f0f0;
+                  height: 100%;
+                  border-radius: 4px;
+                "
+              ></div>
+
             </ng-template>
+
           </td>
+
         </tr>
+
       </tbody>
+
     </table>
+
+  </div>
+
+</div>
+
+
+<!-- ========================================= -->
+<!-- MODAL DE CONFIRMAÇÃO -->
+<!-- ========================================= -->
+
+<div
+  *ngIf="mostrarConfirmacao"
+  style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  "
+>
+
+  <div
+    style="
+      width: 420px;
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    "
+  >
+
+    <h2
+      style="
+        margin-top: 0;
+        color: #2b2d84;
+        text-align: center;
+      "
+    >
+      Confirmar Agendamento
+    </h2>
+
+
+    <p
+      style="
+        text-align: center;
+        color: #666;
+        margin-bottom: 25px;
+      "
+    >
+      Confira os dados antes de confirmar.
+    </p>
+
+
+    <!-- SALA -->
+    <div
+      style="
+        background-color: #f5f5f5;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      "
+    >
+
+      <strong>Sala</strong>
+
+      <div style="margin-top: 4px;">
+        {{ form.sala }}
+      </div>
+
+    </div>
+
+
+    <!-- DATA -->
+    <div
+      style="
+        background-color: #f5f5f5;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      "
+    >
+
+      <strong>Data</strong>
+
+      <div style="margin-top: 4px;">
+        {{ form.data }}
+      </div>
+
+    </div>
+
+
+    <!-- DIA -->
+    <div
+      style="
+        background-color: #f5f5f5;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      "
+    >
+
+      <strong>Dia</strong>
+
+      <div style="margin-top: 4px;">
+        {{ diaConfirmacao }}
+      </div>
+
+    </div>
+
+
+    <!-- HORÁRIO -->
+    <div
+      style="
+        background-color: #f5f5f5;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+      "
+    >
+
+      <strong>Horário</strong>
+
+      <div style="margin-top: 4px;">
+        {{ form.hora }}
+      </div>
+
+    </div>
+
+
+    <!-- BOTÕES -->
+    <div
+      style="
+        display: flex;
+        gap: 10px;
+      "
+    >
+
+      <!-- CANCELAR -->
+      <button
+        type="button"
+        (click)="cancelarConfirmacao()"
+        style="
+          flex: 1;
+          padding: 12px;
+          border: 1px solid #ccc;
+          background-color: #fff;
+          color: #555;
+          border-radius: 6px;
+          cursor: pointer;
+          font-weight: bold;
+        "
+      >
+        Cancelar
+      </button>
+
+
+      <!-- CONFIRMAR -->
+      <button
+        type="button"
+        (click)="confirmarAgendamento()"
+        style="
+          flex: 1;
+          padding: 12px;
+          border: none;
+          background-color: #2b2d84;
+          color: #fff;
+          border-radius: 6px;
+          cursor: pointer;
+          font-weight: bold;
+        "
+      >
+        Confirmar
+      </button>
+
+    </div>
+
   </div>
 
 </div>

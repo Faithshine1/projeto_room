@@ -1,0 +1,122 @@
+/* Container principal */
+.inicio-container {
+  padding: 40px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Saudação */
+.boas-vindas {
+  margin-bottom: 35px;
+}
+
+.boas-vindas h1 {
+  margin: 0 0 10px;
+  color: #30338f;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.boas-vindas p {
+  margin: 0;
+  color: #555;
+  font-size: 16px;
+}
+
+.boas-vindas strong {
+  color: #30338f;
+}
+
+/* Área dos cards */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* Card */
+.info-card {
+  background-color: #ffffff;
+  border: 1px solid #e1e1e1;
+  border-radius: 12px;
+  padding: 24px;
+
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  min-height: 130px;
+
+  box-sizing: border-box;
+
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+
+  transition: transform 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+/* Efeito ao passar o mouse */
+.info-card:hover {
+  transform: translateY(-3px);
+
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.10);
+}
+
+/* Ícone */
+.card-icon {
+  width: 55px;
+  height: 55px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #eeeeff;
+
+  border-radius: 10px;
+
+  font-size: 28px;
+}
+
+/* Conteúdo */
+.card-content h2 {
+  margin: 0 0 5px;
+
+  color: #30338f;
+
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.card-content p {
+  margin: 0;
+
+  color: #555;
+
+  font-size: 14px;
+}
+
+/* Responsividade */
+@media (max-width: 1100px) {
+
+  .cards-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+@media (max-width: 600px) {
+
+  .inicio-container {
+    padding: 20px;
+  }
+
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+
+  .boas-vindas h1 {
+    font-size: 25px;
+  }
+
+}

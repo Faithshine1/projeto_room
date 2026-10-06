@@ -1,0 +1,223 @@
+.agenda-container {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  font-family: sans-serif;
+}
+
+/* =========================
+   PAINEL LATERAL
+========================= */
+
+.form-panel {
+  width: 280px;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.form-panel h3 {
+  margin-top: 0;
+}
+
+.agendamento-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.btn-agendar {
+  background-color: #2b2d84;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-agendar:hover {
+  background-color: #22236d;
+}
+
+/* =========================
+   AGENDA
+========================= */
+
+.agenda-panel {
+  flex: 1;
+}
+
+.agenda-title {
+  text-align: center;
+  color: #2b2d84;
+}
+
+.agenda-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 8px;
+}
+
+.agenda-table th {
+  background-color: #2b2d84;
+  color: #fff;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.horario {
+  text-align: center;
+  background-color: #f0f0f0;
+  font-weight: bold;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.agenda-slot {
+  width: 18%;
+  text-align: center;
+  height: 60px;
+}
+
+/* =========================
+   AGENDAMENTO
+========================= */
+
+.agendamento {
+  background-color: #2b2d84;
+  color: #fff;
+  padding: 8px;
+  border-radius: 4px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.agendamento-sala {
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.agendamento-materia {
+  font-size: 11px;
+}
+
+.slot-vazio {
+  background-color: #f9f9f9;
+  border: 1px solid #f0f0f0;
+  height: 100%;
+  border-radius: 4px;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.55);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 9999;
+}
+
+.modal {
+  width: 420px;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+}
+
+.modal-title {
+  margin-top: 0;
+  color: #2b2d84;
+  text-align: center;
+}
+
+.modal-description {
+  text-align: center;
+  color: #666;
+  margin-bottom: 25px;
+}
+
+/* =========================
+   INFORMAÇÕES DO MODAL
+========================= */
+
+.confirmacao-item {
+  background-color: #f5f5f5;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.confirmacao-valor {
+  margin-top: 4px;
+}
+
+.confirmacao-horario {
+  margin-bottom: 25px;
+}
+
+/* =========================
+   BOTÕES DO MODAL
+========================= */
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-cancelar,
+.btn-confirmar {
+  flex: 1;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-cancelar {
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: #555;
+}
+
+.btn-cancelar:hover {
+  background-color: #f2f2f2;
+}
+
+.btn-confirmar {
+  border: none;
+  background-color: #2b2d84;
+  color: #fff;
+}
+
+.btn-confirmar:hover {
+  background-color: #22236d;
+}

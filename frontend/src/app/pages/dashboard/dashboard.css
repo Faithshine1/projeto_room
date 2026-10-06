@@ -326,3 +326,113 @@
   color: #15803d;
   font-weight: 600;
 }
+
+/* =========================
+   TELA INÍCIO
+   ========================= */
+
+.inicio-section {
+  width: 100%;
+  padding: 1rem 0;
+}
+
+.boas-vindas {
+  margin-bottom: 2.5rem;
+}
+
+.boas-vindas h1 {
+  color: #1e3a8a;
+  font-size: 2rem;
+  margin: 0 0 0.7rem;
+  font-weight: 700;
+}
+
+.boas-vindas p {
+  color: #64748b;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.boas-vindas strong {
+  color: #1e3a8a;
+}
+
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.info-card {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  min-height: 120px;
+
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.info-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.08);
+}
+
+.card-icon {
+  width: 55px;
+  height: 55px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #eeeeff;
+  border-radius: 10px;
+
+  font-size: 1.7rem;
+  flex-shrink: 0;
+}
+
+.info-card h2 {
+  margin: 0 0 0.3rem;
+  color: #1e3a8a;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.info-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+/* =========================
+   RESPONSIVIDADE
+   ========================= */
+
+@media (max-width: 1100px) {
+  .cards-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .main-content {
+    padding: 1.5rem;
+  }
+
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+
+  .boas-vindas h1 {
+    font-size: 1.6rem;
+  }
+}

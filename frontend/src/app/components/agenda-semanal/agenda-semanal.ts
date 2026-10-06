@@ -11,7 +11,8 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-agenda-semanal',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './agenda-semanal.html'
+  templateUrl: './agenda-semanal.html',
+  styleUrl: './agenda-semanal.css'
 })
 export class AgendaSemanalComponent implements OnInit {
 
@@ -47,7 +48,8 @@ export class AgendaSemanalComponent implements OnInit {
   // Guarda o dia que será exibido na confirmação
   diaConfirmacao: string | null = null;
 
-  private apiUrl = 'http://localhost:3001/agendamentos';
+  private apiUrl =
+    'http://localhost:3001/agendamentos';
 
   constructor(
     private cdr: ChangeDetectorRef
@@ -59,20 +61,19 @@ export class AgendaSemanalComponent implements OnInit {
 
   async carregarAgendamentos() {
     try {
-
       const response = await fetch(this.apiUrl);
 
       if (!response.ok) {
-        throw new Error('Erro ao buscar agendamentos.');
+        throw new Error(
+          'Erro ao buscar agendamentos.'
+        );
       }
 
       this.agendamentos = await response.json();
 
-      // Atualiza a tela após carregar os agendamentos
       this.cdr.detectChanges();
 
     } catch (error) {
-
       console.error(
         'Erro ao buscar agendamentos:',
         error
@@ -88,7 +89,8 @@ export class AgendaSemanalComponent implements OnInit {
       return null;
     }
 
-    const [ano, mes, dia] = dataString.split('-');
+    const [ano, mes, dia] =
+      dataString.split('-');
 
     const dataObj = new Date(
       +ano,
@@ -109,31 +111,22 @@ export class AgendaSemanalComponent implements OnInit {
     return dias[dataObj.getDay()];
   }
 
-  /*
-   * PRIMEIRO PASSO
-   *
-   * O usuário clica em "Agendar".
-   * Aqui fazemos apenas as validações e abrimos
-   * o modal de confirmação.
-   */
   handleSubmit() {
 
     if (!this.form.data) {
-
       alert('Selecione uma data!');
-
       return;
     }
 
-    const diaSemana = this.obterDiaDaSemana(
-      this.form.data
-    );
+    const diaSemana =
+      this.obterDiaDaSemana(
+        this.form.data
+      );
 
     if (
       diaSemana === 'Sábado' ||
       diaSemana === 'Domingo'
     ) {
-
       alert(
         'Agendamentos apenas de Segunda a Sexta!'
       );
@@ -141,9 +134,6 @@ export class AgendaSemanalComponent implements OnInit {
       return;
     }
 
-    /*
-     * Verifica se o horário já está ocupado.
-     */
     const agendamentoExistente =
       this.getAgendamentoSlot(
         diaSemana!,
@@ -151,7 +141,6 @@ export class AgendaSemanalComponent implements OnInit {
       );
 
     if (agendamentoExistente) {
-
       alert(
         `O horário ${this.form.hora} já está ocupado na ${diaSemana}!`
       );
@@ -159,24 +148,13 @@ export class AgendaSemanalComponent implements OnInit {
       return;
     }
 
-    /*
-     * Guarda o dia para mostrar no modal.
-     */
     this.diaConfirmacao = diaSemana;
 
-    /*
-     * Abre o modal.
-     */
     this.mostrarConfirmacao = true;
 
     this.cdr.detectChanges();
   }
 
-  /*
-   * SEGUNDO PASSO
-   *
-   * Cancela a confirmação.
-   */
   cancelarConfirmacao() {
 
     this.mostrarConfirmacao = false;
@@ -186,16 +164,12 @@ export class AgendaSemanalComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  /*
-   * TERCEIRO PASSO
-   *
-   * Só aqui o agendamento é enviado para o NestJS.
-   */
   async confirmarAgendamento() {
 
     try {
 
-      const diaAgendado = this.diaConfirmacao;
+      const diaAgendado =
+        this.diaConfirmacao;
 
       const response = await fetch(
         this.apiUrl,
@@ -203,7 +177,8 @@ export class AgendaSemanalComponent implements OnInit {
           method: 'POST',
 
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type':
+              'application/json'
           },
 
           body: JSON.stringify({
@@ -217,24 +192,17 @@ export class AgendaSemanalComponent implements OnInit {
 
       if (response.ok) {
 
-        const resultado = await response.json();
+        const resultado =
+          await response.json();
 
-        /*
-         * Adiciona o novo agendamento imediatamente
-         * ao calendário.
-         */
+        // Adiciona o agendamento ao calendário
         this.agendamentos.push(
           resultado.dados
         );
 
-        /*
-         * Força a atualização visual do Angular.
-         */
         this.cdr.detectChanges();
 
-        /*
-         * Fecha o modal.
-         */
+        // Fecha o modal
         this.mostrarConfirmacao = false;
 
         this.diaConfirmacao = null;

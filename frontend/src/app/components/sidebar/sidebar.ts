@@ -1,7 +1,11 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export type ActiveCategory = 'especiais' | 'laboratorios' |'agendamentos';
+export type ActiveCategory =
+  | 'inicio'
+  | 'especiais'
+  | 'laboratorios'
+  | 'agendamentos';
 
 @Component({
   selector: 'app-sidebar',
@@ -11,10 +15,13 @@ export type ActiveCategory = 'especiais' | 'laboratorios' |'agendamentos';
   styleUrl: './sidebar.css'
 })
 export class SidebarComponent {
-  @Input() activeCategory: ActiveCategory = 'especiais';
+
+  @Input() activeCategory: ActiveCategory = 'inicio';
+
   @Output() categoryChange = new EventEmitter<ActiveCategory>();
 
   selectCategory(category: ActiveCategory): void {
     this.categoryChange.emit(category);
   }
+
 }

@@ -1,0 +1,57 @@
+<div class="inicio-container">
+
+  <!-- Saudação -->
+  <section class="boas-vindas">
+    <h1>Olá, Usuário! 👋</h1>
+    <p>
+      Bem-vindo ao <strong>EduRoom's</strong>.
+      Gerencie suas salas e agendamentos de forma simples.
+    </p>
+  </section>
+
+  <!-- Cards de informações -->
+  <section class="cards-container">
+
+    <!-- Agendamentos -->
+    <div class="info-card">
+      <div class="card-icon">📅</div>
+
+      <div class="card-content">
+        <h2>{{ quantidadeAgendamentos }}</h2>
+        <p>Agendamentos realizados</p>
+      </div>
+    </div>
+
+    <!-- Salas -->
+    <div class="info-card">
+      <div class="card-icon">🏫</div>
+
+      <div class="card-content">
+        <h2>{{ quantidadeSalas }}</h2>
+        <p>Salas cadastradas</p>
+      </div>
+    </div>
+
+    <!-- Laboratórios -->
+    <div class="info-card">
+      <div class="card-icon">🔬</div>
+
+      <div class="card-content">
+        <h2>{{ quantidadeLaboratorios }}</h2>
+        <p>Laboratórios disponíveis</p>
+      </div>
+    </div>
+
+    <!-- Próximo agendamento -->
+    <div class="info-card">
+      <div class="card-icon">⏰</div>
+
+      <div class="card-content">
+        <h2>{{ proximoHorario }}</h2>
+        <p>{{ proximaSala }}</p>
+      </div>
+    </div>
+
+  </section>
+
+</div>

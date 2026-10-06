@@ -1,83 +1,248 @@
+/* =========================
+   SIDEBAR
+========================= */
+
 .sidebar {
   width: 260px;
+
   background-color: #ffffff;
+
   display: flex;
   flex-direction: column;
+
   padding: 2rem 1.5rem;
+
   min-height: 100vh;
+
   box-sizing: border-box;
+
+  border-right: 1px solid #eeeeee;
+}
+
+
+/* =========================
+   LOGO
+========================= */
+
+.brand {
+  padding-left: 0.5rem;
 }
 
 .brand h2 {
   font-size: 1.1rem;
   font-weight: 700;
+
   color: #000000;
+
   margin: 0 0 2.5rem 0;
 }
+
+
+/* =========================
+   MENU
+========================= */
 
 .nav-menu {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+
+  gap: 0.5rem;
+
   flex: 1;
 }
 
+
+/* =========================
+   BOTÕES SIMPLES
+========================= */
+
 .nav-item-simple {
+  width: 100%;
+
   display: flex;
   align-items: center;
+
   gap: 0.75rem;
-  padding: 0.5rem;
-  color: #000000;
+
+  padding: 0.7rem 0.75rem;
+
+  color: #333333;
+
   font-size: 0.9rem;
   font-weight: 500;
+
   background: transparent;
+
   border: none;
+  border-radius: 7px;
+
   cursor: pointer;
+
   text-align: left;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
-.menu-section {
-  margin-top: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+
+/* Hover */
+
+.nav-item-simple:hover {
+  background-color: #f3f4ff;
+  color: #2b2d84;
 }
 
-.menu-label {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #000000;
-  margin-bottom: 0.5rem;
-  padding-left: 0.5rem;
+
+/* =========================
+   ITEM SIMPLES ATIVO
+========================= */
+
+.nav-item-simple.active {
+  background-color: #2b2d84;
+
+  color: #ffffff;
+
+  font-weight: 600;
+
+  box-shadow: 0 3px 8px rgba(43, 45, 132, 0.18);
 }
 
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 1rem;
-  color: #000000;
-  font-size: 0.9rem;
-  font-weight: 500;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.2s ease;
-}
+.nav-item-simple.active:hover {
+  background-color: #252675;
 
-/* Estilo do botão ativo exatamente como no Figma (Azul Escuro) */
-.nav-item.active {
-  background-color: #1e3a8a;
   color: #ffffff;
 }
 
-.icon {
-  font-size: 1.1rem;
+
+/* =========================
+   SEÇÃO SALAS
+========================= */
+
+.menu-section {
+  margin-top: 1.5rem;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 0.4rem;
 }
+
+
+/* =========================
+   TÍTULO DA SEÇÃO
+========================= */
+
+.menu-label {
+  font-size: 0.75rem;
+
+  font-weight: 700;
+
+  color: #888888;
+
+  margin-bottom: 0.5rem;
+
+  padding-left: 0.75rem;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.5px;
+}
+
+
+/* =========================
+   ITENS DO MENU
+========================= */
+
+.nav-item {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 0.75rem;
+
+  padding: 0.7rem 0.75rem;
+
+  color: #333333;
+
+  font-size: 0.9rem;
+  font-weight: 500;
+
+  background: transparent;
+
+  border: none;
+
+  border-radius: 7px;
+
+  cursor: pointer;
+
+  text-align: left;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+
+/* Hover */
+
+.nav-item:hover {
+  background-color: #f3f4ff;
+
+  color: #2b2d84;
+}
+
+
+/* =========================
+   ITEM ATIVO
+========================= */
+
+.nav-item.active {
+  background-color: #2b2d84;
+
+  color: #ffffff;
+
+  font-weight: 600;
+
+  box-shadow: 0 3px 8px rgba(43, 45, 132, 0.18);
+}
+
+
+/* Hover do item ativo */
+
+.nav-item.active:hover {
+  background-color: #252675;
+
+  color: #ffffff;
+}
+
+
+/* =========================
+   ÍCONES
+========================= */
+
+.icon {
+  width: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 1.1rem;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================
+   RODAPÉ
+========================= */
 
 .sidebar-footer {
   margin-top: auto;
+
   padding-top: 1rem;
+
+  border-top: 1px solid #eeeeee;
 }

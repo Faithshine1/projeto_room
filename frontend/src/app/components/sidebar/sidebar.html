@@ -1,44 +1,61 @@
 <aside class="sidebar">
+
   <div class="brand">
     <h2>EduRoom's</h2>
   </div>
 
   <nav class="nav-menu">
-    <button class="nav-item-simple">
+
+    <button 
+      class="nav-item-simple"
+      [class.active]="activeCategory === 'inicio'"
+      (click)="selectCategory('inicio')"
+    >
       <span class="icon">🏠</span> Início
     </button>
+
     <button class="nav-item-simple">
       <span class="icon">🔍</span> Buscar Salas
     </button>
 
     <div class="menu-section">
+
       <span class="menu-label">Salas</span>
-      
+
       <button 
-        class="nav-item" 
+        class="nav-item"
         [class.active]="activeCategory === 'laboratorios'"
-        (click)="selectCategory('laboratorios')">
+        (click)="selectCategory('laboratorios')"
+      >
         <span class="icon">🗂️</span> Laboratórios
       </button>
 
       <button 
-        class="nav-item" 
+        class="nav-item"
         [class.active]="activeCategory === 'especiais'"
-        (click)="selectCategory('especiais')">
+        (click)="selectCategory('especiais')"
+      >
         <span class="icon">🗂️</span> Salas Especiais
       </button>
+
       <button 
-        class="nav-item" 
+        class="nav-item"
         [class.active]="activeCategory === 'agendamentos'"
-        (click)="selectCategory('agendamentos')">
+        (click)="selectCategory('agendamentos')"
+      >
         <span class="icon">📅</span> Agendamentos
-       </button>
+      </button>
+
     </div>
+
   </nav>
 
   <div class="sidebar-footer">
+
     <button class="nav-item-simple">
       <span class="icon">⋯</span> Configurações
     </button>
+
   </div>
+
 </aside>

@@ -41,6 +41,12 @@ export class AgendaSemanalComponent implements OnInit {
     hora: '08:00'
   };
 
+  // Controla o modal de confirmação
+  mostrarConfirmacao = false;
+
+  // Guarda o dia que será exibido na confirmação
+  diaConfirmacao: string | null = null;
+
   private apiUrl = 'http://localhost:3001/agendamentos';
 
   constructor(
@@ -52,7 +58,6 @@ export class AgendaSemanalComponent implements OnInit {
   }
 
   async carregarAgendamentos() {
-
     try {
 
       const response = await fetch(this.apiUrl);
@@ -63,7 +68,7 @@ export class AgendaSemanalComponent implements OnInit {
 
       this.agendamentos = await response.json();
 
-      // Atualiza a tela após o fetch
+      // Atualiza a tela após carregar os agendamentos
       this.cdr.detectChanges();
 
     } catch (error) {
@@ -104,7 +109,14 @@ export class AgendaSemanalComponent implements OnInit {
     return dias[dataObj.getDay()];
   }
 
-  async handleSubmit() {
+  /*
+   * PRIMEIRO PASSO
+   *
+   * O usuário clica em "Agendar".
+   * Aqui fazemos apenas as validações e abrimos
+   * o modal de confirmação.
+   */
+  handleSubmit() {
 
     if (!this.form.data) {
 
@@ -129,7 +141,61 @@ export class AgendaSemanalComponent implements OnInit {
       return;
     }
 
+    /*
+     * Verifica se o horário já está ocupado.
+     */
+    const agendamentoExistente =
+      this.getAgendamentoSlot(
+        diaSemana!,
+        this.form.hora
+      );
+
+    if (agendamentoExistente) {
+
+      alert(
+        `O horário ${this.form.hora} já está ocupado na ${diaSemana}!`
+      );
+
+      return;
+    }
+
+    /*
+     * Guarda o dia para mostrar no modal.
+     */
+    this.diaConfirmacao = diaSemana;
+
+    /*
+     * Abre o modal.
+     */
+    this.mostrarConfirmacao = true;
+
+    this.cdr.detectChanges();
+  }
+
+  /*
+   * SEGUNDO PASSO
+   *
+   * Cancela a confirmação.
+   */
+  cancelarConfirmacao() {
+
+    this.mostrarConfirmacao = false;
+
+    this.diaConfirmacao = null;
+
+    this.cdr.detectChanges();
+  }
+
+  /*
+   * TERCEIRO PASSO
+   *
+   * Só aqui o agendamento é enviado para o NestJS.
+   */
+  async confirmarAgendamento() {
+
     try {
+
+      const diaAgendado = this.diaConfirmacao;
 
       const response = await fetch(
         this.apiUrl,
@@ -153,14 +219,28 @@ export class AgendaSemanalComponent implements OnInit {
 
         const resultado = await response.json();
 
-        // Adiciona o agendamento retornado pelo NestJS
-        this.agendamentos.push(resultado.dados);
+        /*
+         * Adiciona o novo agendamento imediatamente
+         * ao calendário.
+         */
+        this.agendamentos.push(
+          resultado.dados
+        );
 
-        // Força o Angular a atualizar o calendário
+        /*
+         * Força a atualização visual do Angular.
+         */
         this.cdr.detectChanges();
 
+        /*
+         * Fecha o modal.
+         */
+        this.mostrarConfirmacao = false;
+
+        this.diaConfirmacao = null;
+
         alert(
-          `Agendado com sucesso para ${diaSemana} às ${this.form.hora}!`
+          `Agendado com sucesso para ${diaAgendado} às ${this.form.hora}!`
         );
 
       } else {

@@ -33,6 +33,7 @@ export interface Booking {
   styleUrl: './dashboard.css'
 })
 export class DashboardComponent {
+  nomeUsuario: string = 'Agnes Helena';
 
   activeCategory: ActiveCategory = 'inicio';
 

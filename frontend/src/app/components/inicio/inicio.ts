@@ -1,20 +1,37 @@
-import { Component } from '@angular/core';
+
+import { Component, OnInit } from '@angular/core';
+import { DadosService } from '../../../Service/dados.service';
 
 @Component({
   selector: 'app-inicio',
   templateUrl: './inicio.html',
   styleUrl: './inicio.css'
 })
-export class Inicio {
+export class Inicio implements OnInit {
+  nomeUsuario: string = 'TESTE123';
 
-  quantidadeAgendamentos = 3;
+  quantidadeAgendamentos: number = 3;
+  quantidadeSalas: number = 12;
+  quantidadeLaboratorios: number = 5;
 
-  quantidadeSalas = 12;
+  proximoHorario: string = '08:00';
+  proximaSala: string = 'Laboratório de Ciências';
 
-  quantidadeLaboratorios = 5;
+  constructor(private dadosService: DadosService) {}
 
-  proximoHorario = '08:00';
+  ngOnInit(): void {
 
-  proximaSala = 'Laboratório de Ciências';
+    this.dadosService.agendamentos$.subscribe((quantidade) => {
+      this.quantidadeAgendamentos = quantidade;
+    });
 
+    this.dadosService.salasDisponiveis$.subscribe((quantidade) => {
+      this.quantidadeSalas = quantidade;
+    });
+
+    this.dadosService.laboratorios$.subscribe((quantidade) => {
+      this.quantidadeLaboratorios = quantidade;
+    });
+
+  }
 }

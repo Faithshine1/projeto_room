@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export type ActiveCategory =
+''
   | 'inicio'
   | 'especiais'
   | 'laboratorios'

@@ -1,4 +1,3 @@
-
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
@@ -32,11 +31,8 @@ export class DadosService {
     return this.agendamentos.value;
   }
 
-  getSalasDisponiveis() {
-    return this.salasDisponiveis.value;
-  }
-
-  getLaboratorios() {
-    return this.laboratorios.value;
+  adicionarAgendamento() {
+    this.agendamentos.next(this.agendamentos.value + 1);
   }
 }
+

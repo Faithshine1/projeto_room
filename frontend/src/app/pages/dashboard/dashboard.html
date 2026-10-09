@@ -29,7 +29,7 @@
 
         </div>
 
-        <button class="btn-logout">
+        <button class="btn-logout" (click)="logout()">
           Logout
         </button>
 
@@ -45,76 +45,7 @@
       class="inicio-section"
       *ngIf="activeCategory === 'inicio'">
 
-      <div class="boas-vindas">
-
-        <h1>Olá, {{ nomeUsuario}}! 👋</h1>
-
-        <p>
-          Bem-vindo ao <strong>EduRoom's</strong>.
-          Gerencie suas salas e agendamentos de forma simples.
-        </p>
-
-      </div>
-
-      <div class="cards-container">
-
-        <!-- Card 1 -->
-        <div class="info-card">
-
-          <div class="card-icon">
-            📅
-          </div>
-
-          <div>
-            <h2>3</h2>
-            <p>Agendamentos realizados</p>
-          </div>
-
-        </div>
-
-        <!-- Card 2 -->
-        <div class="info-card">
-
-          <div class="card-icon">
-            🏫
-          </div>
-
-          <div>
-            <h2>12</h2>
-            <p>Salas cadastradas</p>
-          </div>
-
-        </div>
-
-        <!-- Card 3 -->
-        <div class="info-card">
-
-          <div class="card-icon">
-            🔬
-          </div>
-
-          <div>
-            <h2>5</h2>
-            <p>Laboratórios disponíveis</p>
-          </div>
-
-        </div>
-
-        <!-- Card 4 -->
-        <div class="info-card">
-
-          <div class="card-icon">
-            ⏰
-          </div>
-
-          <div>
-            <h2>08:00</h2>
-            <p>Laboratório de Ciências</p>
-          </div>
-
-        </div>
-
-      </div>
+      <app-inicio [nomeUsuario]="nomeUsuario"></app-inicio>
 
     </section>
 

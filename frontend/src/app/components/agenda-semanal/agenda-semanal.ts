@@ -1,12 +1,9 @@
-import {
-  Component,
-  OnInit,
-  ChangeDetectorRef
-} from '@angular/core';
-
+import { Component } from '@angular/core';
+import { OnInit } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
+import { DadosService } from '../../../Service/dados.service';
 @Component({
   selector: 'app-agenda-semanal',
   standalone: true,
@@ -52,7 +49,8 @@ export class AgendaSemanalComponent implements OnInit {
     'http://localhost:3001/agendamentos';
 
   constructor(
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dadosService: DadosService
   ) {}
 
   ngOnInit() {
@@ -70,6 +68,11 @@ export class AgendaSemanalComponent implements OnInit {
       }
 
       this.agendamentos = await response.json();
+
+      // Sincroniza o contador do painel com o total real
+      this.dadosService.alterarAgendamentos(
+        this.agendamentos.length
+      );
 
       this.cdr.detectChanges();
 
@@ -200,16 +203,23 @@ export class AgendaSemanalComponent implements OnInit {
           resultado.dados
         );
 
-        this.cdr.detectChanges();
+        // Soma 1 no contador do painel
+        this.dadosService.adicionarAgendamento();
 
         // Fecha o modal
         this.mostrarConfirmacao = false;
 
         this.diaConfirmacao = null;
 
-        alert(
-          `Agendado com sucesso para ${diaAgendado} às ${this.form.hora}!`
-        );
+        // Atualiza a tela DEPOIS de fechar o modal
+        this.cdr.detectChanges();
+
+        // Pequeno atraso para o modal sumir antes do alert travar a tela
+        setTimeout(() => {
+          alert(
+            `Agendado com sucesso para ${diaAgendado} às ${this.form.hora}!`
+          );
+        }, 100);
 
       } else {
 

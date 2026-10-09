@@ -41,7 +41,37 @@ export class LoginComponent {
       return;
     }
 
+    // Guarda o usuário para o dashboard mostrar o nome
+    localStorage.setItem(
+      'usuario',
+      JSON.stringify({
+        nome: this.gerarNomeDoEmail(this.email),
+        email: this.email
+      })
+    );
+
     this.router.navigate(['/dashboard']);
+  }
+
+  // Transforma "maria.silva@gmail.com" em "Maria Silva"
+  gerarNomeDoEmail(email: string): string {
+    const parteLocal = email.split('@')[0];
+
+    const palavras = parteLocal
+      .replace(/[0-9]/g, '')
+      .split(/[._-]+/)
+      .filter(palavra => palavra.length > 0);
+
+    if (palavras.length === 0) {
+      return 'Usuário';
+    }
+
+    return palavras
+      .map(palavra =>
+        palavra.charAt(0).toUpperCase() +
+        palavra.slice(1).toLowerCase()
+      )
+      .join(' ');
   }
 
   alternarSenha() {

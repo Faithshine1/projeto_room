@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { SidebarComponent, ActiveCategory } from '../../components/sidebar/sidebar';
 import { AgendaSemanalComponent } from '../../components/agenda-semanal/agenda-semanal';
+import { Inicio } from '../../components/inicio/inicio';
 
 export interface Room {
   id: string;
@@ -27,13 +29,14 @@ export interface Booking {
     CommonModule,
     FormsModule,
     SidebarComponent,
-    AgendaSemanalComponent
+    AgendaSemanalComponent,
+    Inicio
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
 export class DashboardComponent {
-  nomeUsuario: string = 'Agnes Helena';
+  nomeUsuario: string = 'Usuário';
 
   activeCategory: ActiveCategory = 'inicio';
 
@@ -89,6 +92,29 @@ export class DashboardComponent {
       responsible: 'Prof. Ricardo'
     }
   ];
+
+  constructor(private router: Router) {
+    // localStorage não existe no servidor (SSR), por isso a verificação
+    if (typeof localStorage !== 'undefined') {
+      const salvo = localStorage.getItem('usuario');
+
+      if (salvo) {
+        try {
+          this.nomeUsuario = JSON.parse(salvo).nome || 'Usuário';
+        } catch {
+          this.nomeUsuario = 'Usuário';
+        }
+      }
+    }
+  }
+
+  logout(): void {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('usuario');
+    }
+
+    this.router.navigate(['/login']);
+  }
 
   get filteredRooms(): Room[] {
 

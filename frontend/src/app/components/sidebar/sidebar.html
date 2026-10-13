@@ -14,13 +14,17 @@
       [class.active]="activeCategory === 'inicio'"
       (click)="selectCategory('inicio')"
     >
-      <span class="icon">🪟</span>
+      <span class="icon"></span>
+      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000">
+        <path d="M513.33-580v-260H840v260H513.33ZM120-446.67V-840h326.67v393.33H120ZM513.33-120v-393.33H840V-120H513
+        .33ZM120-120v-260h326.67v260H120Zm66.67-393.33H380v-260H186.67v260ZM580-186.67h193.33v-260H580v260Zm0-460h193.
+        33v-126.66H580v126.66Zm-393.33 460H380v-126.66H186.67v126.66ZM380-513.33Zm200-133.34Zm0 200ZM380-313.33Z"/></svg>
       <span>Painel</span>
     </button>
 
     <!-- BUSCAR SALAS -->
     <button class="nav-item-simple">
-      <span class="icon">🔍</span>
+     <i class="fa-solid fa-magnifying-glass"></i> 
       <span>Buscar</span>
     </button>
 
@@ -37,7 +41,7 @@
         [class.active]="activeCategory === 'laboratorios'"
         (click)="selectCategory('laboratorios')"
       >
-        <span class="icon">🗂️</span>
+        <i class="fa-solid fa-flask-vial"></i>
         <span>Laboratórios</span>
       </button>
 
@@ -47,7 +51,7 @@
         [class.active]="activeCategory === 'especiais'"
         (click)="selectCategory('especiais')"
       >
-        <span class="icon">🗂️</span>
+       <i class="fa-solid fa-school"></i>
         <span>Salas</span>
       </button>
 
@@ -57,7 +61,7 @@
         [class.active]="activeCategory === 'agendamentos'"
         (click)="selectCategory('agendamentos')"
       >
-        <span class="icon">📅</span>
+       <i class="fa-solid fa-calendar-days"></i>
         <span>Agendamentos</span>
       </button>
 
@@ -69,7 +73,7 @@
   <div class="sidebar-footer">
 
     <button class="nav-item-simple">
-      <span class="icon">⚙️</span>
+     <i class="fa-solid fa-gear"></i>
       <span>Configurações</span>
     </button>
 

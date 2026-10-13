@@ -4,19 +4,17 @@
 
 .sidebar {
   width: 260px;
-
-  background-color: #ffffff;
+  min-height: 100vh;
 
   display: flex;
   flex-direction: column;
 
-  padding: 2rem 1.5rem;
+  padding: 1.75rem 1.25rem;
 
-  min-height: 100vh;
+  background-color: var(--surface, #ffffff);
+  border-right: 1px solid var(--border, #e5e7eb);
 
   box-sizing: border-box;
-
-  border-right: 1px solid #eeeeee;
 }
 
 
@@ -25,16 +23,37 @@
 ========================= */
 
 .brand {
-  padding-left: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+
+  padding: 0 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.brand-mark {
+  width: 36px;
+  height: 36px;
+
+  display: grid;
+  place-items: center;
+
+  background-color: var(--primary, #312e81);
+  color: #ffffff;
+
+  font-size: 1rem;
+
+  border-radius: 10px;
 }
 
 .brand h2 {
+  margin: 0;
+
   font-size: 1.1rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
 
-  color: #000000;
-
-  margin: 0 0 2.5rem 0;
+  color: var(--text, #111827);
 }
 
 
@@ -45,39 +64,35 @@
 .nav-menu {
   display: flex;
   flex-direction: column;
-
-  gap: 0.5rem;
+  gap: 0.25rem;
 
   flex: 1;
 }
 
 
 /* =========================
-   BOTÕES SIMPLES
+   ITENS DO MENU (todos iguais)
 ========================= */
 
-.nav-item-simple {
+.nav-item {
   width: 100%;
 
   display: flex;
   align-items: center;
-
   gap: 0.75rem;
 
   padding: 0.7rem 0.75rem;
 
-  color: #333333;
+  color: var(--text-muted, #6b7280);
 
   font-size: 0.9rem;
   font-weight: 500;
 
   background: transparent;
-
   border: none;
-  border-radius: 7px;
+  border-radius: 8px;
 
   cursor: pointer;
-
   text-align: left;
 
   transition:
@@ -85,32 +100,55 @@
     color 0.2s ease;
 }
 
+/* Ícones na mesma coluna em todos os itens */
+.nav-item i {
+  width: 20px;
+  flex-shrink: 0;
+
+  text-align: center;
+  font-size: 1rem;
+
+  color: var(--text-muted, #6b7280);
+
+  transition: color 0.2s ease;
+}
 
 /* Hover */
+.nav-item:hover {
+  background-color: var(--primary-soft, #eef2ff);
+  color: var(--primary, #312e81);
+}
 
-.nav-item-simple:hover {
-  background-color: #f3f4ff;
-  color: #2b2d84;
+.nav-item:hover i {
+  color: var(--primary, #312e81);
+}
+
+/* Foco pelo teclado */
+.nav-item:focus-visible {
+  outline: 2px solid var(--primary, #312e81);
+  outline-offset: 2px;
 }
 
 
 /* =========================
-   ITEM SIMPLES ATIVO
+   ITEM ATIVO
 ========================= */
 
-.nav-item-simple.active {
-  background-color: #2b2d84;
-
+.nav-item.active {
+  background-color: var(--primary, #312e81);
   color: #ffffff;
 
   font-weight: 600;
 
-  box-shadow: 0 3px 8px rgba(43, 45, 132, 0.18);
+  box-shadow: 0 3px 8px rgba(49, 46, 129, 0.2);
 }
 
-.nav-item-simple.active:hover {
-  background-color: #252675;
+.nav-item.active i {
+  color: #ffffff;
+}
 
+.nav-item.active:hover {
+  background-color: var(--primary-hover, #3f3bb0);
   color: #ffffff;
 }
 
@@ -124,114 +162,20 @@
 
   display: flex;
   flex-direction: column;
-
-  gap: 0.4rem;
+  gap: 0.25rem;
 }
-
-
-/* =========================
-   TÍTULO DA SEÇÃO
-========================= */
 
 .menu-label {
-  font-size: 0.75rem;
+  padding-left: 0.75rem;
+  margin-bottom: 0.4rem;
 
+  font-size: 0.72rem;
   font-weight: 700;
 
-  color: #888888;
-
-  margin-bottom: 0.5rem;
-
-  padding-left: 0.75rem;
+  color: #9ca3af;
 
   text-transform: uppercase;
-
-  letter-spacing: 0.5px;
-}
-
-
-/* =========================
-   ITENS DO MENU
-========================= */
-
-.nav-item {
-  width: 100%;
-
-  display: flex;
-  align-items: center;
-
-  gap: 0.75rem;
-
-  padding: 0.7rem 0.75rem;
-
-  color: #333333;
-
-  font-size: 0.9rem;
-  font-weight: 500;
-
-  background: transparent;
-
-  border: none;
-
-  border-radius: 7px;
-
-  cursor: pointer;
-
-  text-align: left;
-
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
-}
-
-
-/* Hover */
-
-.nav-item:hover {
-  background-color: #f3f4ff;
-
-  color: #2b2d84;
-}
-
-
-/* =========================
-   ITEM ATIVO
-========================= */
-
-.nav-item.active {
-  background-color: #2b2d84;
-
-  color: #ffffff;
-
-  font-weight: 600;
-
-  box-shadow: 0 3px 8px rgba(43, 45, 132, 0.18);
-}
-
-
-/* Hover do item ativo */
-
-.nav-item.active:hover {
-  background-color: #252675;
-
-  color: #ffffff;
-}
-
-
-/* =========================
-   ÍCONES
-========================= */
-
-.icon {
-  width: 22px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 1.1rem;
-
-  flex-shrink: 0;
+  letter-spacing: 0.06em;
 }
 
 
@@ -241,8 +185,7 @@
 
 .sidebar-footer {
   margin-top: auto;
-
   padding-top: 1rem;
 
-  border-top: 1px solid #eeeeee;
+  border-top: 1px solid var(--border, #e5e7eb);
 }

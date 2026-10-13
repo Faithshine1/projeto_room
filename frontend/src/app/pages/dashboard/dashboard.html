@@ -11,26 +11,21 @@
     <!-- Cabeçalho -->
     <header class="top-header">
 
-      <nav class="tabs-nav">
-
-
-      </nav>
+      <div class="page-title">
+        <h1>{{ tituloPagina }}</h1>
+        <p>{{ subtituloPagina }}</p>
+      </div>
 
       <div class="user-profile">
 
-        <div class="avatar-group">
-
-          <img
-            src="https://ui-avatars.com/api/?name=User&background=random&rounded=true"
-            alt="Avatar"
-            class="avatar-img">
-
-          <span class="chevron">⌄</span>
-
+        <div class="user-chip">
+          <span class="avatar">{{ iniciaisUsuario }}</span>
+          <span class="user-name">{{ nomeUsuario }}</span>
         </div>
 
-        <button class="btn-logout" (click)="logout()">
-          Logout
+        <button type="button" class="btn-logout" (click)="logout()">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          Sair
         </button>
 
       </div>
@@ -61,111 +56,100 @@
         activeCategory !== 'inicio'
       ">
 
-      <table class="rooms-table">
+      <div class="table-card">
 
-        <thead>
+        <table class="rooms-table">
 
-          <tr>
+          <thead>
 
-            <th class="col-xs">
-              Nº
-            </th>
+            <tr>
 
-            <th>
-              {{
-                activeCategory === 'especiais'
-                  ? 'Salas Especiais'
-                  : 'Laboratórios'
-              }}
-            </th>
+              <th class="col-xs">Nº</th>
 
-            <th>
-              Status
-            </th>
+              <th>
+                {{
+                  activeCategory === 'especiais'
+                    ? 'Sala'
+                    : 'Laboratório'
+                }}
+              </th>
 
-            <th>
-              Responsável
-            </th>
+              <th>Status</th>
 
-            <th></th>
+              <th>Responsável</th>
 
-          </tr>
+              <th></th>
 
-        </thead>
+            </tr>
 
-        <tbody>
+          </thead>
 
-          <tr *ngFor="let room of filteredRooms">
+          <tbody>
 
-            <td class="col-muted">
-              {{ room.number }}
-            </td>
+            <tr *ngFor="let room of filteredRooms">
 
-            <td class="col-main">
-              {{ room.name }}
-            </td>
+              <td class="col-muted">
+                {{ room.number }}
+              </td>
 
-            <td>
+              <td class="col-main">
+                {{ room.name }}
+              </td>
 
-              <div class="status-indicator">
-
+              <td>
                 <span
-                  class="dot"
+                  class="badge"
                   [ngClass]="getStatusClass(room.status)">
-                </span>
-
-                <span class="status-text">
                   {{ room.status }}
                 </span>
+              </td>
 
-              </div>
+              <td>
 
-            </td>
+                <div
+                  class="responsible-cell"
+                  *ngIf="room.responsible">
 
-            <td>
+                  <span class="responsible-avatar">
+                    {{ iniciaisDe(room.responsible) }}
+                  </span>
 
-              <div
-                class="responsible-cell"
-                *ngIf="room.responsible">
+                  <span class="responsible-name">
+                    {{ room.responsible }}
+                  </span>
 
-                <span class="responsible-avatar"></span>
+                </div>
 
-                <span class="col-muted">
-                  {{ room.responsible }}
-                </span>
+              </td>
 
-              </div>
+              <td class="col-actions">
 
-            </td>
+                <button
+                  type="button"
+                  class="btn-action-dots"
+                  aria-label="Ações da sala"
+                  (click)="openActionModal(room)">
+                  <i class="fa-solid fa-ellipsis"></i>
+                </button>
 
-            <td class="col-actions">
+              </td>
 
-              <button
-                class="btn-action-dots"
-                (click)="openActionModal(room)">
-                ⋯
-              </button>
-
-            </td>
-
-          </tr>
+            </tr>
 
 
-          <tr *ngIf="filteredRooms.length === 0">
+            <tr class="empty-row" *ngIf="filteredRooms.length === 0">
 
-            <td
-              colspan="5"
-              style="text-align: center; padding: 2rem; color: #9ca3af;">
+              <td colspan="5">
+                Nenhuma sala encontrada.
+              </td>
 
-              Nenhuma sala encontrada.
+            </tr>
 
-            </td>
+          </tbody>
 
-          </tr>
+        </table>
 
-        </tbody>
-
-      </table>
+      </div>
 
     </section>
 

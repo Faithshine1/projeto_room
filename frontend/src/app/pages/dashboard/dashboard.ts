@@ -116,6 +116,53 @@ export class DashboardComponent {
     this.router.navigate(['/login']);
   }
 
+  get iniciaisUsuario(): string {
+    return this.iniciaisDe(this.nomeUsuario);
+  }
+
+  get tituloPagina(): string {
+    switch (this.activeCategory) {
+      case 'especiais':
+        return 'Salas Especiais';
+      case 'laboratorios':
+        return 'Laboratórios';
+      case 'agendamentos':
+        return 'Agendamentos';
+      default:
+        return 'Painel';
+    }
+  }
+
+  get subtituloPagina(): string {
+    switch (this.activeCategory) {
+      case 'especiais':
+        return 'Acompanhe o status e o responsável de cada sala.';
+      case 'laboratorios':
+        return 'Acompanhe o status e o responsável de cada laboratório.';
+      case 'agendamentos':
+        return 'Reserve um horário e veja a agenda da semana.';
+      default:
+        return 'Resumo das suas salas e agendamentos.';
+    }
+  }
+
+  // "Prof. Carlos" -> "C" | "Julian Figueiredo" -> "JF"
+  iniciaisDe(nome: string): string {
+    const palavras = nome
+      .replace(/^prof\.?\s+/i, '')
+      .split(' ')
+      .filter(palavra => palavra.length > 0);
+
+    if (palavras.length === 0) {
+      return '?';
+    }
+
+    return palavras
+      .slice(0, 2)
+      .map(palavra => palavra.charAt(0).toUpperCase())
+      .join('');
+  }
+
   get filteredRooms(): Room[] {
 
     if (

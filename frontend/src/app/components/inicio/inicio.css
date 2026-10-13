@@ -1,122 +1,319 @@
-/* Container principal */
-.inicio-container {
-  padding: 40px;
-  width: 100%;
-  box-sizing: border-box;
+:host {
+  display: block;
 }
 
-/* Saudação */
-.boas-vindas {
-  margin-bottom: 35px;
+/* =========================
+   CONTAINER
+========================= */
+
+.inicio-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  width: 100%;
 }
+
+
+/* =========================
+   SAUDAÇÃO
+========================= */
 
 .boas-vindas h1 {
-  margin: 0 0 10px;
-  color: #30338f;
-  font-size: 30px;
+  margin: 0 0 0.4rem;
+
+  font-size: 1.6rem;
   font-weight: 700;
+  letter-spacing: -0.02em;
+
+  color: var(--text, #111827);
 }
 
 .boas-vindas p {
   margin: 0;
-  color: #555;
-  font-size: 16px;
+
+  font-size: 0.95rem;
+
+  color: var(--text-muted, #6b7280);
 }
 
 .boas-vindas strong {
-  color: #30338f;
+  color: var(--primary, #312e81);
 }
 
-/* Área dos cards */
+
+/* =========================
+   CARDS
+========================= */
+
 .cards-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 1.25rem;
 }
 
-/* Card */
 .info-card {
-  background-color: #ffffff;
-  border: 1px solid #e1e1e1;
-  border-radius: 12px;
-  padding: 24px;
-
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 1rem;
 
-  min-height: 130px;
+  min-height: 110px;
+  padding: 1.25rem 1.5rem;
+
+  background-color: var(--surface, #ffffff);
+
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: var(--radius, 12px);
+
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(16, 24, 40, 0.06));
 
   box-sizing: border-box;
 
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
-
-  transition: transform 0.2s ease,
-              box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-/* Efeito ao passar o mouse */
 .info-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
 
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.10);
+  box-shadow: var(--shadow-md, 0 4px 16px rgba(16, 24, 40, 0.08));
 }
 
-/* Ícone */
 .card-icon {
-  width: 55px;
-  height: 55px;
+  width: 48px;
+  height: 48px;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
 
-  background-color: #eeeeff;
+  font-size: 1.15rem;
 
-  border-radius: 10px;
-
-  font-size: 28px;
+  border-radius: 12px;
 }
 
-/* Conteúdo */
+.icon-indigo {
+  background-color: #eef2ff;
+  color: #312e81;
+}
+
+.icon-blue {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.icon-green {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.icon-amber {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.card-content {
+  min-width: 0;
+}
+
 .card-content h2 {
-  margin: 0 0 5px;
+  margin: 0 0 0.2rem;
 
-  color: #30338f;
-
-  font-size: 28px;
+  font-size: 1.6rem;
   font-weight: 700;
+  line-height: 1.1;
+
+  color: var(--text, #111827);
 }
 
 .card-content p {
   margin: 0;
 
-  color: #555;
+  font-size: 0.85rem;
 
-  font-size: 14px;
+  color: var(--text-muted, #6b7280);
 }
 
-/* Responsividade */
-@media (max-width: 1100px) {
 
+/* =========================
+   PRÓXIMOS AGENDAMENTOS
+========================= */
+
+.proximos {
+  background-color: var(--surface, #ffffff);
+
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: var(--radius, 12px);
+
+  box-shadow: var(--shadow-sm, 0 1px 2px rgba(16, 24, 40, 0.06));
+
+  overflow: hidden;
+}
+
+.proximos-header {
+  padding: 1rem 1.5rem;
+
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.proximos-header h2 {
+  margin: 0;
+
+  font-size: 1rem;
+  font-weight: 700;
+
+  color: var(--text, #111827);
+}
+
+.proximos-lista {
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.proximo-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  padding: 0.9rem 1.5rem;
+
+  border-bottom: 1px solid #f3f4f6;
+
+  transition: background-color 0.2s ease;
+}
+
+.proximo-item:last-child {
+  border-bottom: none;
+}
+
+.proximo-item:hover {
+  background-color: #fafafa;
+}
+
+.proximo-data {
+  width: 52px;
+  height: 52px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  background-color: var(--primary-soft, #eef2ff);
+  color: var(--primary, #312e81);
+
+  border-radius: 12px;
+}
+
+.proximo-numero {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.proximo-mes {
+  margin-top: 0.15rem;
+
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.proximo-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+
+  min-width: 0;
+}
+
+.proximo-sala {
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  color: var(--text, #111827);
+}
+
+.proximo-dia {
+  margin-top: 0.1rem;
+
+  font-size: 0.8rem;
+
+  color: var(--text-muted, #6b7280);
+}
+
+.proximo-hora {
+  padding: 0.3rem 0.7rem;
+
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  color: var(--primary, #312e81);
+  background-color: var(--primary-soft, #eef2ff);
+
+  border-radius: 999px;
+}
+
+
+/* =========================
+   LISTA VAZIA
+========================= */
+
+.proximos-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 2.5rem 1rem;
+
+  text-align: center;
+
+  color: #9ca3af;
+}
+
+.proximos-vazio i {
+  margin-bottom: 0.6rem;
+
+  font-size: 1.6rem;
+}
+
+.proximos-vazio p {
+  margin: 0;
+
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  color: var(--text-muted, #6b7280);
+}
+
+.proximos-vazio span {
+  margin-top: 0.2rem;
+
+  font-size: 0.8rem;
+}
+
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+@media (max-width: 1100px) {
   .cards-container {
     grid-template-columns: repeat(2, 1fr);
   }
-
 }
 
 @media (max-width: 600px) {
-
-  .inicio-container {
-    padding: 20px;
-  }
-
   .cards-container {
     grid-template-columns: 1fr;
   }
 
   .boas-vindas h1 {
-    font-size: 25px;
+    font-size: 1.4rem;
   }
-
 }

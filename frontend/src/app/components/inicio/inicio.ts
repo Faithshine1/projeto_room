@@ -4,6 +4,14 @@ import { OnInit } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
 import { DadosService } from '../../../Service/dados.service';
 
+interface ProximoAgendamento {
+  sala: string;
+  dia: string;
+  hora: string;
+  diaNumero: string;
+  mes: string;
+}
+
 @Component({
   selector: 'app-inicio',
   templateUrl: './inicio.html',
@@ -12,14 +20,26 @@ import { DadosService } from '../../../Service/dados.service';
 export class Inicio implements OnInit {
   @Input() nomeUsuario: string = 'Usuário';
 
-  quantidadeAgendamentos: number = 3;
+  quantidadeAgendamentos: number = 0;
   quantidadeSalas: number = 12;
   quantidadeLaboratorios: number = 5;
 
-  proximoHorario: string = '08:00';
-  proximaSala: string = 'Laboratório de Ciências';
+  proximoHorario: string = '--:--';
+  proximaSala: string = 'Nenhum agendamento';
+
+  proximosAgendamentos: ProximoAgendamento[] = [];
 
   private apiUrl = 'http://localhost:3001/agendamentos';
+
+  private meses = [
+    'jan', 'fev', 'mar', 'abr', 'mai', 'jun',
+    'jul', 'ago', 'set', 'out', 'nov', 'dez'
+  ];
+
+  private diasSemana = [
+    'Domingo', 'Segunda', 'Terça', 'Quarta',
+    'Quinta', 'Sexta', 'Sábado'
+  ];
 
   constructor(
     private dadosService: DadosService,
@@ -43,10 +63,10 @@ export class Inicio implements OnInit {
       this.cdr.detectChanges();
     });
 
-    this.carregarTotalAgendamentos();
+    this.carregarAgendamentos();
   }
 
-  async carregarTotalAgendamentos() {
+  async carregarAgendamentos() {
     try {
       const response = await fetch(this.apiUrl);
 
@@ -54,10 +74,44 @@ export class Inicio implements OnInit {
         throw new Error('Erro ao buscar agendamentos.');
       }
 
-      const lista = await response.json();
+      const lista: any[] = await response.json();
 
       // Atualiza o service; o subscribe acima atualiza o card
       this.dadosService.alterarAgendamentos(lista.length);
+
+      const agora = new Date().getTime();
+
+      // Próximos agendamentos: só os que ainda não passaram, do mais perto ao mais longe
+      this.proximosAgendamentos = lista
+        .map((a: any) => ({
+          a,
+          quando: new Date(`${a.data}T${a.hora}:00`)
+        }))
+        .filter((x: any) =>
+          !isNaN(x.quando.getTime()) &&
+          x.quando.getTime() >= agora
+        )
+        .sort((x: any, y: any) =>
+          x.quando.getTime() - y.quando.getTime()
+        )
+        .slice(0, 5)
+        .map((x: any) => ({
+          sala: x.a.sala,
+          dia: x.a.dia || this.diasSemana[x.quando.getDay()],
+          hora: x.a.hora,
+          diaNumero: String(x.quando.getDate()).padStart(2, '0'),
+          mes: this.meses[x.quando.getMonth()]
+        }));
+
+      if (this.proximosAgendamentos.length > 0) {
+        this.proximoHorario = this.proximosAgendamentos[0].hora;
+        this.proximaSala = this.proximosAgendamentos[0].sala;
+      } else {
+        this.proximoHorario = '--:--';
+        this.proximaSala = 'Nenhum agendamento';
+      }
+
+      this.cdr.detectChanges();
 
     } catch (error) {
       console.error('Erro ao buscar agendamentos:', error);

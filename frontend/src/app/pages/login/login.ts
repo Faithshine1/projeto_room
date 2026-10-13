@@ -16,30 +16,34 @@ export class LoginComponent {
   senha = '';
   mostrarSenha = false;
 
+  // Mensagem de erro exibida no formulário (no lugar do alert)
+  erro = '';
+
   constructor(private router: Router) {}
 
   entrar() {
-    console.log('Botão Entrar funcionando');
 
-    if (!this.email){
-      alert('Digite seu e-mail.');
+    if (!this.email) {
+      this.erro = 'Digite seu e-mail.';
       return;
     }
 
-    if (!this.email.includes('@')){
-      alert('E-mail inválido!');
+    if (!this.email.includes('@')) {
+      this.erro = 'E-mail inválido!';
       return;
     }
 
     if (!this.senha) {
-      alert('Digite sua senha.');
+      this.erro = 'Digite sua senha.';
       return;
     }
 
-    if (this.senha.length < 6){
-      alert('Senha inválida. A senha deve conter no minimo 6 caracteres')
+    if (this.senha.length < 6) {
+      this.erro = 'Senha inválida. A senha deve conter no mínimo 6 caracteres.';
       return;
     }
+
+    this.erro = '';
 
     // Guarda o usuário para o dashboard mostrar o nome
     localStorage.setItem(

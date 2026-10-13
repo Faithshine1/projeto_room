@@ -2,59 +2,97 @@
 
   <div class="login-card">
 
-    <h1>EduRoom's</h1>
+    <!-- MARCA -->
+    <div class="brand">
 
-    <p>Gerenciamento de salas</p>
+      <span class="brand-mark">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </span>
+
+      <h1>EduRoom's</h1>
+
+      <p>Gerenciamento de salas</p>
+
+    </div>
 
     <form (ngSubmit)="entrar()">
 
-      <label for="email">E-mail</label>
+      <!-- E-MAIL -->
+      <div class="campo-grupo">
 
-      <input
-        type="email"
-        id="email"
-        name="email"
-        [(ngModel)]="email"
-        placeholder="Digite seu e-mail"
-      >
+        <label for="email">E-mail</label>
 
-      <label for="senha">Senha</label>
+        <div class="campo">
 
-      <div class="senha-container">
+          <i class="fa-regular fa-envelope"></i>
 
-        <input
-          [type]="mostrarSenha ? 'text' : 'password'"
-          id="senha"
-          name="senha"
-          [(ngModel)]="senha"
-          placeholder="Digite sua senha"
-        >
+          <input
+            type="email"
+            id="email"
+            name="email"
+            autocomplete="email"
+            [(ngModel)]="email"
+            (input)="erro = ''"
+            placeholder="Digite seu e-mail"
+          >
 
-        <button
-          type="button"
-          class="olho-button"
-          (click)="alternarSenha()"
-        >
-          {{ mostrarSenha ? '👁' : '👁️' }}
-        </button>
+        </div>
 
       </div>
 
-      <button type="submit">
+      <!-- SENHA -->
+      <div class="campo-grupo">
+
+        <label for="senha">Senha</label>
+
+        <div class="campo">
+
+          <i class="fa-solid fa-lock"></i>
+
+          <input
+            [type]="mostrarSenha ? 'text' : 'password'"
+            id="senha"
+            name="senha"
+            autocomplete="current-password"
+            [(ngModel)]="senha"
+            (input)="erro = ''"
+            placeholder="Digite sua senha"
+          >
+
+          <button
+            type="button"
+            class="olho-button"
+            [attr.aria-label]="mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'"
+            (click)="alternarSenha()"
+          >
+            <i
+              class="fa-regular"
+              [ngClass]="mostrarSenha ? 'fa-eye-slash' : 'fa-eye'"
+            ></i>
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- MENSAGEM DE ERRO -->
+      @if (erro) {
+
+        <div class="erro" role="alert">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span>{{ erro }}</span>
+        </div>
+
+      }
+
+      <button type="submit" class="btn-entrar">
         Entrar
       </button>
 
     </form>
 
-    <br><span>
-<button class="esquecerSenha">Esqueceu a senha?</button>
-        </span>
-    <div class="divider">
-      <span>ou</span>
-    </div>
-
-    <button class="google-button">
-    Continuar com Google
+    <button type="button" class="esquecerSenha">
+      Esqueceu a senha?
     </button>
 
   </div>

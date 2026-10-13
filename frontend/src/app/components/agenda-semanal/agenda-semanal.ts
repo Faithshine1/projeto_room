@@ -4,6 +4,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DadosService } from '../../../Service/dados.service';
+
 @Component({
   selector: 'app-agenda-semanal',
   standalone: true,
@@ -45,6 +46,11 @@ export class AgendaSemanalComponent implements OnInit {
   // Guarda o dia que será exibido na confirmação
   diaConfirmacao: string | null = null;
 
+  // Aviso (toast) exibido na tela no lugar do alert
+  aviso: { texto: string; tipo: 'sucesso' | 'erro' } | null = null;
+
+  private avisoTimer: any;
+
   private apiUrl =
     'http://localhost:3001/agendamentos';
 
@@ -55,6 +61,58 @@ export class AgendaSemanalComponent implements OnInit {
 
   ngOnInit() {
     this.carregarAgendamentos();
+  }
+
+  // Nome do dia de hoje, para destacar a coluna na agenda
+  get diaHoje(): string {
+    const dias = [
+      'Domingo',
+      'Segunda',
+      'Terça',
+      'Quarta',
+      'Quinta',
+      'Sexta',
+      'Sábado'
+    ];
+
+    return dias[new Date().getDay()];
+  }
+
+  // Data mínima do campo de data (hoje), no formato AAAA-MM-DD
+  get dataMinima(): string {
+    const hoje = new Date();
+
+    const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoje.getDate()).padStart(2, '0');
+
+    return `${hoje.getFullYear()}-${mes}-${dia}`;
+  }
+
+  // "2026-12-15" -> "15/12/2026"
+  formatarData(dataString: string): string {
+    if (!dataString) {
+      return '';
+    }
+
+    const [ano, mes, dia] = dataString.split('-');
+
+    return `${dia}/${mes}/${ano}`;
+  }
+
+  mostrarAviso(
+    texto: string,
+    tipo: 'sucesso' | 'erro' = 'sucesso'
+  ) {
+    this.aviso = { texto, tipo };
+
+    this.cdr.detectChanges();
+
+    clearTimeout(this.avisoTimer);
+
+    this.avisoTimer = setTimeout(() => {
+      this.aviso = null;
+      this.cdr.detectChanges();
+    }, 4000);
   }
 
   async carregarAgendamentos() {
@@ -117,7 +175,7 @@ export class AgendaSemanalComponent implements OnInit {
   handleSubmit() {
 
     if (!this.form.data) {
-      alert('Selecione uma data!');
+      this.mostrarAviso('Selecione uma data!', 'erro');
       return;
     }
 
@@ -130,8 +188,9 @@ export class AgendaSemanalComponent implements OnInit {
       diaSemana === 'Sábado' ||
       diaSemana === 'Domingo'
     ) {
-      alert(
-        'Agendamentos apenas de Segunda a Sexta!'
+      this.mostrarAviso(
+        'Agendamentos apenas de Segunda a Sexta!',
+        'erro'
       );
 
       return;
@@ -144,8 +203,9 @@ export class AgendaSemanalComponent implements OnInit {
       );
 
     if (agendamentoExistente) {
-      alert(
-        `O horário ${this.form.hora} já está ocupado na ${diaSemana}!`
+      this.mostrarAviso(
+        `O horário ${this.form.hora} já está ocupado na ${diaSemana}!`,
+        'erro'
       );
 
       return;
@@ -211,20 +271,16 @@ export class AgendaSemanalComponent implements OnInit {
 
         this.diaConfirmacao = null;
 
-        // Atualiza a tela DEPOIS de fechar o modal
-        this.cdr.detectChanges();
-
-        // Pequeno atraso para o modal sumir antes do alert travar a tela
-        setTimeout(() => {
-          alert(
-            `Agendado com sucesso para ${diaAgendado} às ${this.form.hora}!`
-          );
-        }, 100);
+        this.mostrarAviso(
+          `Agendado com sucesso para ${diaAgendado} às ${this.form.hora}!`,
+          'sucesso'
+        );
 
       } else {
 
-        alert(
-          'Erro ao criar agendamento.'
+        this.mostrarAviso(
+          'Erro ao criar agendamento.',
+          'erro'
         );
       }
 
@@ -235,8 +291,9 @@ export class AgendaSemanalComponent implements OnInit {
         error
       );
 
-      alert(
-        'Não foi possível conectar com o servidor.'
+      this.mostrarAviso(
+        'Não foi possível conectar com o servidor.',
+        'erro'
       );
     }
   }

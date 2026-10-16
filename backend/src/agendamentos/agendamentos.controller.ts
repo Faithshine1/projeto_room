@@ -12,8 +12,7 @@ export class AgendamentosController {
   }
 
   @Post()
-  criar(@Body() dto: CreateAgendamentoDto) {
-    // Função auxiliar para descobrir o dia da semana
+  criar(@Body() dto: any) { // Usamos any aqui para capturar todos os campos que o frontend envia
     const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
     const [ano, mes, dia] = dto.data.split('-');
     const diaSemana = dias[new Date(+ano, +mes - 1, +dia).getDay()];
@@ -24,7 +23,9 @@ export class AgendamentosController {
       materia: dto.materia || 'Reservado',
       dia: diaSemana,
       hora: dto.hora,
-      dataOriginal: dto.data
+      data: dto.data, // MUDANÇA CRUCIAL: Tem de se chamar "data" e não "dataOriginal"
+      status: dto.status || 'APROVADO', // MUDANÇA CRUCIAL: O frontend precisa do status
+      professor: dto.professor || 'Professor'
     };
 
     this.agendamentos.push(novoAgendamento);

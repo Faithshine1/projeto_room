@@ -1,340 +1,176 @@
 <div class="agenda-container">
 
   <!-- PAINEL LATERAL: FORMULÁRIO -->
-
   <div class="form-panel">
-
     <h3>Novo agendamento</h3>
 
-    <form
-      (ngSubmit)="handleSubmit()"
-      class="agendamento-form"
-    >
+    <form (ngSubmit)="handleSubmit()" class="agendamento-form">
 
       <!-- SALA -->
-
       <div class="form-group">
-
-        <label class="form-label" for="sala">
-          Sala
-        </label>
-
-        <select
-          id="sala"
-          [(ngModel)]="form.sala"
-          name="sala"
-          class="form-input"
-        >
-          <option value="Laboratório de Ciências">
-            Laboratório de Ciências
-          </option>
-
-          <option value="Sala 201">
-            Sala 201
-          </option>
-
-          <option value="Sala 200">
-            Sala 200
-          </option>
+        <label class="form-label" for="sala">Sala</label>
+        <select id="sala" [(ngModel)]="form.sala" name="sala" class="form-input">
+          <option value="Laboratório de Ciências">Laboratório de Ciências</option>
+          <option value="Sala 201">Sala 201</option>
+          <option value="Sala 200">Sala 200</option>
         </select>
-
       </div>
 
+      <!-- DURACÃO DA RESERVA -->
+      <div class="form-group">
+        <label class="form-label" for="tipoReserva">Duração da Reserva</label>
+        <select id="tipoReserva" [(ngModel)]="tipoReserva" name="tipoReserva" class="form-input">
+          <option value="dia">Dia Único</option>
+          <option value="semana">Semana Inteira (5 dias)</option>
+          <option value="mes">Mês Inteiro (4 semanas - Requer Aprovação)</option>
+        </select>
+      </div>
 
       <!-- DATA -->
-
       <div class="form-group">
-
         <label class="form-label" for="data">
-          Data
+          {{ tipoReserva === 'dia' ? 'Data' : 'Data inicial / Semana' }}
         </label>
-
-        <input
-          id="data"
-          type="date"
-          [min]="dataMinima"
-          [(ngModel)]="form.data"
-          name="data"
-          class="form-input"
-        />
-
+        <input id="data" type="date" [min]="dataMinima" [(ngModel)]="form.data" name="data" class="form-input" />
       </div>
 
-
-      <!-- HORA -->
-
+      <!-- HORA (ATUALIZADO COM "DIA TODO") -->
       <div class="form-group">
-
-        <label class="form-label" for="hora">
-          Hora
-        </label>
-
-        <select
-          id="hora"
-          [(ngModel)]="form.hora"
-          name="hora"
-          class="form-input"
-        >
-
-          <option
-            *ngFor="let h of horarios"
-            [value]="h"
-          >
-            {{ h }}
-          </option>
-
+        <label class="form-label" for="hora">Hora</label>
+        <select id="hora" [(ngModel)]="form.hora" name="hora" class="form-input">
+          <option value="todos">Dia Todo (Todos os horários)</option>
+          <option *ngFor="let h of horarios" [value]="h">{{ h }}</option>
         </select>
-
       </div>
 
+      <p class="dica" *ngIf="tipoReserva === 'semana'">
+        O horário escolhido é reservado em todos os dias úteis da semana selecionada.
+      </p>
+      <p class="dica dica-alerta" *ngIf="tipoReserva === 'mes'">
+        Reserva estendida por 4 semanas. A solicitação ficará como <strong>PENDENTE</strong> para avaliação da coordenação.
+      </p>
 
       <!-- BOTÃO AGENDAR -->
-
-      <button
-        type="submit"
-        class="btn-agendar"
-      >
+      <button type="submit" class="btn-agendar">
         <i class="fa-solid fa-calendar-plus"></i>
-        Agendar
+        {{ tipoReserva === 'dia' ? 'Agendar' : (tipoReserva === 'semana' ? 'Agendar Semana' : 'Solicitar Mês') }}
       </button>
 
     </form>
-
   </div>
 
-
   <!-- PAINEL PRINCIPAL: AGENDA SEMANAL -->
-
   <div class="agenda-panel">
 
-    <h2 class="agenda-title">
-      Agenda semanal
-    </h2>
+    <div class="agenda-header">
+      <h2 class="agenda-title">Agenda semanal</h2>
+
+      <div class="semana-nav">
+        <button type="button" class="btn-nav" aria-label="Semana anterior" (click)="semanaAnterior()">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <span class="semana-rotulo">{{ rotuloSemana }}</span>
+
+        <button type="button" class="btn-nav" aria-label="Próxima semana" (click)="proximaSemana()">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+
+        <button type="button" class="btn-hoje" (click)="irParaHoje()">Hoje</button>
+      </div>
+    </div>
 
     <div class="table-scroll">
-
       <table class="agenda-table">
-
         <thead>
-
           <tr>
-
-            <th>
-              Horário
-            </th>
-
-            <th
-              *ngFor="let dia of diasSemana"
-              [class.hoje]="dia === diaHoje"
-            >
+            <th>Horário</th>
+            <th *ngFor="let dia of diasSemana; let i = index" [class.hoje]="ehHoje(i)">
               {{ dia }}
-
-              <span
-                class="tag-hoje"
-                *ngIf="dia === diaHoje"
-              >
-                Hoje
-              </span>
+              <span class="dia-numero">{{ numeroDoDia(i) }}</span>
+              <span class="tag-hoje" *ngIf="ehHoje(i)">Hoje</span>
             </th>
-
           </tr>
-
         </thead>
 
-
         <tbody>
+          <tr *ngFor="let hora of horarios">
+            <td class="horario">{{ hora }}</td>
 
-          <tr
-            *ngFor="let hora of horarios"
-          >
-
-            <td class="horario">
-              {{ hora }}
-            </td>
-
-
-            <td
-              *ngFor="let dia of diasSemana"
-              class="agenda-slot"
-              [class.hoje]="dia === diaHoje"
-            >
-
-              <ng-container
-                *ngIf="
-                  getAgendamentoSlot(dia, hora) as item;
-                  else slotVazio
-                "
-              >
-
-                <div class="agendamento">
-
-                  <div class="agendamento-sala">
-                    {{ item.sala }}
+            <td *ngFor="let dia of diasSemana; let i = index" class="agenda-slot" [class.hoje]="ehHoje(i)">
+              <ng-container *ngIf="getAgendamentoSlot(dia, hora) as item; else slotVazio">
+                <div class="agendamento" [class.pendente]="item.status === 'PENDENTE'">
+                  <div class="agendamento-sala">{{ item.sala }}</div>
+                  <div class="agendamento-materia">{{ item.materia }}</div>
+                  <div class="agendamento-status" *ngIf="item.status === 'PENDENTE'">
+                    ⏳ Aguardando Aprovação
                   </div>
-
-                  <div class="agendamento-materia">
-                    {{ item.materia }}
-                  </div>
-
                 </div>
-
               </ng-container>
 
-
               <ng-template #slotVazio>
-
                 <div class="slot-vazio"></div>
-
               </ng-template>
-
             </td>
-
           </tr>
-
         </tbody>
-
       </table>
-
     </div>
 
   </div>
 
 </div>
 
-
-<!-- ========================================= -->
 <!-- MODAL DE CONFIRMAÇÃO -->
-<!-- ========================================= -->
-
-<div
-  *ngIf="mostrarConfirmacao"
-  class="modal-overlay"
-  (click)="cancelarConfirmacao()"
->
-
-  <div
-    class="modal"
-    role="dialog"
-    aria-modal="true"
-    (click)="$event.stopPropagation()"
-  >
+<div *ngIf="mostrarConfirmacao" class="modal-overlay" (click)="cancelarConfirmacao()">
+  <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
 
     <div class="modal-icon">
       <i class="fa-solid fa-calendar-check"></i>
     </div>
 
     <h2 class="modal-title">
-      Confirmar agendamento
+      {{ tipoReserva === 'mes' ? 'Solicitar Mês Inteiro' : (datasParaAgendar.length > 1 ? 'Confirmar semana' : 'Confirmar agendamento') }}
     </h2>
 
-    <p class="modal-description">
-      Confira os dados antes de confirmar.
-    </p>
-
+    <p class="modal-description">Confira os dados antes de confirmar.</p>
 
     <div class="confirmacao-grid">
-
-      <!-- SALA -->
+      <div class="confirmacao-item confirmacao-sala">
+        <strong>Sala</strong>
+        <div class="confirmacao-valor">{{ form.sala }}</div>
+      </div>
 
       <div class="confirmacao-item confirmacao-sala">
-
-        <strong>Sala</strong>
-
-        <div class="confirmacao-valor">
-          {{ form.sala }}
-        </div>
-
+        <strong>{{ datasParaAgendar.length > 1 ? 'Período' : 'Data' }}</strong>
+        <div class="confirmacao-valor">{{ periodoConfirmacao }}</div>
       </div>
 
-
-      <!-- DATA -->
-
       <div class="confirmacao-item">
-
-        <strong>Data</strong>
-
-        <div class="confirmacao-valor">
-          {{ formatarData(form.data) }}
-        </div>
-
+        <strong>Status</strong>
+        <div class="confirmacao-valor">{{ tipoReserva === 'mes' ? 'PENDENTE' : 'APROVADO' }}</div>
       </div>
 
-
-      <!-- DIA -->
-
       <div class="confirmacao-item">
-
-        <strong>Dia</strong>
-
-        <div class="confirmacao-valor">
-          {{ diaConfirmacao }}
-        </div>
-
-      </div>
-
-
-      <!-- HORÁRIO -->
-
-      <div class="confirmacao-item">
-
         <strong>Horário</strong>
-
-        <div class="confirmacao-valor">
-          {{ form.hora }}
-        </div>
-
+        <div class="confirmacao-valor">{{ form.hora === 'todos' ? 'Dia Todo' : form.hora }}</div>
       </div>
-
     </div>
 
-
-    <!-- BOTÕES -->
+    <p class="confirmacao-dias" *ngIf="datasParaAgendar.length > 1">{{ diaConfirmacao }}</p>
 
     <div class="modal-buttons">
-
-      <button
-        type="button"
-        (click)="cancelarConfirmacao()"
-        class="btn-cancelar"
-      >
-        Cancelar
+      <button type="button" (click)="cancelarConfirmacao()" class="btn-cancelar">Cancelar</button>
+      <button type="button" (click)="confirmarAgendamento()" class="btn-confirmar">
+        {{ tipoReserva === 'mes' ? 'Enviar Solicitação' : 'Confirmar' }}
       </button>
-
-      <button
-        type="button"
-        (click)="confirmarAgendamento()"
-        class="btn-confirmar"
-      >
-        Confirmar
-      </button>
-
     </div>
 
   </div>
-
 </div>
 
-
-<!-- ========================================= -->
-<!-- AVISO (substitui o alert) -->
-<!-- ========================================= -->
-
-<div
-  *ngIf="aviso"
-  class="toast"
-  [class.toast-erro]="aviso.tipo === 'erro'"
-  role="status"
->
-
-  <i
-    class="fa-solid"
-    [ngClass]="
-      aviso.tipo === 'erro'
-        ? 'fa-circle-exclamation'
-        : 'fa-circle-check'
-    "
-  ></i>
-
+<!-- TOAST -->
+<div *ngIf="aviso" class="toast" [class.toast-erro]="aviso.tipo === 'erro'" role="status">
+  <i class="fa-solid" [ngClass]="aviso.tipo === 'erro' ? 'fa-circle-exclamation' : 'fa-circle-check'"></i>
   <span>{{ aviso.texto }}</span>
-
 </div>

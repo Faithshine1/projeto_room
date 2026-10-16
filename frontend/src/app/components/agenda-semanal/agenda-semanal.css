@@ -110,6 +110,54 @@
 
 
 /* =========================
+   SEMANA INTEIRA (opção do formulário)
+========================= */
+
+.toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+
+  font-size: 0.85rem;
+  font-weight: 500;
+
+  color: #374151;
+
+  cursor: pointer;
+}
+
+.toggle input {
+  width: 16px;
+  height: 16px;
+
+  margin-top: 0.15rem;
+
+  accent-color: var(--primary, #312e81);
+
+  cursor: pointer;
+}
+
+.dica {
+  margin: -0.25rem 0 0;
+
+  font-size: 0.78rem;
+  line-height: 1.4;
+
+  color: var(--text-muted, #6b7280);
+}
+
+.confirmacao-dias {
+  margin: 0.75rem 0 0;
+
+  text-align: center;
+
+  font-size: 0.8rem;
+
+  color: var(--text-muted, #6b7280);
+}
+
+
+/* =========================
    AGENDA SEMANAL
 ========================= */
 
@@ -127,8 +175,99 @@
   box-shadow: var(--shadow-sm, 0 1px 2px rgba(16, 24, 40, 0.06));
 }
 
+.agenda-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+
+  margin-bottom: 1rem;
+}
+
+.semana-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-nav {
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+  place-items: center;
+
+  background-color: #ffffff;
+  color: var(--text-muted, #6b7280);
+
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.btn-nav:hover {
+  background-color: #f3f4f6;
+  color: var(--text, #111827);
+}
+
+.semana-rotulo {
+  min-width: 110px;
+
+  text-align: center;
+
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  color: var(--text, #111827);
+}
+
+.btn-hoje {
+  padding: 0.4rem 0.8rem;
+
+  background-color: var(--primary-soft, #eef2ff);
+  color: var(--primary, #312e81);
+
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  border: none;
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition: background-color 0.2s ease;
+}
+
+.btn-hoje:hover {
+  background-color: #e0e7ff;
+}
+
+.btn-nav:focus-visible,
+.btn-hoje:focus-visible {
+  outline: 2px solid var(--primary, #312e81);
+  outline-offset: 2px;
+}
+
+.dia-numero {
+  margin-left: 0.3rem;
+
+  font-weight: 700;
+
+  color: var(--text, #111827);
+}
+
+.agenda-table th.hoje .dia-numero {
+  color: #ffffff;
+}
+
 .agenda-title {
-  margin: 0 0 1rem;
+  margin: 0;
 
   font-size: 1.05rem;
   font-weight: 700;
@@ -514,4 +653,5 @@
   .form-panel {
     width: 100%;
   }
+  
 }

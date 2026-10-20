@@ -1,0 +1,80 @@
+<div class="reservas-container">
+  <div class="header-section">
+    <h2>Minhas Reservas</h2>
+    <p class="subtitulo">Consulte todas as suas reservas em lista, sem precisar navegar pela agenda semanal.</p>
+  </div>
+
+  <!-- BARRA DE FILTROS -->
+  <div class="filtros-card">
+    <div class="filtro-item">
+      <label class="label">Buscar por Sala</label>
+      <input 
+        type="text" 
+        class="form-input" 
+        placeholder="Ex: Laboratório de Ciências" 
+        [(ngModel)]="filtroSala" 
+      />
+    </div>
+
+    <div class="filtro-item">
+      <label class="label">Data Específica</label>
+      <input 
+        type="date" 
+        class="form-input" 
+        [(ngModel)]="buscaData" 
+      />
+    </div>
+
+    <div class="filtro-item">
+      <label class="label">Status</label>
+      <select class="form-input" [(ngModel)]="filtroStatus">
+        <option value="">Todos os status</option>
+        <option value="APROVADO">Aprovado</option>
+        <option value="PENDENTE">Aguardando Aprovação</option>
+      </select>
+    </div>
+
+    <button 
+      type="button" 
+      class="btn-limpar" 
+      (click)="limparFiltros()" 
+      *ngIf="filtroSala || filtroStatus || buscaData">
+      Limpar Filtros
+    </button>
+  </div>
+
+  <!-- TABELA DE RESERVAS -->
+  <div class="tabela-card">
+    <table class="reservas-table">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Dia</th>
+          <th>Horário</th>
+          <th>Sala</th>
+          <th>Assunto / Matéria</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of agendamentosFiltrados">
+          <td><strong>{{ formatarData(item.data) }}</strong></td>
+          <td>{{ item.dia || '-' }}</td>
+          <td><span class="hora-badge">{{ item.hora }}</span></td>
+          <td>{{ item.sala }}</td>
+          <td>{{ item.materia || 'Agendado' }}</td>
+          <td>
+            <span class="badge" [ngClass]="item.status === 'PENDENTE' ? 'badge-pendente' : 'badge-aprovado'">
+              {{ item.status === 'PENDENTE' ? 'Aguardando Aprovação' : 'Aprovado' }}
+            </span>
+          </td>
+        </tr>
+        <tr *ngIf="agendamentosFiltrados.length === 0">
+          <td colspan="6" class="vazio">
+            Nenhum agendamento encontrado para os filtros selecionados.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

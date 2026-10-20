@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DadosService } from '../../../Service/dados.service';
@@ -12,10 +12,11 @@ import { DadosService } from '../../../Service/dados.service';
 })
 export class AgendaSemanalComponent implements OnInit {
 
+  // 1. Criação do emissor de eventos para avisar o Dashboard
+  @Output() agendamentoConcluido = new EventEmitter<void>();
+
   diasSemana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
-
   horarios = ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '17:00'];
-
   agendamentos: any[] = [];
 
   form = {
@@ -162,9 +163,6 @@ export class AgendaSemanalComponent implements OnInit {
 
   private extrairApenasData(dataInput: any): string {
     if (!dataInput) return '';
-    
-    // Converte para string e corta tudo o que vier depois do "T" (caso exista)
-    // Assim, '2026-10-16' continua '2026-10-16' sem sofrer alterações de fuso horário.
     return String(dataInput).split('T')[0].trim();
   }
 
@@ -172,12 +170,8 @@ export class AgendaSemanalComponent implements OnInit {
     return this.agendamentos.some(a => {
       const dataMatch = this.extrairApenasData(a.data) === data;
       const horaMatch = String(a.hora).slice(0, 5) === hora.slice(0, 5);
-      
-      // Descomenta a linha abaixo se quiseres voltar a filtrar por sala no futuro
-      // const salaMatch = String(a.sala || '').trim() === String(this.form.sala || '').trim();
       const naoRejeitado = a.status !== 'REJEITADO';
-
-      return dataMatch && horaMatch && naoRejeitado; // adicionei salaMatch aqui caso descomentes
+      return dataMatch && horaMatch && naoRejeitado;
     });
   }
 
@@ -187,15 +181,10 @@ export class AgendaSemanalComponent implements OnInit {
     const dataAlvo = this.datasDaSemana[indice];
 
     return this.agendamentos.find(a => {
-      // Forçamos ambas as datas para o mesmo formato YYYY-MM-DD
       const dataMatch = this.extrairApenasData(a.data) === dataAlvo;
-      
-      // Forçamos as horas para terem só 5 caracteres (ex: 08:00)
       const horaMatch = String(a.hora).slice(0, 5) === hora.slice(0, 5);
-      
       const naoRejeitado = a.status !== 'REJEITADO';
-
-      return dataMatch && horaMatch && naoRejeitado; // Teste contínuo: ignorando a sala para forçar o aparecimento
+      return dataMatch && horaMatch && naoRejeitado;
     });
   }
 
@@ -206,8 +195,6 @@ export class AgendaSemanalComponent implements OnInit {
     }
 
     const hoje = this.dataMinima;
-    
-    // Define quais as horas que vamos verificar (só uma, ou todas se escolheu "Dia Todo")
     const horasParaVerificar = this.form.hora === 'todos' ? this.horarios : [this.form.hora];
 
     if (this.tipoReserva === 'mes') {
@@ -217,7 +204,6 @@ export class AgendaSemanalComponent implements OnInit {
         return;
       }
       
-      // Verifica conflitos para a(s) hora(s) selecionada(s)
       const ocupadas = datas.filter(d => horasParaVerificar.some(h => this.horarioOcupado(d, h)));
       
       if (ocupadas.length > 0) {
@@ -241,7 +227,6 @@ export class AgendaSemanalComponent implements OnInit {
         return;
       }
       
-      // Verifica conflitos para a(s) hora(s) selecionada(s)
       const ocupadas = datas.filter(d => horasParaVerificar.some(h => this.horarioOcupado(d, h)));
       
       if (ocupadas.length > 0) {
@@ -257,7 +242,6 @@ export class AgendaSemanalComponent implements OnInit {
       return;
     }
 
-    // Validação de Dia Único
     const diaSemana = this.obterDiaDaSemana(this.form.data);
     if (diaSemana === 'Sábado' || diaSemana === 'Domingo') {
       this.mostrarAviso('Agendamentos apenas de Segunda a Sexta!', 'erro');
@@ -292,20 +276,18 @@ export class AgendaSemanalComponent implements OnInit {
     const textoDia = this.diaConfirmacao;
     const status = this.tipoReserva === 'mes' ? 'PENDENTE' : 'APROVADO';
 
-    // Aqui está a chave: Se for "todos", criamos um array com todas as horas. Se não, só a hora escolhida.
     const horasParaAgendar = this.form.hora === 'todos' ? this.horarios : [this.form.hora];
 
     let criados = 0;
     let mensagemErroServidor = '';
 
     for (const data of datas) {
-      // Loop pelas horas (só vai rodar várias vezes se escolher "Dia Todo")
       for (const hora of horasParaAgendar) {
         try {
           const payload: any = {
             sala,
             data,
-            hora, // Envia a hora real (ex: '08:00', '09:00') em vez da palavra 'todos'
+            hora,
             materia: 'Agendado'
           };
 
@@ -353,5 +335,8 @@ export class AgendaSemanalComponent implements OnInit {
       const horaInfo = this.form.hora === 'todos' ? 'o dia todo' : `às ${this.form.hora}`;
       this.mostrarAviso(total === 1 ? `Agendado com sucesso para ${textoDia} para ${horaInfo}!` : `Semana agendada para ${horaInfo}!`, 'sucesso');
     }
+
+    // 2. Dispara o evento para o Dashboard saber que terminou o agendamento
+    this.agendamentoConcluido.emit();
   }
 }

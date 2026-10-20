@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SidebarComponent, ActiveCategory } from '../../components/sidebar/sidebar';
 import { AgendaSemanalComponent } from '../../components/agenda-semanal/agenda-semanal';
-import { Inicio } from '../../components/inicio/inicio';
+import { MinhasReservasComponent } from '../../components/minhas-reservas/minhas-reservas';
+import { Inicio } from '../../components/inicio/inicio'; // <- Restaurado!
 
 export interface Room {
   id: string;
@@ -30,6 +31,7 @@ export interface Booking {
     FormsModule,
     SidebarComponent,
     AgendaSemanalComponent,
+    MinhasReservasComponent,
     Inicio
   ],
   templateUrl: './dashboard.html',
@@ -37,67 +39,24 @@ export interface Booking {
 })
 export class DashboardComponent {
   nomeUsuario: string = 'Usuário';
-
   activeCategory: ActiveCategory = 'inicio';
-
   searchTerm: string = '';
-
   selectedRoom: Room | null = null;
-
   selectedRoomForBooking: string = '';
-
   selectedDate: string = '';
-
   selectedTime: string = '08:00';
 
   rooms: Room[] = [
-    {
-      id: '1',
-      number: '011',
-      name: 'Sala de Informática 1',
-      type: 'ESPECIAL',
-      status: 'Disponível',
-      responsible: 'Prof. Carlos'
-    },
-    {
-      id: '2',
-      number: '022',
-      name: 'Sala de Informática 2',
-      type: 'ESPECIAL',
-      status: 'Ocupado',
-      responsible: 'Prof. Ana'
-    },
-    {
-      id: '3',
-      number: '033',
-      name: 'Sala de Vídeo',
-      type: 'ESPECIAL',
-      status: 'Manutenção',
-      responsible: 'Suporte TI'
-    },
-    {
-      id: '4',
-      number: '044',
-      name: 'Auditório',
-      type: 'ESPECIAL',
-      status: 'Reservado',
-      responsible: 'Coordenação'
-    },
-    {
-      id: '5',
-      number: '055',
-      name: 'Laboratório de Ciências',
-      type: 'LABORATORIO',
-      status: 'Disponível',
-      responsible: 'Prof. Ricardo'
-    }
+    { id: '1', number: '011', name: 'Sala de Informática 1', type: 'ESPECIAL', status: 'Disponível', responsible: 'Prof. Carlos' },
+    { id: '2', number: '022', name: 'Sala de Informática 2', type: 'ESPECIAL', status: 'Ocupado', responsible: 'Prof. Ana' },
+    { id: '3', number: '033', name: 'Sala de Vídeo', type: 'ESPECIAL', status: 'Manutenção', responsible: 'Suporte TI' },
+    { id: '4', number: '044', name: 'Auditório', type: 'ESPECIAL', status: 'Reservado', responsible: 'Coordenação' },
+    { id: '5', number: '055', name: 'Laboratório de Ciências', type: 'LABORATORIO', status: 'Disponível', responsible: 'Prof. Ricardo' }
   ];
 
   constructor(private router: Router) {
-    // localStorage não existe no servidor (SSR), por isso a verificação
     if (typeof localStorage !== 'undefined') {
       const salvo = localStorage.getItem('usuario');
-
       if (salvo) {
         try {
           this.nomeUsuario = JSON.parse(salvo).nome || 'Usuário';
@@ -112,7 +71,6 @@ export class DashboardComponent {
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem('usuario');
     }
-
     this.router.navigate(['/login']);
   }
 
@@ -122,31 +80,24 @@ export class DashboardComponent {
 
   get tituloPagina(): string {
     switch (this.activeCategory) {
-      case 'especiais':
-        return 'Salas Especiais';
-      case 'laboratorios':
-        return 'Laboratórios';
-      case 'agendamentos':
-        return 'Agendamentos';
-      default:
-        return 'Painel';
+      case 'especiais': return 'Salas Especiais';
+      case 'laboratorios': return 'Laboratórios';
+      case 'agendamentos': return 'Agendamentos';
+      case 'minhas-reservas': return 'Minhas Reservas';
+      default: return 'Painel';
     }
   }
 
   get subtituloPagina(): string {
     switch (this.activeCategory) {
-      case 'especiais':
-        return 'Acompanhe o status e o responsável de cada sala.';
-      case 'laboratorios':
-        return 'Acompanhe o status e o responsável de cada laboratório.';
-      case 'agendamentos':
-        return 'Reserve um horário e veja a agenda da semana.';
-      default:
-        return 'Resumo das suas salas e agendamentos.';
+      case 'especiais': return 'Acompanhe o status e o responsável de cada sala.';
+      case 'laboratorios': return 'Acompanhe o status e o responsável de cada laboratório.';
+      case 'agendamentos': return 'Reserve um horário e veja a agenda da semana.';
+      case 'minhas-reservas': return 'Consulte e filtre todos os seus agendamentos realizados.';
+      default: return 'Resumo das suas salas e agendamentos.';
     }
   }
 
-  // "Prof. Carlos" -> "C" | "Julian Figueiredo" -> "JF"
   iniciaisDe(nome: string): string {
     const palavras = nome
       .replace(/^prof\.?\s+/i, '')
@@ -157,41 +108,26 @@ export class DashboardComponent {
       return '?';
     }
 
-    return palavras
-      .slice(0, 2)
-      .map(palavra => palavra.charAt(0).toUpperCase())
-      .join('');
+    return palavras.slice(0, 2).map(palavra => palavra.charAt(0).toUpperCase()).join('');
   }
 
   get filteredRooms(): Room[] {
-
     if (
       this.activeCategory === 'agendamentos' ||
-      this.activeCategory === 'inicio'
+      this.activeCategory === 'inicio' ||
+      this.activeCategory === 'minhas-reservas'
     ) {
       return [];
     }
 
-    const targetType =
-      this.activeCategory === 'especiais'
-        ? 'ESPECIAL'
-        : 'LABORATORIO';
+    const targetType = this.activeCategory === 'especiais' ? 'ESPECIAL' : 'LABORATORIO';
 
     return this.rooms.filter(room => {
-
-      const matchesCategory =
-        room.type === targetType;
-
+      const matchesCategory = room.type === targetType;
       const matchesSearch =
-        room.name
-          .toLowerCase()
-          .includes(this.searchTerm.toLowerCase()) ||
-
+        room.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         room.number.includes(this.searchTerm) ||
-
-        room.responsible
-          .toLowerCase()
-          .includes(this.searchTerm.toLowerCase());
+        room.responsible.toLowerCase().includes(this.searchTerm.toLowerCase());
 
       return matchesCategory && matchesSearch;
     });
@@ -202,23 +138,12 @@ export class DashboardComponent {
   }
 
   getStatusClass(status: string): string {
-
     switch (status) {
-
-      case 'Disponível':
-        return 'status-available';
-
-      case 'Ocupado':
-        return 'status-occupied';
-
-      case 'Manutenção':
-        return 'status-maintenance';
-
-      case 'Reservado':
-        return 'status-reserved';
-
-      default:
-        return '';
+      case 'Disponível': return 'status-available';
+      case 'Ocupado': return 'status-occupied';
+      case 'Manutenção': return 'status-maintenance';
+      case 'Reservado': return 'status-reserved';
+      default: return '';
     }
   }
 
@@ -230,39 +155,13 @@ export class DashboardComponent {
     this.selectedRoom = null;
   }
 
-  updateRoomStatus(
-    newStatus:
-      | 'Disponível'
-      | 'Ocupado'
-      | 'Manutenção'
-      | 'Reservado'
-  ): void {
-
+  updateRoomStatus(newStatus: 'Disponível' | 'Ocupado' | 'Manutenção' | 'Reservado'): void {
     if (this.selectedRoom) {
-
-      const roomIndex = this.rooms.findIndex(
-        r => r.id === this.selectedRoom?.id
-      );
-
+      const roomIndex = this.rooms.findIndex(r => r.id === this.selectedRoom?.id);
       if (roomIndex !== -1) {
         this.rooms[roomIndex].status = newStatus;
       }
-
       this.closeModal();
     }
   }
-
-  confirmBooking(): void {
-
-    if (
-      this.selectedRoomForBooking &&
-      this.selectedDate
-    ) {
-
-      alert(
-        `Agendamento realizado para a sala ${this.selectedRoomForBooking} no dia ${this.selectedDate} às ${this.selectedTime}`
-      );
-    }
-  }
-
 }

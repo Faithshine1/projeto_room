@@ -1,0 +1,311 @@
+
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">E</div>
+      <div>
+        <h2>EduRoom</h2>
+        <span>Painel administrativo</span>
+      </div>
+    </div>
+
+    <p class="menu-label">MENU PRINCIPAL</p>
+
+    <button [class.active]="secao === 'inicio'"
+      (click)="mudarSecao('inicio')">
+      <span>▦</span> Dashboard
+    </button>
+
+    <button [class.active]="secao === 'salas'"
+      (click)="mudarSecao('salas')">
+      <span>▤</span> Salas
+    </button>
+
+    <button [class.active]="secao === 'solicitacoes'"
+      (click)="mudarSecao('solicitacoes')">
+      <span>☷</span> Solicitações
+      <span class="badge" *ngIf="dashboard.pendentes">
+        {{ dashboard.pendentes }}
+      </span>
+    </button>
+
+    <div class="sidebar-footer">
+      <span class="status-dot"></span>
+      Sistema EduRoom
+      <small>Área administrativa</small>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">EDUROOM / ADMINISTRAÇÃO</span>
+        <h1>
+          {{ secao === 'inicio' ? 'Dashboard'
+             : secao === 'salas' ? 'Gerenciar salas'
+             : 'Solicitações de salas' }}
+        </h1>
+        <p>Gerencie os espaços e acompanhe as solicitações.</p>
+      </div>
+
+      <button class="refresh-button" (click)="carregarDados()">
+        ↻ Atualizar
+      </button>
+    </header>
+
+    <div class="alert success" *ngIf="mensagem">
+      ✓ {{ mensagem }}
+    </div>
+
+    <div class="alert error" *ngIf="erro">
+      {{ erro }}
+    </div>
+
+    <div class="loading" *ngIf="carregando">
+      Atualizando informações...
+    </div>
+
+    <section *ngIf="secao === 'inicio'">
+      <div class="stats-grid">
+        <article class="stat-card">
+          <div class="stat-icon purple">▤</div>
+          <span>Total de salas</span>
+          <strong>{{ dashboard.totalSalas }}</strong>
+          <small>Espaços cadastrados</small>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-icon orange">◷</div>
+          <span>Pendentes</span>
+          <strong>{{ dashboard.pendentes }}</strong>
+          <small>Aguardando análise</small>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-icon green">✓</div>
+          <span>Aprovadas</span>
+          <strong>{{ dashboard.aprovadas }}</strong>
+          <small>Solicitações aprovadas</small>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-icon red">×</div>
+          <span>Recusadas</span>
+          <strong>{{ dashboard.recusadas }}</strong>
+          <small>Solicitações recusadas</small>
+        </article>
+      </div>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Solicitações recentes</h2>
+            <p>Confira os pedidos que precisam de atenção.</p>
+          </div>
+          <button class="text-button"
+            (click)="mudarSecao('solicitacoes')">
+            Ver todas →
+          </button>
+        </div>
+
+        <div class="empty-state"
+          *ngIf="solicitacoes.length === 0">
+          <div class="empty-icon">☷</div>
+          <strong>Nenhuma solicitação encontrada</strong>
+          <p>Quando houver solicitações, elas aparecerão aqui.</p>
+        </div>
+
+        <div class="request-list"
+          *ngIf="solicitacoes.length > 0">
+          <article class="request-row"
+            *ngFor="let s of solicitacoes.slice(0, 5)">
+            <div class="request-avatar">
+              {{ s.solicitante.charAt(0).toUpperCase() }}
+            </div>
+            <div class="request-info">
+              <strong>{{ s.nomeSala }}</strong>
+              <span>{{ s.solicitante }}</span>
+              <small>{{ s.justificativa || 'Sem justificativa informada' }}</small>
+            </div>
+            <span class="status"
+              [ngClass]="s.status.toLowerCase()">
+              {{ s.status }}
+            </span>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Salas cadastradas</h2>
+            <p>Visão geral dos espaços disponíveis no sistema.</p>
+          </div>
+          <button class="primary-button"
+            (click)="mudarSecao('salas')">
+            + Nova sala
+          </button>
+        </div>
+
+        <div class="empty-state" *ngIf="salas.length === 0">
+          <strong>Nenhuma sala cadastrada</strong>
+          <p>Cadastre sua primeira sala para começar.</p>
+        </div>
+
+        <div class="room-grid" *ngIf="salas.length > 0">
+          <article class="room-card" *ngFor="let sala of salas">
+            <div class="room-symbol">▤</div>
+            <h3>{{ sala.nome }}</h3>
+            <p>{{ sala.localizacao || 'Localização não informada' }}</p>
+            <div class="room-meta">
+              <span>♙ {{ sala.capacidade }} lugares</span>
+            </div>
+            <div class="resource-list">
+              <span *ngFor="let recurso of sala.recursos">
+                {{ recurso }}
+              </span>
+            </div>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <section *ngIf="secao === 'salas'">
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Cadastrar nova sala</h2>
+            <p>Preencha os dados do novo espaço.</p>
+          </div>
+        </div>
+
+        <form class="room-form" (ngSubmit)="criarSala()">
+          <label>
+            Nome da sala *
+            <input name="nome" [(ngModel)]="novaSala.nome"
+              placeholder="Ex.: Laboratório de Informática" required />
+          </label>
+
+          <label>
+            Localização
+            <input name="localizacao"
+              [(ngModel)]="novaSala.localizacao"
+              placeholder="Ex.: Bloco A, sala 201" />
+          </label>
+
+          <label>
+            Capacidade *
+            <input type="number" name="capacidade"
+              [(ngModel)]="novaSala.capacidade"
+              min="1" required />
+          </label>
+
+          <label>
+            Recursos disponíveis
+            <input name="recursos"
+              [(ngModel)]="novaSala.recursosTexto"
+              placeholder="Projetor, computadores, ar-condicionado" />
+            <small>Separe os recursos por vírgulas.</small>
+          </label>
+
+          <div class="form-actions">
+            <button type="submit" class="primary-button">
+              + Cadastrar sala
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Todas as salas</h2>
+            <p>{{ salas.length }} sala(s) cadastrada(s).</p>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="salas.length === 0">
+          Nenhuma sala cadastrada ainda.
+        </div>
+
+        <div class="table-wrap" *ngIf="salas.length > 0">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Localização</th>
+                <th>Capacidade</th>
+                <th>Recursos</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let sala of salas">
+                <td><strong>{{ sala.nome }}</strong></td>
+                <td>{{ sala.localizacao || '—' }}</td>
+                <td>{{ sala.capacidade }} lugares</td>
+                <td>{{ sala.recursos.join(', ') || '—' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <section *ngIf="secao === 'solicitacoes'">
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Solicitações recebidas</h2>
+            <p>Analise cada pedido e aprove ou recuse.</p>
+          </div>
+          <span class="counter">{{ dashboard.pendentes }} pendentes</span>
+        </div>
+
+        <div class="empty-state"
+          *ngIf="solicitacoes.length === 0">
+          <div class="empty-icon">☷</div>
+          <strong>Nenhuma solicitação recebida</strong>
+          <p>As solicitações aparecerão nesta área.</p>
+        </div>
+
+        <div class="request-list"
+          *ngIf="solicitacoes.length > 0">
+          <article class="request-card" *ngFor="let s of solicitacoes">
+            <div class="request-card-top">
+              <div class="request-avatar large">
+                {{ s.solicitante.charAt(0).toUpperCase() }}
+              </div>
+              <div class="request-info">
+                <h3>{{ s.nomeSala }}</h3>
+                <span>Solicitante: {{ s.solicitante }}</span>
+                <small>Pedido #{{ s.id }} ·
+                  {{ s.criadaEm | date:'dd/MM/yyyy HH:mm' }}
+                </small>
+              </div>
+              <span class="status"
+                [ngClass]="s.status.toLowerCase()">
+                {{ s.status }}
+              </span>
+            </div>
+
+            <p class="justification">
+              {{ s.justificativa || 'Nenhuma justificativa informada.' }}
+            </p>
+
+            <div class="request-actions"
+              *ngIf="s.status === 'PENDENTE'">
+              <button class="reject-button"
+                (click)="analisarSolicitacao(s.id, 'recusar')">
+                Recusar
+              </button>
+              <button class="approve-button"
+                (click)="analisarSolicitacao(s.id, 'aprovar')">
+                ✓ Aprovar solicitação
+              </button>
+            </div>
+          </article>
+        </div>
+      </section>
+    </section>
+  </main>
+</div>

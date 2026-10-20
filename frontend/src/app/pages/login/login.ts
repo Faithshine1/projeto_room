@@ -1,3 +1,4 @@
+
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -8,20 +9,18 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
-  styleUrl: './login.css'
+  styleUrls: ['./login.css']
 })
 export class LoginComponent {
-
   email = '';
   senha = '';
   mostrarSenha = false;
-
-  // Mensagem de erro exibida no formulário (no lugar do alert)
   erro = '';
 
   constructor(private router: Router) {}
 
   entrar() {
+    console.log('Botão Entrar clicado');
 
     if (!this.email) {
       this.erro = 'Digite seu e-mail.';
@@ -39,25 +38,30 @@ export class LoginComponent {
     }
 
     if (this.senha.length < 6) {
-      this.erro = 'Senha inválida. A senha deve conter no mínimo 6 caracteres.';
+      this.erro =
+        'Senha inválida. A senha deve conter no mínimo 6 caracteres.';
       return;
     }
 
     this.erro = '';
 
-    // Guarda o usuário para o dashboard mostrar o nome
-    localStorage.setItem(
-      'usuario',
-      JSON.stringify({
-        nome: this.gerarNomeDoEmail(this.email),
-        email: this.email
-      })
-    );
+    const usuario = {
+      nome: this.gerarNomeDoEmail(this.email),
+      email: this.email
+    };
 
-    this.router.navigate(['/dashboard']);
+    localStorage.setItem('usuario', JSON.stringify(usuario));
+
+    this.router.navigate(['/dashboard']).then(sucesso => {
+      console.log('Navegação para dashboard:', sucesso);
+
+      if (!sucesso) {
+        this.erro =
+          'Não foi possível abrir o dashboard. Verifique as rotas.';
+      }
+    });
   }
 
-  // Transforma "maria.silva@gmail.com" em "Maria Silva"
   gerarNomeDoEmail(email: string): string {
     const parteLocal = email.split('@')[0];
 

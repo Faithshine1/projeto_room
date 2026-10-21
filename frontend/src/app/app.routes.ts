@@ -50,9 +50,13 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: 'login'
-  }
-
-
+  },
+{
+  path: 'leitor-qr',
+  loadComponent: () =>
+    import('./pages/leitor-qr/leitor-qr')
+      .then(m => m.LeitorQrComponent),
+},
 
 ];
 

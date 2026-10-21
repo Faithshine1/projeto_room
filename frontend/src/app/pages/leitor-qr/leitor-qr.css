@@ -1,0 +1,70 @@
+.leitor-container {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #f4f6fb;
+}
+
+.leitor-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 28px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 8px 30px #17255412;
+  text-align: center;
+}
+
+h1 {
+  margin: 0 0 12px;
+  color: #172554;
+}
+
+p {
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.camera {
+  display: block;
+  width: 100%;
+  max-height: 340px;
+  margin: 20px 0;
+  border-radius: 12px;
+  background: #111827;
+  object-fit: cover;
+}
+
+.status {
+  margin: 20px 0;
+  padding: 14px;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.status-sucesso {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border: 0;
+  border-radius: 10px;
+  background: #2563eb;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+.btn-parar {
+  background: #475569;
+}

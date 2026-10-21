@@ -1,0 +1,45 @@
+<main class="leitor-container">
+  <section class="leitor-card">
+    <h1>Confirmar entrada</h1>
+
+    <p>
+      Posicione o QR Code da sala diante da câmera
+      para confirmar sua entrada automaticamente.
+    </p>
+
+    <video
+      #video
+      autoplay
+      muted
+      playsinline
+      class="camera"
+      [hidden]="!lendo"
+    ></video>
+
+    <div
+      class="status"
+      [class.status-sucesso]="sucesso"
+      role="status"
+      aria-live="polite"
+    >
+      {{ mensagem }}
+    </div>
+
+    <button
+      *ngIf="!lendo"
+      type="button"
+      (click)="iniciarLeitura()"
+    >
+      Iniciar leitor
+    </button>
+
+    <button
+      *ngIf="lendo"
+      type="button"
+      class="btn-parar"
+      (click)="pararLeitura()"
+    >
+      Parar câmera
+    </button>
+  </section>
+</main>

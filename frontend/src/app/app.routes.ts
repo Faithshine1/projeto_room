@@ -39,11 +39,6 @@ export const routes: Routes = [
       ),
   },
   {
-    path: '**',
-    redirectTo: 'login',
-  },
-
-  {
 
     path: 'agendamentos',
     loadComponent: () => import('./components/agenda-semanal/agenda-semanal').then(m => m.AgendaSemanalComponent)

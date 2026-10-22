@@ -1,29 +1,41 @@
+
 /* =========================
    LAYOUT PRINCIPAL
 ========================= */
 
+:host {
+  display: block;
+  min-height: 100vh;
+  color: var(--text-primary, #1e293b);
+}
+
+* {
+  box-sizing: border-box;
+}
+
 .layout-container {
   display: flex;
   min-height: 100vh;
+  width: 100%;
   background-color: var(--background, #f8fafc);
 }
 
 .main-content {
   flex: 1;
   min-width: 0;
-
+  width: 0;
   display: flex;
   flex-direction: column;
-
   padding: 2rem 2.5rem;
 }
 
 .inicio-section,
+.reservas-section,
 .agenda-section,
 .table-section {
   width: 100%;
+  min-width: 0;
 }
-
 
 /* =========================
    CABEÇALHO
@@ -31,215 +43,247 @@
 
 .top-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-
+  justify-content: space-between;
+  gap: 1.5rem;
+  width: 100%;
   margin-bottom: 2rem;
+}
+
+.page-title {
+  min-width: 0;
 }
 
 .page-title h1 {
   margin: 0;
-
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-
-  color: var(--text, #111827);
+  color: var(--text-primary, #1e293b);
+  font-size: clamp(1.5rem, 2vw, 1.9rem);
+  font-weight: 750;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 .page-title p {
-  margin: 0.2rem 0 0;
-
-  font-size: 0.9rem;
-
-  color: var(--text-muted, #6b7280);
+  margin: 0.5rem 0 0;
+  color: var(--text-secondary, #64748b);
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
+
+/* =========================
+   PERFIL DO USUÁRIO
+========================= */
 
 .user-profile {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  gap: 0.75rem;
 }
 
 .user-chip {
   display: flex;
   align-items: center;
   gap: 0.65rem;
+  min-width: 0;
+  max-width: 230px;
+  padding: 0.4rem 0.75rem 0.4rem 0.4rem;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 999px;
+  background: var(--surface, #ffffff);
 }
 
 .avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
   width: 38px;
   height: 38px;
-
-  display: grid;
-  place-items: center;
-
-  background-color: var(--primary-soft, #eef2ff);
-  color: var(--primary, #312e81);
-
+  border-radius: 50%;
+  background: var(--primary, #2563eb);
+  color: #ffffff;
   font-size: 0.8rem;
   font-weight: 700;
-
-  border-radius: 50%;
 }
 
 .user-name {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-primary, #334155);
   font-size: 0.875rem;
   font-weight: 600;
-
-  color: var(--text, #111827);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .btn-logout {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-
-  padding: 0.5rem 1rem;
-
-  background-color: var(--surface, #ffffff);
-  color: var(--text, #111827);
-
-  font-size: 0.85rem;
+  min-height: 42px;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 10px;
+  background: var(--surface, #ffffff);
+  color: var(--text-secondary, #475569);
+  font: inherit;
+  font-size: 0.875rem;
   font-weight: 600;
-
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 8px;
-
   cursor: pointer;
-
   transition:
+    background-color 0.2s ease,
     color 0.2s ease,
     border-color 0.2s ease,
-    background-color 0.2s ease;
+    transform 0.2s ease;
 }
 
 .btn-logout:hover {
-  color: var(--danger, #dc2626);
-  border-color: var(--danger, #dc2626);
-  background-color: #fef2f2;
+  background: #fff1f2;
+  color: #e11d48;
+  border-color: #fecdd3;
 }
 
-.btn-logout:focus-visible {
-  outline: 2px solid var(--primary, #312e81);
-  outline-offset: 2px;
+.btn-logout:active {
+  transform: scale(0.98);
 }
 
+.btn-logout:focus-visible,
+.btn-action-dots:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 3px;
+}
 
 /* =========================
-   TABELA DE SALAS
+   CARTÃO DA TABELA
 ========================= */
 
 .table-card {
-  background-color: var(--surface, #ffffff);
-
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: var(--radius, 12px);
-
-  box-shadow: var(--shadow-sm, 0 1px 2px rgba(16, 24, 40, 0.06));
-
-  overflow: hidden;
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 16px;
+  background: var(--surface, #ffffff);
+  box-shadow: 0 4px 18px rgb(15 23 42 / 4%);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
 
 .rooms-table {
   width: 100%;
-
-  border-collapse: collapse;
+  min-width: 650px;
+  border-collapse: separate;
+  border-spacing: 0;
   text-align: left;
 }
 
+.rooms-table th,
+.rooms-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color, #f1f5f9);
+  vertical-align: middle;
+}
+
 .rooms-table th {
-  padding: 0.85rem 1.25rem;
-
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  background: var(--table-header, #f8fafc);
+  color: var(--text-secondary, #64748b);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.045em;
   text-transform: uppercase;
-
-  color: var(--text-muted, #6b7280);
-  background-color: #f9fafb;
-
-  border-bottom: 1px solid var(--border, #e5e7eb);
+  white-space: nowrap;
 }
 
 .rooms-table td {
-  padding: 1rem 1.25rem;
-
-  font-size: 0.9rem;
-
-  border-bottom: 1px solid #f3f4f6;
+  color: var(--text-primary, #334155);
+  font-size: 0.875rem;
 }
 
 .rooms-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-.rooms-table tbody tr:hover td {
-  background-color: #fafafa;
+.rooms-table tbody tr:not(.empty-row) {
+  transition: background-color 0.15s ease;
+}
+
+.rooms-table tbody tr:not(.empty-row):hover {
+  background-color: var(--row-hover, #f8fafc);
 }
 
 .col-xs {
-  width: 80px;
+  width: 75px;
+  white-space: nowrap;
 }
 
 .col-muted {
-  color: #9ca3af;
+  color: var(--text-secondary, #64748b) !important;
+  font-variant-numeric: tabular-nums;
 }
 
 .col-main {
-  color: var(--text, #111827);
-  font-weight: 600;
+  min-width: 160px;
+  font-weight: 650;
+  overflow-wrap: anywhere;
 }
 
+.col-actions {
+  width: 65px;
+  text-align: center;
+  white-space: nowrap;
+}
 
 /* =========================
-   STATUS (pílula)
+   STATUS DAS SALAS
 ========================= */
 
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-
-  padding: 0.25rem 0.65rem;
-
-  font-size: 0.78rem;
-  font-weight: 600;
-
+  justify-content: center;
+  gap: 0.45rem;
+  max-width: 100%;
+  padding: 0.4rem 0.7rem;
   border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 650;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .badge::before {
-  content: '';
-
-  width: 6px;
-  height: 6px;
-
-  background-color: currentColor;
+  content: "";
+  display: inline-block;
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
+  background: currentColor;
 }
 
 .status-available {
-  background-color: #dcfce7;
+  background: #dcfce7;
   color: #15803d;
 }
 
 .status-occupied {
-  background-color: #fee2e2;
+  background: #fee2e2;
   color: #b91c1c;
 }
 
 .status-maintenance {
-  background-color: #fef9c3;
-  color: #a16207;
+  background: #fef3c7;
+  color: #b45309;
 }
 
 .status-reserved {
-  background-color: #e0f2fe;
-  color: #0369a1;
+  background: #dbeafe;
+  color: #1d4ed8;
 }
-
 
 /* =========================
    RESPONSÁVEL
@@ -248,91 +292,224 @@
 .responsible-cell {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.65rem;
+  min-width: 0;
 }
 
 .responsible-avatar {
-  width: 30px;
-  height: 30px;
-
-  display: grid;
-  place-items: center;
-
-  background-color: var(--primary-soft, #eef2ff);
-  color: var(--primary, #312e81);
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e0e7ff;
+  color: #4338ca;
   font-size: 0.7rem;
   font-weight: 700;
-
-  border-radius: 50%;
 }
 
 .responsible-name {
-  color: var(--text-muted, #6b7280);
+  min-width: 0;
+  max-width: 200px;
+  overflow: hidden;
+  color: var(--text-primary, #475569);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
 
 /* =========================
-   AÇÕES
+   BOTÃO DE AÇÕES
 ========================= */
 
-.col-actions {
-  text-align: right;
-}
-
 .btn-action-dots {
-  width: 32px;
-  height: 32px;
-
-  display: inline-grid;
-  place-items: center;
-
-  background: none;
-  color: #9ca3af;
-
-  border: none;
-  border-radius: 8px;
-
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-secondary, #64748b);
+  font-size: 1rem;
   cursor: pointer;
-
   transition:
     background-color 0.2s ease,
-    color 0.2s ease;
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .btn-action-dots:hover {
-  background-color: #f3f4f6;
-  color: var(--text, #111827);
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #dbeafe;
 }
-
-.btn-action-dots:focus-visible {
-  outline: 2px solid var(--primary, #312e81);
-  outline-offset: 2px;
-}
-
 
 /* =========================
-   LISTA VAZIA
+   ESTADO VAZIO
 ========================= */
 
 .empty-row td {
   padding: 2.5rem 1rem;
-
+  color: var(--text-secondary, #64748b);
   text-align: center;
-  color: #9ca3af;
+  font-size: 0.9rem;
 }
 
+/* =========================
+   TELAS MÉDIAS / NOTEBOOKS
+========================= */
+
+@media (max-width: 1100px) {
+  .main-content {
+    padding: 1.75rem;
+  }
+
+  .top-header {
+    gap: 1rem;
+  }
+
+  .rooms-table th,
+  .rooms-table td {
+    padding: 0.9rem 1rem;
+  }
+}
 
 /* =========================
-   RESPONSIVIDADE
+   TABLETS E CELULARES
 ========================= */
 
 @media (max-width: 700px) {
   .main-content {
-    padding: 1.25rem;
+    width: 100%;
+    min-width: 0;
+
+    /* Espaço para o botão fixo do menu */
+    padding: 4.5rem 1rem 1.25rem;
+  }
+
+  .top-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .page-title {
+    flex: 1 1 100%;
+  }
+
+  .page-title h1 {
+    font-size: 1.55rem;
+  }
+
+  .page-title p {
+    font-size: 0.875rem;
+  }
+
+  .user-profile {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .user-chip {
+    max-width: calc(100% - 90px);
   }
 
   .user-name {
-    display: none;
+    display: inline-block;
+    max-width: 180px;
+  }
+
+  .btn-logout {
+    min-height: 40px;
+    padding: 0.55rem 0.8rem;
+  }
+
+  .table-card {
+    border-radius: 12px;
+  }
+
+  .rooms-table {
+    min-width: 610px;
+  }
+
+  .rooms-table th,
+  .rooms-table td {
+    padding: 0.85rem 0.9rem;
+  }
+
+  .badge {
+    padding: 0.35rem 0.55rem;
+    font-size: 0.72rem;
+  }
+
+  .responsible-name {
+    max-width: 150px;
+  }
+}
+
+/* =========================
+   CELULARES PEQUENOS
+========================= */
+
+@media (max-width: 400px) {
+  .main-content {
+    padding: 4.5rem 0.75rem 1rem;
+  }
+
+  .page-title h1 {
+    font-size: 1.35rem;
+  }
+
+  .page-title p {
+    font-size: 0.82rem;
+  }
+
+  .avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+  .user-chip {
+    gap: 0.5rem;
+    padding: 0.3rem 0.6rem 0.3rem 0.3rem;
+  }
+
+  .user-name {
+    max-width: 135px;
+    font-size: 0.8rem;
+  }
+
+  .btn-logout {
+    gap: 0.35rem;
+    padding: 0.5rem 0.65rem;
+    font-size: 0.8rem;
+  }
+
+  .rooms-table {
+    min-width: 590px;
+  }
+
+  .rooms-table th,
+  .rooms-table td {
+    padding: 0.8rem;
+  }
+}
+
+/* =========================
+   ACESSIBILIDADE
+========================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

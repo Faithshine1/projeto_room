@@ -1,17 +1,50 @@
-<aside class="sidebar">
 
+<!-- Botão hambúrguer: aparece apenas no celular -->
+<button
+  type="button"
+  class="mobile-menu-toggle"
+  (click)="toggleMobileMenu()"
+  [attr.aria-expanded]="isMobileMenuOpen"
+  aria-label="Abrir ou fechar menu"
+>
+  <i
+    class="fa-solid"
+    [ngClass]="isMobileMenuOpen ? 'fa-xmark' : 'fa-bars'"
+  ></i>
+</button>
+
+<!-- Fundo escurecido no celular -->
+<div
+  class="sidebar-backdrop"
+  [class.visible]="isMobileMenuOpen"
+  (click)="closeMobileMenu()"
+  aria-hidden="true"
+></div>
+
+<aside
+  class="sidebar"
+  [class.mobile-open]="isMobileMenuOpen"
+>
   <!-- LOGO -->
   <div class="brand">
     <span class="brand-mark">
       <i class="fa-solid fa-graduation-cap"></i>
     </span>
     <h2>EduRoom's</h2>
+
+    <button
+      type="button"
+      class="mobile-close"
+      (click)="closeMobileMenu()"
+      aria-label="Fechar menu"
+    >
+      <i class="fa-solid fa-xmark"></i>
+    </button>
   </div>
 
   <!-- MENU -->
   <nav class="nav-menu">
 
-    <!-- PAINEL -->
     <button
       type="button"
       class="nav-item"
@@ -22,18 +55,14 @@
       <span>Painel</span>
     </button>
 
-    <!-- BUSCAR -->
     <button type="button" class="nav-item">
       <i class="fa-solid fa-magnifying-glass"></i>
       <span>Buscar</span>
     </button>
 
-    <!-- SALAS -->
     <div class="menu-section">
-
       <span class="menu-label">Salas</span>
 
-      <!-- LABORATÓRIOS -->
       <button
         type="button"
         class="nav-item"
@@ -44,7 +73,6 @@
         <span>Laboratórios</span>
       </button>
 
-      <!-- SALAS ESPECIAIS -->
       <button
         type="button"
         class="nav-item"
@@ -55,7 +83,6 @@
         <span>Salas</span>
       </button>
 
-      <!-- AGENDAMENTOS -->
       <button
         type="button"
         class="nav-item"
@@ -66,7 +93,6 @@
         <span>Agendamentos</span>
       </button>
 
-      <!-- MINHAS RESERVAS -->
       <button
         type="button"
         class="nav-item"
@@ -76,19 +102,14 @@
         <i class="fa-solid fa-list-check"></i>
         <span>Minhas Reservas</span>
       </button>
-
     </div>
-
   </nav>
 
   <!-- RODAPÉ -->
   <div class="sidebar-footer">
-
     <button type="button" class="nav-item">
       <i class="fa-solid fa-gear"></i>
       <span>Configurações</span>
     </button>
-
   </div>
-
 </aside>

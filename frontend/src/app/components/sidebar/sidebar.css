@@ -1,15 +1,29 @@
+
 /* =========================
-   SIDEBAR
+   SIDEBAR - DESKTOP
 ========================= */
 
+:host {
+  display: block;
+  flex: 0 0 260px;
+  min-width: 0;
+}
+
 .sidebar {
-  width: 260px;
-  min-height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 
   display: flex;
   flex-direction: column;
 
+  width: 260px;
+  height: 100vh;
+  min-height: 100vh;
+
   padding: 1.75rem 1.25rem;
+  overflow-y: auto;
+  overflow-x: hidden;
 
   background-color: var(--surface, #ffffff);
   border-right: 1px solid var(--border, #e5e7eb);
@@ -17,10 +31,7 @@
   box-sizing: border-box;
 }
 
-
-/* =========================
-   LOGO
-========================= */
+/* LOGO */
 
 .brand {
   display: flex;
@@ -32,88 +43,71 @@
 }
 
 .brand-mark {
-  width: 36px;
-  height: 36px;
-
   display: grid;
   place-items: center;
+  flex: 0 0 36px;
+
+  width: 36px;
+  height: 36px;
 
   background-color: var(--primary, #312e81);
   color: #ffffff;
 
   font-size: 1rem;
-
   border-radius: 10px;
 }
 
 .brand h2 {
   margin: 0;
-
   font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: -0.01em;
-
   color: var(--text, #111827);
 }
 
-
-/* =========================
-   MENU
-========================= */
+/* MENU */
 
 .nav-menu {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-
   flex: 1;
 }
 
-
-/* =========================
-   ITENS DO MENU (todos iguais)
-========================= */
+/* ITENS DO MENU */
 
 .nav-item {
-  width: 100%;
-
   display: flex;
   align-items: center;
   gap: 0.75rem;
 
+  width: 100%;
   padding: 0.7rem 0.75rem;
 
   color: var(--text-muted, #6b7280);
-
+  font-family: inherit;
   font-size: 0.9rem;
   font-weight: 500;
+  text-align: left;
 
   background: transparent;
   border: none;
   border-radius: 8px;
 
   cursor: pointer;
-  text-align: left;
 
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Ícones na mesma coluna em todos os itens */
 .nav-item i {
+  flex: 0 0 20px;
   width: 20px;
-  flex-shrink: 0;
-
   text-align: center;
   font-size: 1rem;
-
   color: var(--text-muted, #6b7280);
-
   transition: color 0.2s ease;
 }
 
-/* Hover */
 .nav-item:hover {
   background-color: var(--primary-soft, #eef2ff);
   color: var(--primary, #312e81);
@@ -123,27 +117,22 @@
   color: var(--primary, #312e81);
 }
 
-/* Foco pelo teclado */
 .nav-item:focus-visible {
   outline: 2px solid var(--primary, #312e81);
   outline-offset: 2px;
 }
 
-
-/* =========================
-   ITEM ATIVO
-========================= */
+/* ITEM ATIVO */
 
 .nav-item.active {
   background-color: var(--primary, #312e81);
   color: #ffffff;
-
   font-weight: 600;
-
   box-shadow: 0 3px 8px rgba(49, 46, 129, 0.2);
 }
 
-.nav-item.active i {
+.nav-item.active i,
+.nav-item.active:hover i {
   color: #ffffff;
 }
 
@@ -152,40 +141,212 @@
   color: #ffffff;
 }
 
-
-/* =========================
-   SEÇÃO SALAS
-========================= */
+/* SEÇÃO SALAS */
 
 .menu-section {
-  margin-top: 1.5rem;
-
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  margin-top: 1.5rem;
 }
 
 .menu-label {
   padding-left: 0.75rem;
   margin-bottom: 0.4rem;
 
+  color: #9ca3af;
   font-size: 0.72rem;
   font-weight: 700;
-
-  color: #9ca3af;
-
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
-
-/* =========================
-   RODAPÉ
-========================= */
+/* RODAPÉ */
 
 .sidebar-footer {
   margin-top: auto;
   padding-top: 1rem;
-
   border-top: 1px solid var(--border, #e5e7eb);
+}
+
+/* CONTROLES MOBILE - OCULTOS NO DESKTOP */
+
+.mobile-menu-toggle,
+.mobile-close,
+.sidebar-backdrop {
+  display: none;
+}
+
+/* =========================
+   TABLETS E CELULARES
+========================= */
+
+@media (max-width: 768px) {
+  :host {
+    display: contents;
+  }
+
+  /* Botão de abrir o menu */
+
+  .mobile-menu-toggle {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1200;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 42px;
+    padding: 0;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+
+    background: #ffffff;
+    color: var(--primary, #312e81);
+
+    font-size: 1.1rem;
+    box-shadow: 0 2px 8px rgb(15 23 42 / 10%);
+
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-menu-toggle:focus-visible,
+  .mobile-close:focus-visible {
+    outline: 2px solid var(--primary, #312e81);
+    outline-offset: 3px;
+  }
+
+  /* Menu lateral deslizante */
+
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 1300;
+
+    display: flex;
+    flex-direction: column;
+
+    width: min(290px, 85vw);
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+
+    padding: 1.5rem 1.1rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    background-color: var(--surface, #ffffff);
+    border-right: 1px solid var(--border, #e5e7eb);
+    box-shadow: 8px 0 30px rgb(15 23 42 / 12%);
+
+    transform: translateX(-105%);
+    visibility: hidden;
+    pointer-events: none;
+
+    transition: transform 0.25s ease, visibility 0.25s ease;
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /* Botão de fechar */
+
+  .mobile-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 36px;
+
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    margin-left: auto;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #f1f5f9;
+    color: #475569;
+
+    font-size: 1.1rem;
+    cursor: pointer;
+  }
+
+  .mobile-close:hover {
+    background: #e2e8f0;
+  }
+
+  /* Fundo escurecido */
+
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1250;
+
+    display: block;
+
+    background: rgb(15 23 42 / 45%);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+
+  .sidebar-backdrop.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .nav-item {
+    min-height: 44px;
+    padding: 0.75rem;
+  }
+
+  .brand {
+    margin-bottom: 1.75rem;
+  }
+
+  .menu-section {
+    margin-top: 1.25rem;
+  }
+}
+
+/* CELULARES PEQUENOS */
+
+@media (max-width: 380px) {
+  .sidebar {
+    width: min(275px, 88vw);
+    padding: 1.25rem 0.9rem;
+  }
+
+  .brand h2 {
+    font-size: 1rem;
+  }
+
+  .nav-item {
+    gap: 0.65rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* ACESSIBILIDADE */
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .sidebar-backdrop,
+  .nav-item,
+  .nav-item i {
+    transition: none;
+  }
 }

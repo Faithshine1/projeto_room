@@ -2,6 +2,7 @@
 
 # Compiled output
 /dist
+.vercel
 /tmp
 /out-tsc
 /bazel-out

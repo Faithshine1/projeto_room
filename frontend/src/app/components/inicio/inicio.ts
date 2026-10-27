@@ -3,6 +3,7 @@ import { Input } from '@angular/core';
 import { OnInit } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
 import { DadosService } from '../../../Service/dados.service';
+import { environment } from '../../../environments/environment';
 
 interface ProximoAgendamento {
   sala: string;
@@ -29,7 +30,7 @@ export class Inicio implements OnInit {
 
   proximosAgendamentos: ProximoAgendamento[] = [];
 
-  private apiUrl = 'http://localhost:3001/agendamentos';
+  private apiUrl = `${environment.apiUrl}/agendamentos`;
 
   private meses = [
     'jan', 'fev', 'mar', 'abr', 'mai', 'jun',

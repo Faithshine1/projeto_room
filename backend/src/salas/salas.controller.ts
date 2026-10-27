@@ -5,8 +5,11 @@ import {
   Get,
   Post,
 } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 import { AdminService } from '../admin/admin.service.js';
+import { Entrada, EntradaDocument } from './schemas/entrada.schema.js';
 
 const SALAS: Record<string, string> = {
   'SALA-201': 'Sala 201',
@@ -14,15 +17,13 @@ const SALAS: Record<string, string> = {
   'LAB-CIENCIAS': 'Laboratório de Ciências',
 };
 
-// Os dados ficam na memória enquanto o backend estiver ligado.
-const entradas: {
-  sala: string;
-  horario: string;
-}[] = [];
-
 @Controller('salas')
 export class SalasController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private readonly adminService: AdminService,
+    @InjectModel(Entrada.name)
+    private readonly entradaModel: Model<EntradaDocument>,
+  ) {}
 
   // Lista as salas cadastradas no painel de ADMIN.
   // O formulário de agendamento usa isso para montar a lista de salas.
@@ -32,7 +33,7 @@ export class SalasController {
   }
 
   @Post('confirmar-entrada')
-  confirmarEntrada(@Body() body: { qrCode: string }) {
+  async confirmarEntrada(@Body() body: { qrCode: string }) {
     if (typeof body?.qrCode !== 'string') {
       throw new BadRequestException('QR Code inválido.');
     }
@@ -59,7 +60,8 @@ export class SalasController {
       horario: new Date().toISOString(),
     };
 
-    entradas.push(entrada);
+    // Fica salvo no banco (a memória do servidor não é confiável na Vercel)
+    await this.entradaModel.create(entrada);
 
     return {
       sucesso: true,
@@ -69,7 +71,12 @@ export class SalasController {
   }
 
   @Get('entradas')
-  listarEntradas() {
-    return entradas;
+  async listarEntradas() {
+    const entradas = await this.entradaModel.find().sort({ horario: 1 }).exec();
+
+    return entradas.map((entrada) => ({
+      sala: entrada.sala,
+      horario: entrada.horario,
+    }));
   }
 }

@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, Output, EventEmitter } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DadosService } from '../../../Service/dados.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-agenda-semanal',
@@ -43,8 +44,8 @@ export class AgendaSemanalComponent implements OnInit {
   aviso: { texto: string; tipo: 'sucesso' | 'erro' } | null = null;
   private avisoTimer: any;
 
-  private apiUrl = 'http://localhost:3001/agendamentos';
-  private apiSalas = 'http://localhost:3001/salas';
+  private apiUrl = `${environment.apiUrl}/agendamentos`;
+  private apiSalas = `${environment.apiUrl}/salas`;
 
   constructor(
     private cdr: ChangeDetectorRef,

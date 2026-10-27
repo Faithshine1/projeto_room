@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-minhas-reservas',
@@ -22,7 +23,7 @@ export class MinhasReservasComponent implements OnInit {
   // Mensagem mostrada na tabela quando a lista não pôde ser carregada
   erro = '';
 
-  private apiUrl = 'http://localhost:3001/agendamentos';
+  private apiUrl = `${environment.apiUrl}/agendamentos`;
 
   // O Angular 22 não usa zone.js por padrão (modo "zoneless"). Isso significa que
   // alterar uma propriedade depois de um await/fetch NÃO atualiza a tela sozinho.

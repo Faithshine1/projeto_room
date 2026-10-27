@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BrowserQRCodeReader } from '@zxing/browser';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-leitor-qr',
@@ -31,7 +32,7 @@ export class LeitorQrComponent implements OnDestroy {
   lendo = false;
 
   // Em produção, configure o endereço real do seu backend.
-  private readonly apiUrl = 'http://localhost:3001/salas';
+  private readonly apiUrl = `${environment.apiUrl}/salas`;
 
   async iniciarLeitura() {
     if (this.lendo || this.processando) return;

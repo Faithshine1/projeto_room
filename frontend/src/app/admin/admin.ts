@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 interface Sala {
   id: string;
@@ -49,8 +50,8 @@ interface Dashboard {
   styleUrl: './admin.css',
 })
 export class Admin implements OnInit {
-  private readonly api = 'http://localhost:3001/admin';
-  private readonly apiAgendamentos = 'http://localhost:3001/agendamentos';
+  private readonly api = `${environment.apiUrl}/admin`;
+  private readonly apiAgendamentos = `${environment.apiUrl}/agendamentos`;
 
   secao = 'inicio';
   carregando = false;

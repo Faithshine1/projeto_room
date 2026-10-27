@@ -7,7 +7,7 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AgendamentosModule } from './agendamentos/agendamentos.module.js';
 import { AdminModule } from './admin/admin.module.js';
-import { SalasController } from './salas/salas.controller.js';
+import { SalasModule } from './salas/salas.module.js';
 
 @Module({
   imports: [
@@ -25,8 +25,9 @@ import { SalasController } from './salas/salas.controller.js';
 
     AgendamentosModule,
     AdminModule,
+    SalasModule,
   ],
-  controllers: [AppController, SalasController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}

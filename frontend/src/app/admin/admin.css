@@ -817,3 +817,48 @@ td strong {
     width: 100%;
   }
 }
+
+/* Seleção e remoção de salas */
+.col-check {
+  width: 36px;
+  text-align: center;
+}
+
+.col-check input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #2910e7;
+}
+
+.col-acoes {
+  width: 110px;
+  text-align: right;
+}
+
+tbody tr.selecionada {
+  background: #f4f2ff;
+}
+
+.danger-button {
+  padding: 11px 16px;
+  color: #fff;
+  border: 0;
+  border-radius: 9px;
+  background: #d92828;
+  box-shadow: 0 3px 8px #d928281a;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.danger-button:hover {
+  background: #b91c1c;
+}
+
+.danger-button:disabled,
+.reject-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -143,6 +143,39 @@
   color: #b45309;
 }
 
+.badge-recusado {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+/* Botão de remover reserva */
+.btn-remover {
+  background: #d92828;
+  color: #ffffff;
+  border: 1px solid #d92828;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-remover:hover {
+  background: #a71f1f;
+  border-color: #b62121;
+  transform: translateY(-1px);
+}
+
+.btn-remover:focus-visible {
+  outline: 2px solid #a78bfa;
+  outline-offset: 3px;
+}
+
+.btn-remover:active {
+  transform: translateY(0);
+}
+
 .vazio {
   text-align: center;
   color: #94a3b8;

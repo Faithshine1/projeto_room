@@ -6,6 +6,8 @@ import {
   Post,
 } from '@nestjs/common';
 
+import { AdminService } from '../admin/admin.service.js';
+
 const SALAS: Record<string, string> = {
   'SALA-201': 'Sala 201',
   'SALA-200': 'Sala 200',
@@ -20,6 +22,15 @@ const entradas: {
 
 @Controller('salas')
 export class SalasController {
+  constructor(private readonly adminService: AdminService) {}
+
+  // Lista as salas cadastradas no painel de ADMIN.
+  // O formulário de agendamento usa isso para montar a lista de salas.
+  @Get()
+  listarSalas() {
+    return this.adminService.listarSalas();
+  }
+
   @Post('confirmar-entrada')
   confirmarEntrada(@Body() body: { qrCode: string }) {
     if (typeof body?.qrCode !== 'string') {

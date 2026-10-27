@@ -1,4 +1,3 @@
-
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -19,8 +18,30 @@ export class LoginComponent {
 
   constructor(private router: Router) {}
 
+  // Login do administrador: usuário ADMIN e senha ADMIN
+  private ehAdmin(): boolean {
+    return this.email.trim().toLowerCase() === 'admin' && this.senha === 'ADMIN';
+  }
+
   entrar() {
     console.log('Botão Entrar clicado');
+
+    // Admin é verificado ANTES das validações de e-mail (@) e tamanho de senha
+    if (this.ehAdmin()) {
+      this.erro = '';
+
+      localStorage.setItem(
+        'usuario',
+        JSON.stringify({ nome: 'Administrador', email: 'admin', perfil: 'admin' })
+      );
+
+      this.router.navigate(['/admin']).then(sucesso => {
+        if (!sucesso) {
+          this.erro = 'Não foi possível abrir a área de administração.';
+        }
+      });
+      return;
+    }
 
     if (!this.email) {
       this.erro = 'Digite seu e-mail.';

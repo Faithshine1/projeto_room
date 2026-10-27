@@ -1,38 +1,48 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
-import { CreateAgendamentoDto } from '../auth/users/dto/create-agendamento.dto.js';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
+
+import { AgendamentosService } from './agendamentos.service.js';
 
 @Controller('agendamentos')
 export class AgendamentosController {
-  
-  private agendamentos: any[] = [];
+  constructor(private readonly agendamentosService: AgendamentosService) {}
 
   @Get()
   listarTodos() {
-    return this.agendamentos;
+    return this.agendamentosService.listar();
   }
 
   @Post()
-  criar(@Body() dto: any) { // Usamos any aqui para capturar todos os campos que o frontend envia
-    const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-    const [ano, mes, dia] = dto.data.split('-');
-    const diaSemana = dias[new Date(+ano, +mes - 1, +dia).getDay()];
+  criar(@Body() dto: any) {
+    return this.agendamentosService.criar(dto);
+  }
 
-    const novoAgendamento = {
-      id: Date.now(),
-      sala: dto.sala,
-      materia: dto.materia || 'Reservado',
-      dia: diaSemana,
-      hora: dto.hora,
-      data: dto.data, // MUDANÇA CRUCIAL: Tem de se chamar "data" e não "dataOriginal"
-      status: dto.status || 'APROVADO', // MUDANÇA CRUCIAL: O frontend precisa do status
-      professor: dto.professor || 'Professor'
-    };
+  // Remove TODAS as reservas
+  @Delete()
+  removerTodos() {
+    return this.agendamentosService.removerTodos();
+  }
 
-    this.agendamentos.push(novoAgendamento);
+  @Delete(':id')
+  remover(@Param('id') id: string) {
+    return this.agendamentosService.remover(id);
+  }
 
-    return {
-      message: 'Agendamento criado com sucesso!',
-      dados: novoAgendamento
-    };
+  // Usados pela área de ADMIN
+  @Patch(':id/aprovar')
+  aprovar(@Param('id') id: string) {
+    return this.agendamentosService.aprovar(id);
+  }
+
+  @Patch(':id/recusar')
+  recusar(@Param('id') id: string) {
+    return this.agendamentosService.recusar(id);
   }
 }

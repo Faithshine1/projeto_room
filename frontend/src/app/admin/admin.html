@@ -43,9 +43,9 @@
         <h1>
           {{ secao === 'inicio' ? 'Dashboard'
              : secao === 'salas' ? 'Gerenciar salas'
-             : 'Solicitações de salas' }}
+             : 'Solicitações de reservas' }}
         </h1>
-        <p>Gerencie os espaços e acompanhe as solicitações.</p>
+        <p>Gerencie os espaços e aprove ou recuse as reservas dos usuários.</p>
       </div>
 
       <button class="refresh-button" (click)="carregarDados()">
@@ -85,14 +85,14 @@
           <div class="stat-icon green">✓</div>
           <span>Aprovadas</span>
           <strong>{{ dashboard.aprovadas }}</strong>
-          <small>Solicitações aprovadas</small>
+          <small>Reservas aprovadas</small>
         </article>
 
         <article class="stat-card">
           <div class="stat-icon red">×</div>
           <span>Recusadas</span>
           <strong>{{ dashboard.recusadas }}</strong>
-          <small>Solicitações recusadas</small>
+          <small>Reservas recusadas</small>
         </article>
       </div>
 
@@ -100,7 +100,7 @@
         <div class="panel-heading">
           <div>
             <h2>Solicitações recentes</h2>
-            <p>Confira os pedidos que precisam de atenção.</p>
+            <p>Reservas dos usuários que precisam de atenção.</p>
           </div>
           <button class="text-button"
             (click)="mudarSecao('solicitacoes')">
@@ -220,8 +220,20 @@
         <div class="panel-heading">
           <div>
             <h2>Todas as salas</h2>
-            <p>{{ salas.length }} sala(s) cadastrada(s).</p>
+            <p>
+              {{ salas.length }} sala(s) cadastrada(s).
+              <ng-container *ngIf="salasSelecionadas.length > 0">
+                {{ salasSelecionadas.length }} selecionada(s).
+              </ng-container>
+            </p>
           </div>
+
+          <button type="button" class="danger-button"
+            *ngIf="salasSelecionadas.length > 0"
+            [disabled]="removendoSalas"
+            (click)="removerSelecionadas()">
+            {{ removendoSalas ? 'Removendo...' : 'Remover selecionadas (' + salasSelecionadas.length + ')' }}
+          </button>
         </div>
 
         <div class="empty-state" *ngIf="salas.length === 0">
@@ -232,18 +244,39 @@
           <table>
             <thead>
               <tr>
+                <th class="col-check">
+                  <input type="checkbox"
+                    aria-label="Selecionar todas as salas"
+                    [checked]="todasSelecionadas"
+                    (change)="alternarTodas()" />
+                </th>
                 <th>Nome</th>
                 <th>Localização</th>
                 <th>Capacidade</th>
                 <th>Recursos</th>
+                <th class="col-acoes">Ações</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let sala of salas">
+              <tr *ngFor="let sala of salas"
+                [class.selecionada]="estaSelecionada(sala.id)">
+                <td class="col-check">
+                  <input type="checkbox"
+                    [attr.aria-label]="'Selecionar ' + sala.nome"
+                    [checked]="estaSelecionada(sala.id)"
+                    (change)="alternarSelecao(sala.id)" />
+                </td>
                 <td><strong>{{ sala.nome }}</strong></td>
                 <td>{{ sala.localizacao || '—' }}</td>
                 <td>{{ sala.capacidade }} lugares</td>
                 <td>{{ sala.recursos.join(', ') || '—' }}</td>
+                <td class="col-acoes">
+                  <button type="button" class="reject-button"
+                    [disabled]="removendoSalas"
+                    (click)="removerSala(sala)">
+                    Remover
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -278,7 +311,7 @@
               <div class="request-info">
                 <h3>{{ s.nomeSala }}</h3>
                 <span>Solicitante: {{ s.solicitante }}</span>
-                <small>Pedido #{{ s.id }} ·
+                <small>Pedido #{{ s.id.slice(-6) }} ·
                   {{ s.criadaEm | date:'dd/MM/yyyy HH:mm' }}
                 </small>
               </div>
@@ -300,7 +333,7 @@
               </button>
               <button class="approve-button"
                 (click)="analisarSolicitacao(s.id, 'aprovar')">
-                ✓ Aprovar solicitação
+                ✓ Aprovar reserva
               </button>
             </div>
           </article>

@@ -1,26 +1,33 @@
 <div class="reservas-container">
   <div class="header-section">
-  
+    <button
+      type="button"
+      class="btn-remover"
+      [disabled]="removendoTodos || agendamentos.length === 0"
+      (click)="removerTodos()"
+    >
+      {{ removendoTodos ? 'Removendo...' : 'Remover todos os agendamentos' }}
+    </button>
   </div>
 
   <!-- BARRA DE FILTROS -->
   <div class="filtros-card">
     <div class="filtro-item">
       <label class="label">Buscar por Sala</label>
-      <input 
-        type="text" 
-        class="form-input" 
-        placeholder="Ex: Laboratório de Ciências" 
-        [(ngModel)]="filtroSala" 
+      <input
+        type="text"
+        class="form-input"
+        placeholder="Ex: Laboratório de Ciências"
+        [(ngModel)]="filtroSala"
       />
     </div>
 
     <div class="filtro-item">
       <label class="label">Data Específica</label>
-      <input 
-        type="date" 
-        class="form-input" 
-        [(ngModel)]="buscaData" 
+      <input
+        type="date"
+        class="form-input"
+        [(ngModel)]="buscaData"
       />
     </div>
 
@@ -30,14 +37,16 @@
         <option value="">Todos os status</option>
         <option value="APROVADO">Aprovado</option>
         <option value="PENDENTE">Aguardando Aprovação</option>
+        <option value="REJEITADO">Recusado</option>
       </select>
     </div>
 
-    <button 
-      type="button" 
-      class="btn-limpar" 
-      (click)="limparFiltros()" 
-      *ngIf="filtroSala || filtroStatus || buscaData">
+    <button
+      type="button"
+      class="btn-limpar"
+      (click)="limparFiltros()"
+      *ngIf="filtroSala || filtroStatus || buscaData"
+    >
       Limpar Filtros
     </button>
   </div>
@@ -53,24 +62,66 @@
           <th>Sala</th>
           <th>Assunto / Matéria</th>
           <th>Status</th>
+          <th>Ações</th>
         </tr>
       </thead>
+
       <tbody>
         <tr *ngFor="let item of agendamentosFiltrados">
-          <td><strong>{{ formatarData(item.data) }}</strong></td>
-          <td>{{ item.dia || '-' }}</td>
-          <td><span class="hora-badge">{{ item.hora }}</span></td>
-          <td>{{ item.sala }}</td>
-          <td>{{ item.materia || 'Agendado' }}</td>
           <td>
-            <span class="badge" [ngClass]="item.status === 'PENDENTE' ? 'badge-pendente' : 'badge-aprovado'">
-              {{ item.status === 'PENDENTE' ? 'Aguardando Aprovação' : 'Aprovado' }}
+            <strong>{{ formatarData(item.data) }}</strong>
+          </td>
+
+          <!-- Dia calculado a partir da data da reserva -->
+          <td>{{ formatarDia(item.data) }}</td>
+
+          <td>
+            <span class="hora-badge">{{ item.hora }}</span>
+          </td>
+
+          <td>{{ item.sala }}</td>
+
+          <td>{{ item.materia || 'Agendado' }}</td>
+
+          <td>
+            <span
+              class="badge"
+              [ngClass]="item.status === 'PENDENTE'
+                ? 'badge-pendente'
+                : item.status === 'REJEITADO'
+                  ? 'badge-recusado'
+                  : 'badge-aprovado'"
+            >
+              {{
+                item.status === 'PENDENTE'
+                  ? 'Aguardando Aprovação'
+                  : item.status === 'REJEITADO'
+                    ? 'Recusado'
+                    : 'Aprovado'
+              }}
             </span>
           </td>
+
+          <td>
+            <button
+              type="button"
+              class="btn-remover"
+              [disabled]="estaRemovendo(item.id)"
+              (click)="removerAgendamento(item.id)"
+              [attr.aria-label]="'Remover reserva de ' + item.sala"
+            >
+              {{
+                estaRemovendo(item.id)
+                  ? 'Removendo...'
+                  : 'Remover'
+              }}
+            </button>
+          </td>
         </tr>
+
         <tr *ngIf="agendamentosFiltrados.length === 0">
-          <td colspan="6" class="vazio">
-            Nenhum agendamento encontrado para os filtros selecionados.
+          <td colspan="7" class="vazio">
+            {{ erro || 'Nenhum agendamento encontrado para os filtros selecionados.' }}
           </td>
         </tr>
       </tbody>

@@ -11,7 +11,7 @@ async function bootstrap() {
   // Ativa as regras de validação dos DTOs (class-validator)
   app.useGlobalPipes(new ValidationPipe());
 
-  await app.listen(process.env.PORT ?? 3001);
+  await app.listen(process.env.PORT ?? 3001, '0.0.0.0');
 }
 
 bootstrap();

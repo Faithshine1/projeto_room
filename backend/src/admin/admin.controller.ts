@@ -2,11 +2,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Post,
   Patch,
   Param,
-  ParseIntPipe,
 } from '@nestjs/common';
 
 import { AdminService } from './admin.service.js';
@@ -38,6 +38,11 @@ export class AdminController {
     return this.adminService.criarSala(body);
   }
 
+  @Delete('salas/:id')
+  removerSala(@Param('id') id: string) {
+    return this.adminService.removerSala(id);
+  }
+
   @Get('solicitacoes')
   listarSolicitacoes() {
     return this.adminService.listarSolicitacoes();
@@ -56,12 +61,12 @@ export class AdminController {
   }
 
   @Patch('solicitacoes/:id/aprovar')
-  aprovar(@Param('id', ParseIntPipe) id: number) {
+  aprovar(@Param('id',) id: string) {
     return this.adminService.aprovar(id);
   }
 
   @Patch('solicitacoes/:id/recusar')
-  recusar(@Param('id', ParseIntPipe) id: number) {
+  recusar(@Param('id',) id: string) {
     return this.adminService.recusar(id);
   }
 }

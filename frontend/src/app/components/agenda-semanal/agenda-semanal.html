@@ -10,9 +10,7 @@
       <div class="form-group">
         <label class="form-label" for="sala">Sala</label>
         <select id="sala" [(ngModel)]="form.sala" name="sala" class="form-input">
-          <option value="Laboratório de Ciências">Laboratório de Ciências</option>
-          <option value="Sala 201">Sala 201</option>
-          <option value="Sala 200">Sala 200</option>
+          <option *ngFor="let s of salas" [value]="s">{{ s }}</option>
         </select>
       </div>
 
@@ -22,7 +20,7 @@
         <select id="tipoReserva" [(ngModel)]="tipoReserva" name="tipoReserva" class="form-input">
           <option value="dia">Dia Único</option>
           <option value="semana">Semana Inteira (5 dias)</option>
-          <option value="mes">Mês Inteiro (4 semanas - Requer Aprovação)</option>
+          <option value="mes">Mês Inteiro (4 semanas)</option>
         </select>
       </div>
 
@@ -44,16 +42,19 @@
       </div>
 
       <p class="dica" *ngIf="tipoReserva === 'semana'">
-        O horário escolhido é reservado em todos os dias úteis da semana selecionada.
+        O horário escolhido é solicitado em todos os dias úteis da semana selecionada.
       </p>
-      <p class="dica dica-alerta" *ngIf="tipoReserva === 'mes'">
-        Reserva estendida por 4 semanas. A solicitação ficará como <strong>PENDENTE</strong> para avaliação da coordenação.
+      <p class="dica" *ngIf="tipoReserva === 'mes'">
+        O horário escolhido é solicitado por 4 semanas (dias úteis).
+      </p>
+      <p class="dica dica-alerta">
+        Toda reserva fica <strong>PENDENTE</strong> até ser aprovada pelo administrador.
       </p>
 
       <!-- BOTÃO AGENDAR -->
       <button type="submit" class="btn-agendar">
         <i class="fa-solid fa-calendar-plus"></i>
-        {{ tipoReserva === 'dia' ? 'Agendar' : (tipoReserva === 'semana' ? 'Agendar Semana' : 'Solicitar Mês') }}
+        {{ tipoReserva === 'dia' ? 'Solicitar Reserva' : (tipoReserva === 'semana' ? 'Solicitar Semana' : 'Solicitar Mês') }}
       </button>
 
     </form>
@@ -130,7 +131,7 @@
     </div>
 
     <h2 class="modal-title">
-      {{ tipoReserva === 'mes' ? 'Solicitar Mês Inteiro' : (datasParaAgendar.length > 1 ? 'Confirmar semana' : 'Confirmar agendamento') }}
+      {{ tipoReserva === 'mes' ? 'Solicitar Mês Inteiro' : (datasParaAgendar.length > 1 ? 'Solicitar semana' : 'Solicitar reserva') }}
     </h2>
 
     <p class="modal-description">Confira os dados antes de confirmar.</p>
@@ -148,7 +149,7 @@
 
       <div class="confirmacao-item">
         <strong>Status</strong>
-        <div class="confirmacao-valor">{{ tipoReserva === 'mes' ? 'PENDENTE' : 'APROVADO' }}</div>
+        <div class="confirmacao-valor">PENDENTE</div>
       </div>
 
       <div class="confirmacao-item">
@@ -162,7 +163,7 @@
     <div class="modal-buttons">
       <button type="button" (click)="cancelarConfirmacao()" class="btn-cancelar">Cancelar</button>
       <button type="button" (click)="confirmarAgendamento()" class="btn-confirmar">
-        {{ tipoReserva === 'mes' ? 'Enviar Solicitação' : 'Confirmar' }}
+        Enviar Solicitação
       </button>
     </div>
 

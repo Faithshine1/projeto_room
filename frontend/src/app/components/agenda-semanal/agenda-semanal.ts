@@ -19,6 +19,10 @@ export class AgendaSemanalComponent implements OnInit {
   horarios = ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '17:00'];
   agendamentos: any[] = [];
 
+  // Salas que sempre existem + as criadas no painel de ADMIN (carregadas do backend)
+  private readonly salasPadrao = ['Laboratório de Ciências', 'Sala 201', 'Sala 200'];
+  salas: string[] = [...this.salasPadrao];
+
   form = {
     sala: 'Laboratório de Ciências',
     data: '',
@@ -40,6 +44,7 @@ export class AgendaSemanalComponent implements OnInit {
   private avisoTimer: any;
 
   private apiUrl = 'http://localhost:3001/agendamentos';
+  private apiSalas = 'http://localhost:3001/salas';
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -49,7 +54,35 @@ export class AgendaSemanalComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.carregarSalas();
     this.carregarAgendamentos();
+  }
+
+  // Busca as salas cadastradas no ADMIN e junta com as salas padrão (sem repetir)
+  async carregarSalas() {
+    try {
+      const response = await fetch(this.apiSalas);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const lista: any[] = await response.json();
+      const todas = [...this.salasPadrao];
+
+      for (const sala of lista) {
+        const nome = String(sala?.nome ?? '').trim();
+        const jaExiste = todas.some(n => n.toLowerCase() === nome.toLowerCase());
+        if (nome && !jaExiste) todas.push(nome);
+      }
+
+      this.salas = todas;
+
+      if (!this.salas.includes(this.form.sala)) {
+        this.form.sala = this.salas[0];
+      }
+      this.cdr.detectChanges();
+    } catch (error) {
+      // Se falhar, o usuário continua com as salas padrão
+      console.error('Erro ao buscar salas:', error);
+    }
   }
 
   get nomeProfessor(): string {
@@ -168,10 +201,11 @@ export class AgendaSemanalComponent implements OnInit {
 
   private horarioOcupado(data: string, hora: string): boolean {
     return this.agendamentos.some(a => {
+      const salaMatch = a.sala === this.form.sala;
       const dataMatch = this.extrairApenasData(a.data) === data;
       const horaMatch = String(a.hora).slice(0, 5) === hora.slice(0, 5);
       const naoRejeitado = a.status !== 'REJEITADO';
-      return dataMatch && horaMatch && naoRejeitado;
+      return salaMatch && dataMatch && horaMatch && naoRejeitado;
     });
   }
 
@@ -181,10 +215,11 @@ export class AgendaSemanalComponent implements OnInit {
     const dataAlvo = this.datasDaSemana[indice];
 
     return this.agendamentos.find(a => {
+      const salaMatch = a.sala === this.form.sala;
       const dataMatch = this.extrairApenasData(a.data) === dataAlvo;
       const horaMatch = String(a.hora).slice(0, 5) === hora.slice(0, 5);
       const naoRejeitado = a.status !== 'REJEITADO';
-      return dataMatch && horaMatch && naoRejeitado;
+      return salaMatch && dataMatch && horaMatch && naoRejeitado;
     });
   }
 
@@ -271,12 +306,10 @@ export class AgendaSemanalComponent implements OnInit {
 
   async confirmarAgendamento() {
     const datas = [...this.datasParaAgendar];
-    const total = datas.length;
     const sala = this.form.sala;
-    const textoDia = this.diaConfirmacao;
-    const status = this.tipoReserva === 'mes' ? 'PENDENTE' : 'APROVADO';
 
     const horasParaAgendar = this.form.hora === 'todos' ? this.horarios : [this.form.hora];
+    const esperado = datas.length * horasParaAgendar.length;
 
     let criados = 0;
     let mensagemErroServidor = '';
@@ -291,8 +324,9 @@ export class AgendaSemanalComponent implements OnInit {
             materia: 'Agendado'
           };
 
+          // O status não é enviado: o backend sempre cria como PENDENTE
+          // e só o administrador pode aprovar ou recusar.
           if (this.nomeProfessor) payload.professor = this.nomeProfessor;
-          if (this.tipoReserva === 'mes') payload.status = status;
 
           const response = await fetch(this.apiUrl, {
             method: 'POST',
@@ -329,11 +363,18 @@ export class AgendaSemanalComponent implements OnInit {
 
     this.irParaSemanaDe(datas[0]);
 
-    if (this.tipoReserva === 'mes') {
-      this.mostrarAviso(`Solicitação mensal enviada! Aguardando aprovação.`, 'sucesso');
+    if (criados < esperado) {
+      this.mostrarAviso(
+        `Só ${criados} de ${esperado} horários foram solicitados. ${mensagemErroServidor}`,
+        'erro'
+      );
     } else {
-      const horaInfo = this.form.hora === 'todos' ? 'o dia todo' : `às ${this.form.hora}`;
-      this.mostrarAviso(total === 1 ? `Agendado com sucesso para ${textoDia} para ${horaInfo}!` : `Semana agendada para ${horaInfo}!`, 'sucesso');
+      this.mostrarAviso(
+        criados === 1
+          ? 'Solicitação enviada! Aguardando aprovação do administrador.'
+          : `${criados} solicitações enviadas! Aguardando aprovação do administrador.`,
+        'sucesso'
+      );
     }
 
     // 2. Dispara o evento para o Dashboard saber que terminou o agendamento

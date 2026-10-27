@@ -2,29 +2,29 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 import { criarOpcoesCors } from './config/cors.config.js';
+import { criarHandler } from './vercel.handler.js';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+async function criarApp() {
+  // Na Vercel, o erro precisa chegar ao handler em vez de o Nest encerrar o processo
+  const app = await NestFactory.create(AppModule, {
+    abortOnError: !process.env.VERCEL,
+  });
 
-  // Permite conexões do frontend Angular. Em produção, defina FRONTEND_URL com o
-  // endereço do site (veja backend/.env.example); sem ela, qualquer origem é aceita.
   app.enableCors(criarOpcoesCors(process.env.FRONTEND_URL));
-
-  // Ativa as regras de validação dos DTOs (class-validator)
   app.useGlobalPipes(new ValidationPipe());
 
+  return app;
+}
+
+// VERCEL: chama esta função a cada requisição
+export default criarHandler(criarApp);
+
+// COMPUTADOR: sobe o servidor normalmente (na Vercel a variável VERCEL existe)
+async function bootstrap() {
+  const app = await criarApp();
   await app.listen(process.env.PORT ?? 3001, '0.0.0.0');
 }
 
-bootstrap();
-
-
-
-
-
-
-
-
-
-
-
+if (!process.env.VERCEL) {
+  bootstrap();
+}

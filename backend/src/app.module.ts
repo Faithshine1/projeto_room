@@ -20,6 +20,8 @@ import { SalasModule } from './salas/salas.module.js';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         uri: configService.getOrThrow<string>('MONGODB_URI'),
+        serverSelectionTimeoutMS: 10000,
+        retryAttempts: process.env.VERCEL ? 1 : 3,
       }),
     }),
 

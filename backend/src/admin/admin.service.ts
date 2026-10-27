@@ -1,121 +1,185 @@
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, isValidObjectId } from 'mongoose';
+
+import { Sala, SalaDocument } from './schemas/sala.schema.js';
+import {
+  Solicitacao,
+  SolicitacaoDocument,
+} from './schemas/solicitacao.schema.js';
 
 type StatusSolicitacao = 'PENDENTE' | 'APROVADA' | 'RECUSADA';
 
-export interface Sala {
-  id: number;
-  nome: string;
-  localizacao: string;
-  capacidade: number;
-  recursos: string[];
-}
-
-export interface SolicitacaoSala {
-  id: number;
-  nomeSala: string;
-  solicitante: string;
-  justificativa: string;
-  status: StatusSolicitacao;
-  criadaEm: string;
-}
-
 @Injectable()
 export class AdminService {
-  private salas: Sala[] = [];
-  private solicitacoes: SolicitacaoSala[] = [];
+  constructor(
+    @InjectModel(Sala.name)
+    private readonly salaModel: Model<SalaDocument>,
 
-  private proximoIdSala = 1;
-  private proximoIdSolicitacao = 1;
+    @InjectModel(Solicitacao.name)
+    private readonly solicitacaoModel: Model<SolicitacaoDocument>,
+  ) {}
 
-  dashboard() {
+  async dashboard() {
+    const [totalSalas, pendentes, aprovadas, recusadas] =
+      await Promise.all([
+        this.salaModel.countDocuments().exec(),
+        this.solicitacaoModel
+          .countDocuments({ status: 'PENDENTE' })
+          .exec(),
+        this.solicitacaoModel
+          .countDocuments({ status: 'APROVADA' })
+          .exec(),
+        this.solicitacaoModel
+          .countDocuments({ status: 'RECUSADA' })
+          .exec(),
+      ]);
+
     return {
-      totalSalas: this.salas.length,
-      pendentes: this.solicitacoes.filter(
-        s => s.status === 'PENDENTE',
-      ).length,
-      aprovadas: this.solicitacoes.filter(
-        s => s.status === 'APROVADA',
-      ).length,
-      recusadas: this.solicitacoes.filter(
-        s => s.status === 'RECUSADA',
-      ).length,
+      totalSalas,
+      pendentes,
+      aprovadas,
+      recusadas,
     };
   }
 
-  listarSalas() {
-    return this.salas;
+  async listarSalas() {
+    const salas = await this.salaModel.find().sort({ createdAt: -1 }).exec();
+
+    return salas.map((sala) => ({
+      id: sala._id.toString(),
+      nome: sala.nome,
+      localizacao: sala.localizacao,
+      capacidade: sala.capacidade,
+      recursos: sala.recursos,
+    }));
   }
 
-  criarSala(dados: {
+  async criarSala(dados: {
     nome: string;
     localizacao?: string;
     capacidade: number;
     recursos?: string[];
   }) {
-    const sala: Sala = {
-      id: this.proximoIdSala++,
+    const sala = await this.salaModel.create({
       nome: dados.nome,
       localizacao: dados.localizacao ?? '',
       capacidade: dados.capacidade,
       recursos: dados.recursos ?? [],
+    });
+
+    return {
+      id: sala._id.toString(),
+      nome: sala.nome,
+      localizacao: sala.localizacao,
+      capacidade: sala.capacidade,
+      recursos: sala.recursos,
     };
-
-    this.salas.push(sala);
-    return sala;
   }
 
-  listarSolicitacoes() {
-    return this.solicitacoes;
+  async removerSala(id: string) {
+    // Aceita só ids no formato do MongoDB (24 caracteres hexadecimais)
+    if (!/^[a-f\d]{24}$/i.test(id)) {
+      throw new BadRequestException('ID da sala inválido.');
+    }
+
+    const removida = await this.salaModel.findByIdAndDelete(id).exec();
+
+    if (!removida) {
+      throw new NotFoundException('Sala não encontrada.');
+    }
+
+    return {
+      message: 'Sala removida com sucesso!',
+      id: removida._id.toString(),
+      nome: removida.nome,
+    };
   }
 
-  criarSolicitacao(dados: {
+  async listarSolicitacoes() {
+    const solicitacoes = await this.solicitacaoModel
+      .find()
+      .sort({ createdAt: -1 })
+      .exec();
+
+    return solicitacoes.map((solicitacao) => ({
+      id: solicitacao._id.toString(),
+      nomeSala: solicitacao.nomeSala,
+      solicitante: solicitacao.solicitante,
+      justificativa: solicitacao.justificativa,
+      status: solicitacao.status,
+      criadaEm: solicitacao.criadaEm,
+    }));
+  }
+
+  async criarSolicitacao(dados: {
     nomeSala: string;
     solicitante: string;
     justificativa?: string;
   }) {
-    const solicitacao: SolicitacaoSala = {
-      id: this.proximoIdSolicitacao++,
+    const solicitacao = await this.solicitacaoModel.create({
       nomeSala: dados.nomeSala,
       solicitante: dados.solicitante,
       justificativa: dados.justificativa ?? '',
       status: 'PENDENTE',
-      criadaEm: new Date().toISOString(),
-    };
+    });
 
-    this.solicitacoes.push(solicitacao);
-    return solicitacao;
+    return {
+      id: solicitacao._id.toString(),
+      nomeSala: solicitacao.nomeSala,
+      solicitante: solicitacao.solicitante,
+      justificativa: solicitacao.justificativa,
+      status: solicitacao.status,
+      criadaEm: solicitacao.criadaEm,
+    };
   }
 
-  private alterarStatus(
-    id: number,
+  private async alterarStatus(
+    id: string,
     status: StatusSolicitacao,
   ) {
-    const solicitacao = this.solicitacoes.find(
-      s => s.id === Number(id),
-    );
+    if (!isValidObjectId(id)) {
+      throw new BadRequestException('ID da solicitação inválido.');
+    }
+
+    const solicitacao = await this.solicitacaoModel
+      .findById(id)
+      .exec();
 
     if (!solicitacao) {
-      throw new NotFoundException(
-        'Solicitação não encontrada.',
-      );
+      throw new NotFoundException('Solicitação não encontrada.');
     }
 
     if (solicitacao.status !== 'PENDENTE') {
-      throw new Error(
+      throw new ConflictException(
         'Esta solicitação já foi analisada.',
       );
     }
 
     solicitacao.status = status;
-    return solicitacao;
+    await solicitacao.save();
+
+    return {
+      id: solicitacao._id.toString(),
+      nomeSala: solicitacao.nomeSala,
+      solicitante: solicitacao.solicitante,
+      justificativa: solicitacao.justificativa,
+      status: solicitacao.status,
+      criadaEm: solicitacao.criadaEm,
+    };
   }
 
-  aprovar(id: number) {
+  aprovar(id: string) {
     return this.alterarStatus(id, 'APROVADA');
   }
 
-  recusar(id: number) {
+  recusar(id: string) {
     return this.alterarStatus(id, 'RECUSADA');
   }
 }

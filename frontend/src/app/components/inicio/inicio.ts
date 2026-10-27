@@ -74,7 +74,10 @@ export class Inicio implements OnInit {
         throw new Error('Erro ao buscar agendamentos.');
       }
 
-      const lista: any[] = await response.json();
+      const todas: any[] = await response.json();
+
+      // Reservas recusadas pelo admin não contam como agendamentos
+      const lista = todas.filter((a: any) => a.status !== 'REJEITADO');
 
       // Atualiza o service; o subscribe acima atualiza o card
       this.dadosService.alterarAgendamentos(lista.length);

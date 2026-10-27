@@ -1,5 +1,6 @@
 
 import { Routes } from '@angular/router';
+import { adminGuard } from './admin/guards/admin.guard';
 import { LoginComponent } from './pages/login/login';
 import { DashboardComponent } from './pages/dashboard/dashboard';
 import { MinhasReservasComponent } from './components/minhas-reservas/minhas-reservas';
@@ -30,13 +31,10 @@ export const routes: Routes = [
   },
   {
 
+path: 'admin',
+  canActivate: [adminGuard],
+  loadComponent: () => import('./admin/admin').then((m) => m.Admin),
 
-
-    path: 'admin',
-    loadComponent: () =>
-      import('./admin/admin').then(
-        (m) => m.Admin
-      ),
   },
   {
 
@@ -47,16 +45,19 @@ export const routes: Routes = [
     path: 'minhas-reservas',
     loadComponent: () => import('./components/minhas-reservas/minhas-reservas').then(m => m.MinhasReservasComponent)
   },
+
   {
-    path: '**',
-    redirectTo: 'login'
-  },
-{
   path: 'leitor-qr',
   loadComponent: () =>
     import('./pages/leitor-qr/leitor-qr')
       .then(m => m.LeitorQrComponent),
 },
+
+  {
+    path: '**',
+    redirectTo: 'login'
+  },
+
 
 ];
 

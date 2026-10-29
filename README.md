@@ -413,6 +413,6 @@ O passo a passo completo está em [DEPLOY-VERCEL.md](./DEPLOY-VERCEL.md). Resumo
 
 ---
 
-## 👤 Autor
+## 👤 Autores
 
-Desenvolvido por **[Seu Nome]** como projeto de estudo em desenvolvimento web com Angular e NestJS.
+Desenvolvido por **[Davi Martins, Djulie Fontenele, Adrieli Martins, Alessandra Minucci, Julian Sales e Mayra Rocha]** como projeto de estudo em desenvolvimento web com Angular e NestJS.

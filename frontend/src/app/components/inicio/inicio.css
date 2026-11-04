@@ -1,319 +1,256 @@
+/* =========================================
+   EDUROOM'S — COMPONENTE INÍCIO
+========================================= */
+
 :host {
   display: block;
+  width: 100%;
+  min-width: 0;
+  color: #1e1250;
+  font-family: "Segoe UI", Arial, sans-serif;
 }
 
-/* =========================
-   CONTAINER
-========================= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* CONTAINER */
 
 .inicio-container {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-
+  gap: 1.5rem;
   width: 100%;
+  min-width: 0;
 }
 
+/* BANNER SENAI */
 
-/* =========================
-   SAUDAÇÃO
-========================= */
+.boas-vindas {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 180px;
+  width: 100%;
+  padding: 1.75rem 2rem;
+  overflow: hidden;
+
+  background-color: #3b2494;
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(58, 36, 148, 0.96) 0%,
+      rgba(58, 36, 148, 0.88) 35%,
+      rgba(58, 36, 148, 0.35) 70%,
+      rgba(58, 36, 148, 0.1) 100%
+    ),
+    url("/images/senai-fachada.png");
+
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center 35%;
+
+  border: 1px solid #d9d2f5;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(76, 47, 181, 0.15);
+}
 
 .boas-vindas h1 {
-  margin: 0 0 0.4rem;
-
-  font-size: 1.6rem;
+  max-width: 620px;
+  margin: 0 0 0.55rem;
+  color: #ffffff;
+  font-size: clamp(1.45rem, 2.2vw, 1.9rem);
   font-weight: 700;
-  letter-spacing: -0.02em;
-
-  color: var(--text, #111827);
+  line-height: 1.2;
+  letter-spacing: -0.035em;
 }
 
 .boas-vindas p {
+  max-width: 560px;
   margin: 0;
-
+  color: #ede9ff;
   font-size: 0.95rem;
-
-  color: var(--text-muted, #6b7280);
+  line-height: 1.6;
 }
 
 .boas-vindas strong {
-  color: var(--primary, #312e81);
+  color: #ffffff;
+  font-weight: 700;
 }
 
-
-/* =========================
-   CARDS
-========================= */
+/* CARTÕES */
 
 .cards-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.25rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  width: 100%;
 }
 
 .info-card {
   display: flex;
   align-items: center;
   gap: 1rem;
+  min-width: 0;
+  min-height: 112px;
+  padding: 1.2rem 1.25rem;
 
-  min-height: 110px;
-  padding: 1.25rem 1.5rem;
+  background: #fff;
+  border: 1px solid #e2def4;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(76, 47, 181, 0.06);
 
-  background-color: var(--surface, #ffffff);
-
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: var(--radius, 12px);
-
-  box-shadow: var(--shadow-sm, 0 1px 2px rgba(16, 24, 40, 0.06));
-
-  box-sizing: border-box;
-
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
 .info-card:hover {
-  transform: translateY(-2px);
-
-  box-shadow: var(--shadow-md, 0 4px 16px rgba(16, 24, 40, 0.08));
+  border-color: #c9bef2;
+  box-shadow: 0 5px 14px rgba(76, 47, 181, 0.12);
 }
+
+/* ÍCONES */
 
 .card-icon {
-  width: 48px;
-  height: 48px;
-
   display: grid;
   place-items: center;
-  flex-shrink: 0;
-
-  font-size: 1.15rem;
-
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
   border-radius: 12px;
+  background: #efedff;
+  color: #44358f;
+  font-size: 1.25rem;
 }
 
-.icon-indigo {
-  background-color: #eef2ff;
-  color: #312e81;
+.card-icon svg {
+  display: block;
+  width: 25px;
+  height: 25px;
+  fill: currentColor;
 }
 
-.icon-blue {
-  background-color: #e0f2fe;
-  color: #0369a1;
+.card-icon i {
+  font-size: 1.2rem;
+  line-height: 1;
 }
 
-.icon-green {
-  background-color: #dcfce7;
-  color: #15803d;
+/* CORES DOS CARTÕES */
+
+.cards-container .info-card:nth-child(1) .card-icon {
+  background: #efedff;
+  color: #493b9c;
 }
 
-.icon-amber {
-  background-color: #fef3c7;
-  color: #b45309;
+.cards-container .info-card:nth-child(2) .card-icon {
+  background: #eaf3ff;
+  color: #2864a8;
 }
+
+.cards-container .info-card:nth-child(3) .card-icon {
+  background: #e8f6ed;
+  color: #25804b;
+}
+
+.cards-container .info-card:nth-child(4) .card-icon {
+  background: #fff3df;
+  color: #a86a12;
+}
+
+/* CONTEÚDO DOS CARTÕES */
 
 .card-content {
   min-width: 0;
 }
 
 .card-content h2 {
-  margin: 0 0 0.2rem;
-
-  font-size: 1.6rem;
+  margin: 0 0 0.3rem;
+  color: #1e1250;
+  font-size: 1.65rem;
   font-weight: 700;
-  line-height: 1.1;
-
-  color: var(--text, #111827);
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
 }
 
 .card-content p {
   margin: 0;
-
-  font-size: 0.85rem;
-
-  color: var(--text-muted, #6b7280);
+  color: #6b5fa3;
+  font-size: 0.84rem;
+  line-height: 1.4;
 }
 
+/* TABLETS E NOTEBOOKS */
 
-/* =========================
-   PRÓXIMOS AGENDAMENTOS
-========================= */
-
-.proximos {
-  background-color: var(--surface, #ffffff);
-
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: var(--radius, 12px);
-
-  box-shadow: var(--shadow-sm, 0 1px 2px rgba(16, 24, 40, 0.06));
-
-  overflow: hidden;
-}
-
-.proximos-header {
-  padding: 1rem 1.5rem;
-
-  border-bottom: 1px solid var(--border, #e5e7eb);
-}
-
-.proximos-header h2 {
-  margin: 0;
-
-  font-size: 1rem;
-  font-weight: 700;
-
-  color: var(--text, #111827);
-}
-
-.proximos-lista {
-  margin: 0;
-  padding: 0;
-
-  list-style: none;
-}
-
-.proximo-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-
-  padding: 0.9rem 1.5rem;
-
-  border-bottom: 1px solid #f3f4f6;
-
-  transition: background-color 0.2s ease;
-}
-
-.proximo-item:last-child {
-  border-bottom: none;
-}
-
-.proximo-item:hover {
-  background-color: #fafafa;
-}
-
-.proximo-data {
-  width: 52px;
-  height: 52px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  background-color: var(--primary-soft, #eef2ff);
-  color: var(--primary, #312e81);
-
-  border-radius: 12px;
-}
-
-.proximo-numero {
-  font-size: 1.1rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.proximo-mes {
-  margin-top: 0.15rem;
-
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.proximo-info {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-
-  min-width: 0;
-}
-
-.proximo-sala {
-  font-size: 0.9rem;
-  font-weight: 600;
-
-  color: var(--text, #111827);
-}
-
-.proximo-dia {
-  margin-top: 0.1rem;
-
-  font-size: 0.8rem;
-
-  color: var(--text-muted, #6b7280);
-}
-
-.proximo-hora {
-  padding: 0.3rem 0.7rem;
-
-  font-size: 0.8rem;
-  font-weight: 600;
-
-  color: var(--primary, #312e81);
-  background-color: var(--primary-soft, #eef2ff);
-
-  border-radius: 999px;
-}
-
-
-/* =========================
-   LISTA VAZIA
-========================= */
-
-.proximos-vazio {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  padding: 2.5rem 1rem;
-
-  text-align: center;
-
-  color: #9ca3af;
-}
-
-.proximos-vazio i {
-  margin-bottom: 0.6rem;
-
-  font-size: 1.6rem;
-}
-
-.proximos-vazio p {
-  margin: 0;
-
-  font-size: 0.9rem;
-  font-weight: 600;
-
-  color: var(--text-muted, #6b7280);
-}
-
-.proximos-vazio span {
-  margin-top: 0.2rem;
-
-  font-size: 0.8rem;
-}
-
-
-/* =========================
-   RESPONSIVIDADE
-========================= */
-
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .cards-container {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 600px) {
-  .cards-container {
-    grid-template-columns: 1fr;
+/* CELULARES */
+
+@media (max-width: 720px) {
+  .inicio-container {
+    gap: 1.1rem;
+  }
+
+  .boas-vindas {
+    min-height: 155px;
+    padding: 1.35rem 1.25rem;
+    background-position: center 35%;
   }
 
   .boas-vindas h1 {
     font-size: 1.4rem;
+  }
+
+  .boas-vindas p {
+    max-width: 90%;
+    font-size: 0.87rem;
+  }
+
+  .cards-container {
+    gap: 0.75rem;
+  }
+
+  .info-card {
+    min-height: 100px;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .card-icon {
+    flex-basis: 40px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .card-content h2 {
+    font-size: 1.4rem;
+  }
+
+  .card-content p {
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 460px) {
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+
+  .info-card {
+    min-height: 88px;
+  }
+}
+
+/* ACESSIBILIDADE */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
   }
 }

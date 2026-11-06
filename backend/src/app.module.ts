@@ -13,6 +13,7 @@ import { SalasModule } from './salas/salas.module.js';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: '.env',
     }),
 
     MongooseModule.forRootAsync({

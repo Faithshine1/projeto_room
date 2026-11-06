@@ -5,12 +5,12 @@
   class="mobile-menu-toggle"
   (click)="toggleMobileMenu()"
   [attr.aria-expanded]="isMobileMenuOpen"
-  aria-label="Abrir ou fechar menu"
->
+  aria-label="Abrir ou fechar menu">
+
   <i
     class="fa-solid"
-    [ngClass]="isMobileMenuOpen ? 'fa-xmark' : 'fa-bars'"
-  ></i>
+    [ngClass]="isMobileMenuOpen ? 'fa-xmark' : 'fa-bars'">
+  </i>
 </button>
 
 <!-- Fundo escurecido no celular -->
@@ -18,26 +18,27 @@
   class="sidebar-backdrop"
   [class.visible]="isMobileMenuOpen"
   (click)="closeMobileMenu()"
-  aria-hidden="true"
-></div>
+  aria-hidden="true">
+</div>
 
 <aside
   class="sidebar"
-  [class.mobile-open]="isMobileMenuOpen"
->
+  [class.mobile-open]="isMobileMenuOpen">
+
   <!-- LOGO -->
   <div class="brand">
     <span class="brand-mark">
       <i class="fa-solid fa-graduation-cap"></i>
     </span>
+
     <h2>EduRoom's</h2>
 
     <button
       type="button"
       class="mobile-close"
       (click)="closeMobileMenu()"
-      aria-label="Fechar menu"
-    >
+      aria-label="Fechar menu">
+
       <i class="fa-solid fa-xmark"></i>
     </button>
   </div>
@@ -45,30 +46,37 @@
   <!-- MENU -->
   <nav class="nav-menu">
 
+    <!-- PAINEL -->
     <button
       type="button"
       class="nav-item"
       [class.active]="activeCategory === 'inicio'"
-      (click)="selectCategory('inicio')"
-    >
+      (click)="selectCategory('inicio')">
+
       <i class="fa-solid fa-table-cells-large"></i>
       <span>Painel</span>
     </button>
 
-    <button type="button" class="nav-item">
+    <!-- BUSCAR -->
+    <button
+      type="button"
+      class="nav-item">
+
       <i class="fa-solid fa-magnifying-glass"></i>
       <span>Buscar</span>
     </button>
 
+    <!-- SALAS -->
     <div class="menu-section">
+
       <span class="menu-label">Salas</span>
 
       <button
         type="button"
         class="nav-item"
         [class.active]="activeCategory === 'laboratorios'"
-        (click)="selectCategory('laboratorios')"
-      >
+        (click)="selectCategory('laboratorios')">
+
         <i class="fa-solid fa-flask-vial"></i>
         <span>Laboratórios</span>
       </button>
@@ -77,39 +85,58 @@
         type="button"
         class="nav-item"
         [class.active]="activeCategory === 'especiais'"
-        (click)="selectCategory('especiais')"
-      >
+        (click)="selectCategory('especiais')">
+
         <i class="fa-solid fa-school"></i>
         <span>Salas</span>
       </button>
 
+      <!-- AGENDAMENTOS -->
       <button
         type="button"
         class="nav-item"
         [class.active]="activeCategory === 'agendamentos'"
-        (click)="selectCategory('agendamentos')"
-      >
+        (click)="selectCategory('agendamentos')">
+
         <i class="fa-solid fa-calendar-days"></i>
         <span>Agendamentos</span>
       </button>
 
+      <!-- MINHAS RESERVAS -->
       <button
         type="button"
         class="nav-item"
         [class.active]="activeCategory === 'minhas-reservas'"
-        (click)="selectCategory('minhas-reservas')"
-      >
+        (click)="selectCategory('minhas-reservas')">
+
         <i class="fa-solid fa-list-check"></i>
         <span>Minhas Reservas</span>
       </button>
+
+      <!-- LEITOR QR CODE -->
+      <button
+        type="button"
+        class="nav-item"
+        [class.active]="activeCategory === 'leitor-qr'"
+        (click)="selectCategory('leitor-qr')">
+
+        <i class="fa-solid fa-qrcode"></i>
+        <span>Leitor QR Code</span>
+      </button>
+
     </div>
   </nav>
 
   <!-- RODAPÉ -->
   <div class="sidebar-footer">
-    <button type="button" class="nav-item">
+
+    <button
+      type="button"
+      class="nav-item">
+
       <i class="fa-solid fa-gear"></i>
       <span>Configurações</span>
     </button>
+
   </div>
 </aside>

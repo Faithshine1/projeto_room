@@ -1,3 +1,4 @@
+
 <div class="layout-container">
 
   <!-- Sidebar -->
@@ -14,12 +15,17 @@
         <h1>{{ tituloPagina }}</h1>
         <p>{{ subtituloPagina }}</p>
       </div>
+
       <div class="user-profile">
         <div class="user-chip">
           <span class="avatar">{{ iniciaisUsuario }}</span>
           <span class="user-name">{{ nomeUsuario }}</span>
         </div>
-        <button type="button" class="btn-logout" (click)="logout()">
+
+        <button
+          type="button"
+          class="btn-logout"
+          (click)="logout()">
           <i class="fa-solid fa-right-from-bracket"></i>
           Sair
         </button>
@@ -27,12 +33,14 @@
     </header>
 
     <!-- ========================= -->
-    <!-- VISTA INÍCIO (PAINEL ORIGINAL) -->
+    <!-- VISTA INÍCIO -->
     <!-- ========================= -->
     <section
       class="inicio-section"
       *ngIf="activeCategory === 'inicio'">
+
       <app-inicio [nomeUsuario]="nomeUsuario"></app-inicio>
+
     </section>
 
     <!-- ========================= -->
@@ -41,60 +49,100 @@
     <section
       class="reservas-section"
       *ngIf="activeCategory === 'minhas-reservas'">
+
       <app-minhas-reservas></app-minhas-reservas>
+
     </section>
 
     <!-- ========================= -->
-    <!-- VISTA SALAS (ESPECIAIS E LABORATORIOS) -->
+    <!-- VISTA LEITOR QR CODE -->
+    <!-- ========================= -->
+    <section
+      class="leitor-section"
+      *ngIf="activeCategory === 'leitor-qr'">
+
+      <app-leitor-qr></app-leitor-qr>
+
+    </section>
+
+    <!-- ========================= -->
+    <!-- VISTA SALAS E LABORATÓRIOS -->
     <!-- ========================= -->
     <section
       class="table-section"
       *ngIf="
-        activeCategory !== 'agendamentos' &&
-        activeCategory !== 'inicio' &&
-        activeCategory !== 'minhas-reservas'
+        activeCategory === 'especiais' ||
+        activeCategory === 'laboratorios'
       ">
+
       <div class="table-card">
+
         <table class="rooms-table">
           <thead>
             <tr>
               <th class="col-xs">Nº</th>
-              <th>{{ activeCategory === 'especiais' ? 'Sala' : 'Laboratório' }}</th>
+              <th>
+                {{ activeCategory === 'especiais' ? 'Sala' : 'Laboratório' }}
+              </th>
               <th>Status</th>
               <th>Responsável</th>
               <th></th>
             </tr>
           </thead>
+
           <tbody>
             <tr *ngFor="let room of filteredRooms">
               <td class="col-muted">{{ room.number }}</td>
+
               <td class="col-main">{{ room.name }}</td>
+
               <td>
-                <span class="badge" [ngClass]="getStatusClass(room.status)">
+                <span
+                  class="badge"
+                  [ngClass]="getStatusClass(room.status)">
                   {{ room.status }}
                 </span>
               </td>
+
               <td>
-                <div class="responsible-cell" *ngIf="room.responsible">
-                  <span class="responsible-avatar">{{ iniciaisDe(room.responsible) }}</span>
-                  <span class="responsible-name">{{ room.responsible }}</span>
+                <div
+                  class="responsible-cell"
+                  *ngIf="room.responsible">
+
+                  <span class="responsible-avatar">
+                    {{ iniciaisDe(room.responsible) }}
+                  </span>
+
+                  <span class="responsible-name">
+                    {{ room.responsible }}
+                  </span>
+
                 </div>
               </td>
+
               <td class="col-actions">
                 <button
                   type="button"
                   class="btn-action-dots"
                   aria-label="Ações da sala"
                   (click)="openActionModal(room)">
+
                   <i class="fa-solid fa-ellipsis"></i>
+
                 </button>
               </td>
             </tr>
-            <tr class="empty-row" *ngIf="filteredRooms.length === 0">
+
+            <tr
+              class="empty-row"
+              *ngIf="filteredRooms.length === 0">
+
               <td colspan="5">Nenhuma sala encontrada.</td>
+
             </tr>
           </tbody>
         </table>
+
       </div>
     </section>
 
@@ -104,7 +152,11 @@
     <section
       class="agenda-section"
       *ngIf="activeCategory === 'agendamentos'">
-      <app-agenda-semanal (agendamentoConcluido)="setCategory('minhas-reservas')"></app-agenda-semanal>
+
+      <app-agenda-semanal
+        (agendamentoConcluido)="setCategory('minhas-reservas')">
+      </app-agenda-semanal>
+
     </section>
 
   </main>

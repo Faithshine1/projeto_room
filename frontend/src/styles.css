@@ -1,1 +1,94 @@
 @import "@fortawesome/fontawesome-free/css/all.min.css";
+
+
+/* ========================= */
+/* Variáveis globais (tema)  */
+/* ========================= */
+:root {
+  --primary: #3b23a8;
+  --primary-hover: #4b30c4;
+  --primary-soft: #efeaff;
+  --accent: #6a4cf0;
+
+  --sidebar-from: #2f1a8c;
+  --sidebar-to: #220f66;
+
+  --ink: #1e1b4b;
+  --text: #1f2937;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --surface: #ffffff;
+  --background: #f6f4ff;
+
+  --success: #16a34a;
+  --danger: #dc2626;
+  --warning: #f59e0b;
+
+  --radius: 16px;
+  --shadow-sm: 0 2px 8px rgba(59, 35, 168, 0.06);
+  --shadow-md: 0 8px 24px rgba(59, 35, 168, 0.12);
+}
+
+/* ========================= */
+/* Reset                     */
+/* ========================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: var(--text);
+  background: var(--background);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+/* Barra de rolagem discreta */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #c9c2ee transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c9c2ee;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

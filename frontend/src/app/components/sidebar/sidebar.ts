@@ -8,7 +8,9 @@ export type ActiveCategory =
   | 'especiais'
   | 'laboratorios'
   | 'agendamentos'
-  | 'minhas-reservas';
+  | 'minhas-reservas'
+  | 'leitor-qr'
+  ;
 
 @Component({
   selector: 'app-sidebar',

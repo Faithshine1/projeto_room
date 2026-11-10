@@ -1,5 +1,7 @@
+
 <main class="leitor-container">
   <section class="leitor-card">
+
     <h1>Confirmar entrada</h1>
 
     <p>
@@ -13,23 +15,22 @@
       muted
       playsinline
       class="camera"
-      [hidden]="!lendo"
-    ></video>
+      [hidden]="!lendo">
+    </video>
 
     <div
       class="status"
       [class.status-sucesso]="sucesso"
       role="status"
-      aria-live="polite"
-    >
+      aria-live="polite">
       {{ mensagem }}
     </div>
 
     <button
       *ngIf="!lendo"
       type="button"
-      (click)="iniciarLeitura()"
-    >
+      (click)="iniciarLeitura()">
+      <i class="fa-solid fa-camera"></i>
       Iniciar leitor
     </button>
 
@@ -37,9 +38,9 @@
       *ngIf="lendo"
       type="button"
       class="btn-parar"
-      (click)="pararLeitura()"
-    >
+      (click)="pararLeitura()">
       Parar câmera
     </button>
+
   </section>
 </main>

@@ -1,3 +1,4 @@
+
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -31,7 +32,6 @@ export class LeitorQrComponent implements OnDestroy {
   sucesso = false;
   lendo = false;
 
-  // Em produção, configure o endereço real do seu backend.
   private readonly apiUrl = `${environment.apiUrl}/salas`;
 
   async iniciarLeitura() {
@@ -42,23 +42,37 @@ export class LeitorQrComponent implements OnDestroy {
     this.sucesso = false;
 
     try {
-      this.controles = await this.leitor.decodeFromVideoDevice(
-        undefined,
-        this.video.nativeElement,
-        (resultado, erro, controles) => {
-          if (resultado && !this.processando) {
-            this.processando = true;
-            this.pararLeitura();
-            this.confirmarEntrada(resultado.getText());
-          }
-        },
-      );
+      const controlesCamera =
+        await this.leitor.decodeFromVideoDevice(
+          undefined,
+          this.video.nativeElement,
+          (resultado, erro, controles) => {
+            if (resultado && !this.processando) {
+              this.processando = true;
+
+              // Para a câmera usando os controles recebidos
+              // diretamente pelo callback.
+              controles?.stop();
+
+              this.controles = undefined;
+              this.lendo = false;
+
+              this.confirmarEntrada(resultado.getText());
+            }
+          },
+        );
+
+      this.controles = controlesCamera;
 
       this.mensagem = 'Aponte a câmera para o QR Code da sala.';
+
     } catch (erro) {
+      console.error('Erro ao iniciar leitor:', erro);
+
       this.lendo = false;
+
       this.mensagem =
-        'Não foi possível abrir a câmera. Verifique as permissões e a conexão HTTPS.';
+        'Não foi possível abrir a câmera. Verifique as permissões e tente novamente.';
     }
   }
 
@@ -77,11 +91,15 @@ export class LeitorQrComponent implements OnDestroy {
           this.mensagem = resposta.mensagem;
           this.processando = false;
         },
+
         error: (erro) => {
+          console.error('Erro ao confirmar entrada:', erro);
+
           this.sucesso = false;
           this.mensagem =
             erro.error?.message ??
             'Não foi possível confirmar a entrada.';
+
           this.processando = false;
         },
       });

@@ -1,5 +1,5 @@
 
-<!-- Botão hambúrguer: aparece apenas no celular -->
+<!-- Botão para abrir e fechar o menu no celular -->
 <button
   type="button"
   class="mobile-menu-toggle"
@@ -13,7 +13,7 @@
   ></i>
 </button>
 
-<!-- Fundo escurecido no celular -->
+<!-- Fundo escurecido do menu mobile -->
 <div
   class="sidebar-backdrop"
   [class.visible]="isMobileMenuOpen"
@@ -21,15 +21,15 @@
   aria-hidden="true"
 ></div>
 
-<aside
-  class="sidebar"
-  [class.mobile-open]="isMobileMenuOpen"
->
-  <!-- LOGO -->
+<!-- Menu lateral -->
+<aside class="sidebar" [class.mobile-open]="isMobileMenuOpen">
+
+  <!-- Identidade do sistema -->
   <div class="brand">
     <span class="brand-mark">
       <i class="fa-solid fa-graduation-cap"></i>
     </span>
+
     <h2>EduRoom's</h2>
 
     <button
@@ -42,9 +42,10 @@
     </button>
   </div>
 
-  <!-- MENU -->
-  <nav class="nav-menu">
+  <!-- Navegação principal -->
+  <nav class="nav-menu" aria-label="Menu principal">
 
+    <!-- Painel -->
     <button
       type="button"
       class="nav-item"
@@ -55,11 +56,7 @@
       <span>Painel</span>
     </button>
 
-    <button type="button" class="nav-item">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      <span>Buscar</span>
-    </button>
-
+    <!-- Salas -->
     <div class="menu-section">
       <span class="menu-label">Salas</span>
 
@@ -80,38 +77,51 @@
         (click)="selectCategory('especiais')"
       >
         <i class="fa-solid fa-school"></i>
-        <span>Salas</span>
+        <span>Salas Especiais</span>
       </button>
-
-      <button
-        type="button"
-        class="nav-item"
-        [class.active]="activeCategory === 'agendamentos'"
-        (click)="selectCategory('agendamentos')"
-      >
-        <i class="fa-solid fa-calendar-days"></i>
-        <span>Agendamentos</span>
-      </button>
-
-      <!-- MINHAS RESERVAS -->
-      <button
-        type="button"
-        class="nav-item"
-        [class.active]="activeCategory === 'minhas-reservas'"
-        (click)="selectCategory('minhas-reservas')"
-      >
-        <i class="fa-solid fa-list-check"></i>
-        <span>Minhas Reservas</span>
-      </button>
-
     </div>
+
+    <!-- Agendamentos -->
+    <button
+      type="button"
+      class="nav-item"
+      [class.active]="activeCategory === 'agendamentos'"
+      (click)="selectCategory('agendamentos')"
+    >
+      <i class="fa-solid fa-calendar-days"></i>
+      <span>Agendamentos</span>
+    </button>
+
+    <!-- Minhas reservas -->
+    <button
+      type="button"
+      class="nav-item"
+      [class.active]="activeCategory === 'minhas-reservas'"
+      (click)="selectCategory('minhas-reservas')"
+    >
+      <i class="fa-solid fa-list-check"></i>
+      <span>Minhas Reservas</span>
+    </button>
+
+    <!-- Leitor QR Code -->
+    <button
+      type="button"
+      class="nav-item"
+      [class.active]="activeCategory === 'leitor-qr'"
+      (click)="selectCategory('leitor-qr')"
+    >
+      <i class="fa-solid fa-qrcode"></i>
+      <span>Leitor QR Code</span>
+    </button>
+
   </nav>
 
-  <!-- RODAPÉ -->
+  <!-- Rodapé -->
   <div class="sidebar-footer">
     <button type="button" class="nav-item">
       <i class="fa-solid fa-gear"></i>
       <span>Configurações</span>
     </button>
   </div>
+
 </aside>

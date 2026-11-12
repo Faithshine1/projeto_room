@@ -68,3 +68,6 @@ button:hover {
 .btn-parar {
   background: #475569;
 }
+.camera[hidden] {
+  display: none;
+}

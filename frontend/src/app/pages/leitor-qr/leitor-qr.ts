@@ -1,4 +1,3 @@
-
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -6,6 +5,7 @@ import {
   OnDestroy,
   ViewChild,
   inject,
+  signal,
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BrowserQRCodeReader } from '@zxing/browser';
@@ -28,56 +28,47 @@ export class LeitorQrComponent implements OnDestroy {
   private controles?: { stop: () => void };
   private processando = false;
 
-  mensagem = 'Toque em iniciar para ler o QR Code.';
-  sucesso = false;
-  lendo = false;
+  mensagem = signal('Toque em iniciar para ler o QR Code.');
+  sucesso = signal(false);
+  lendo = signal(false);
 
   private readonly apiUrl = `${environment.apiUrl}/salas`;
 
   async iniciarLeitura() {
-    if (this.lendo || this.processando) return;
+    if (this.lendo() || this.processando) return;
 
-    this.lendo = true;
-    this.mensagem = 'Solicitando acesso à câmera...';
-    this.sucesso = false;
+    this.lendo.set(true);
+    this.mensagem.set('Solicitando acesso à câmera...');
+    this.sucesso.set(false);
 
     try {
-      const controlesCamera =
-        await this.leitor.decodeFromVideoDevice(
-          undefined,
-          this.video.nativeElement,
-          (resultado, erro, controles) => {
-            if (resultado && !this.processando) {
-              this.processando = true;
-
-              // Para a câmera usando os controles recebidos
-              // diretamente pelo callback.
-              controles?.stop();
-
-              this.controles = undefined;
-              this.lendo = false;
-
-              this.confirmarEntrada(resultado.getText());
-            }
-          },
-        );
+      const controlesCamera = await this.leitor.decodeFromVideoDevice(
+        undefined,
+        this.video.nativeElement,
+        (resultado, _erro, controles) => {
+          if (resultado && !this.processando) {
+            this.processando = true;
+            controles.stop();
+            this.controles = undefined;
+            this.lendo.set(false);
+            this.confirmarEntrada(resultado.getText());
+          }
+        },
+      );
 
       this.controles = controlesCamera;
-
-      this.mensagem = 'Aponte a câmera para o QR Code da sala.';
-
+      this.mensagem.set('Aponte a câmera para o QR Code da sala.');
     } catch (erro) {
       console.error('Erro ao iniciar leitor:', erro);
-
-      this.lendo = false;
-
-      this.mensagem =
-        'Não foi possível abrir a câmera. Verifique as permissões e tente novamente.';
+      this.lendo.set(false);
+      this.mensagem.set(
+        'Não foi possível abrir a câmera. Verifique as permissões e tente novamente.',
+      );
     }
   }
 
   private confirmarEntrada(qrCode: string) {
-    this.mensagem = 'Validando QR Code...';
+    this.mensagem.set('Validando QR Code...');
 
     this.http
       .post<{
@@ -87,19 +78,16 @@ export class LeitorQrComponent implements OnDestroy {
       }>(`${this.apiUrl}/confirmar-entrada`, { qrCode })
       .subscribe({
         next: (resposta) => {
-          this.sucesso = resposta.sucesso;
-          this.mensagem = resposta.mensagem;
+          this.sucesso.set(resposta.sucesso);
+          this.mensagem.set(resposta.mensagem);
           this.processando = false;
         },
-
         error: (erro) => {
           console.error('Erro ao confirmar entrada:', erro);
-
-          this.sucesso = false;
-          this.mensagem =
-            erro.error?.message ??
-            'Não foi possível confirmar a entrada.';
-
+          this.sucesso.set(false);
+          this.mensagem.set(
+            erro.error?.message ?? 'Não foi possível confirmar a entrada.',
+          );
           this.processando = false;
         },
       });
@@ -108,7 +96,7 @@ export class LeitorQrComponent implements OnDestroy {
   pararLeitura() {
     this.controles?.stop();
     this.controles = undefined;
-    this.lendo = false;
+    this.lendo.set(false);
   }
 
   ngOnDestroy() {

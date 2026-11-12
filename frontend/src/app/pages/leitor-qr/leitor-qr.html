@@ -1,7 +1,5 @@
-
 <main class="leitor-container">
   <section class="leitor-card">
-
     <h1>Confirmar entrada</h1>
 
     <p>
@@ -15,32 +13,26 @@
       muted
       playsinline
       class="camera"
-      [hidden]="!lendo">
+      [hidden]="!lendo()">
     </video>
 
     <div
       class="status"
-      [class.status-sucesso]="sucesso"
+      [class.status-sucesso]="sucesso()"
       role="status"
       aria-live="polite">
-      {{ mensagem }}
+      {{ mensagem() }}
     </div>
 
-    <button
-      *ngIf="!lendo"
-      type="button"
-      (click)="iniciarLeitura()">
-      <i class="fa-solid fa-camera"></i>
-      Iniciar leitor
-    </button>
-
-    <button
-      *ngIf="lendo"
-      type="button"
-      class="btn-parar"
-      (click)="pararLeitura()">
-      Parar câmera
-    </button>
-
+    @if (!lendo()) {
+      <button type="button" (click)="iniciarLeitura()">
+        <i class="fa-solid fa-camera"></i>
+        Iniciar leitor
+      </button>
+    } @else {
+      <button type="button" class="btn-parar" (click)="pararLeitura()">
+        Parar câmera
+      </button>
+    }
   </section>
 </main>

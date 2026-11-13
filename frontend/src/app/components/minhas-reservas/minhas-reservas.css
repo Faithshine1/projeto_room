@@ -1,4 +1,3 @@
-
 /* =========================
    CONTAINER PRINCIPAL
 ========================= */
@@ -9,15 +8,14 @@
   margin: 0 auto;
   padding: 1.5rem;
   box-sizing: border-box;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: #1e293b;
+  color: var(--text);
   min-width: 0;
 }
 
 .header-section {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 1.5rem;
@@ -27,12 +25,12 @@
   margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
 }
 
 .subtitulo {
   margin-top: 0.25rem;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.875rem;
 }
 
@@ -47,10 +45,10 @@
   gap: 1rem;
   padding: 1.25rem;
   margin-bottom: 1.5rem;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
-              0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
   box-sizing: border-box;
 }
 
@@ -65,48 +63,60 @@
 .label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #475569;
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.04em;
 }
 
 .form-input {
   width: 100%;
   min-width: 0;
   min-height: 44px;
-  padding: 0.625rem 0.75rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  padding: 0.625rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   font: inherit;
   font-size: 0.875rem;
-  background-color: #ffffff;
-  color: #1e293b;
+  background-color: var(--surface);
+  color: var(--text);
   outline: none;
   box-sizing: border-box;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition);
+}
+
+.form-input:hover {
+  border-color: #cfc6f3;
 }
 
 .form-input:focus {
-  border-color: #3b0764;
-  box-shadow: 0 0 0 3px rgba(59, 7, 100, 0.15);
+  border-color: var(--accent);
+  box-shadow: var(--ring);
 }
 
 .btn-limpar {
   min-height: 44px;
   padding: 0.625rem 1rem;
-  background-color: #f1f5f9;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  background-color: var(--primary-soft);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  color: #475569;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  color: var(--primary);
+  transition:
+    background-color var(--transition),
+    color var(--transition);
 }
 
 .btn-limpar:hover {
-  background-color: #e2e8f0;
-  color: #0f172a;
+  background-color: #e3dbff;
+}
+
+.btn-limpar:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
 }
 
 /* =========================
@@ -116,26 +126,31 @@
 .btn-remover {
   min-height: 42px;
   padding: 8px 14px;
-  background: #d92828;
-  color: #ffffff;
-  border: 1px solid #d92828;
-  border-radius: 8px;
+  background: var(--danger-soft);
+  color: var(--danger);
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-sm);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color var(--transition),
+    color var(--transition),
+    border-color var(--transition),
+    transform var(--transition);
   white-space: nowrap;
 }
 
 .btn-remover:hover:not(:disabled) {
-  background: #a71f1f;
-  border-color: #b62121;
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #ffffff;
   transform: translateY(-1px);
 }
 
 .btn-remover:focus-visible {
-  outline: 2px solid #a78bfa;
-  outline-offset: 3px;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.2);
 }
 
 .btn-remover:active:not(:disabled) {
@@ -154,10 +169,10 @@
 .tabela-card {
   width: 100%;
   max-width: 100%;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
-              0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -171,20 +186,21 @@
 }
 
 .reservas-table th {
-  background-color: #f8fafc;
-  padding: 0.875rem 1rem;
-  color: #64748b;
+  background-color: #faf9ff;
+  padding: 0.9rem 1rem;
+  color: var(--text-muted);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   white-space: nowrap;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border);
 }
 
 .reservas-table td {
   padding: 1rem;
-  border-bottom: 1px solid #f1f5f9;
-  color: #334155;
+  border-bottom: 1px solid #f1effa;
+  color: var(--text);
   vertical-align: middle;
 }
 
@@ -192,8 +208,12 @@
   border-bottom: none;
 }
 
+.reservas-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
 .reservas-table tbody tr:hover:not(:has(.vazio)) {
-  background-color: #faf8ff;
+  background-color: #f6f3ff;
 }
 
 /* =========================
@@ -202,10 +222,10 @@
 
 .hora-badge {
   display: inline-block;
-  padding: 0.3rem 0.55rem;
-  background-color: #f3e8ff;
-  color: #3b0764;
-  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  background-color: var(--primary-soft);
+  color: var(--primary);
+  border-radius: 8px;
   font-weight: 600;
   font-size: 0.75rem;
   white-space: nowrap;
@@ -213,7 +233,7 @@
 
 .badge {
   display: inline-block;
-  padding: 0.3rem 0.625rem;
+  padding: 0.3rem 0.65rem;
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -221,24 +241,24 @@
 }
 
 .badge-aprovado {
-  background-color: #dcfce7;
+  background-color: var(--success-soft);
   color: #15803d;
 }
 
 .badge-pendente {
-  background-color: #fef3c7;
+  background-color: var(--warning-soft);
   color: #b45309;
 }
 
 .badge-recusado {
-  background-color: #fee2e2;
+  background-color: var(--danger-soft);
   color: #b91c1c;
 }
 
 .vazio {
   padding: 2.5rem !important;
   text-align: center;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 /* =========================
@@ -287,7 +307,7 @@
   }
 
   .tabela-card {
-    border-radius: 10px;
+    border-radius: 12px;
   }
 
   .reservas-table th,
@@ -322,7 +342,7 @@
     grid-template-columns: minmax(0, 1fr);
     gap: 0.875rem;
     padding: 0.875rem;
-    border-radius: 10px;
+    border-radius: 12px;
   }
 
   .filtro-item:first-child,
@@ -346,7 +366,7 @@
   }
 
   .tabela-card {
-    border-radius: 8px;
+    border-radius: 10px;
   }
 
   .reservas-table {
@@ -381,7 +401,8 @@
 @media (prefers-reduced-motion: reduce) {
   .btn-remover,
   .btn-limpar,
-  .form-input {
+  .form-input,
+  .reservas-table tbody tr {
     transition: none;
   }
 }

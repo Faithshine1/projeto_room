@@ -13,21 +13,20 @@
   width: 300px;
   padding: 1.5rem;
 
-  background-color: var(--surface, #ffffff);
-
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: var(--radius, 12px);
-
-  box-shadow: var(--shadow-sm, 0 1px 2px rgba(16, 24, 40, 0.06));
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
 }
 
 .form-panel h3 {
   margin: 0 0 1.25rem;
 
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
 
-  color: var(--text, #111827);
+  color: var(--ink);
 }
 
 .agendamento-form {
@@ -47,33 +46,37 @@
   font-size: 0.8rem;
   font-weight: 600;
 
-  color: #374151;
+  color: var(--text);
 }
 
 .form-input {
   width: 100%;
-  padding: 0.65rem 0.8rem;
+  padding: 0.7rem 0.85rem;
 
   font-size: 0.9rem;
 
-  color: var(--text, #111827);
-  background-color: #ffffff;
+  color: var(--text);
+  background-color: var(--surface);
 
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
 
   box-sizing: border-box;
 
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color var(--transition),
+    box-shadow var(--transition);
+}
+
+.form-input:hover {
+  border-color: #cfc6f3;
 }
 
 .form-input:focus {
   outline: none;
 
-  border-color: var(--primary, #312e81);
-  box-shadow: 0 0 0 3px rgba(49, 46, 129, 0.12);
+  border-color: var(--accent);
+  box-shadow: var(--ring);
 }
 
 .btn-agendar {
@@ -83,67 +86,61 @@
   gap: 0.5rem;
 
   margin-top: 0.25rem;
-  padding: 0.75rem;
+  padding: 0.85rem;
 
-  background-color: var(--primary, #312e81);
+  background-color: var(--primary);
   color: #ffffff;
 
   font-size: 0.95rem;
   font-weight: 600;
 
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 6px 16px rgba(59, 35, 168, 0.28);
 
   cursor: pointer;
 
-  transition: background-color 0.2s ease;
+  transition:
+    background-color var(--transition),
+    transform var(--transition);
 }
 
 .btn-agendar:hover {
-  background-color: var(--primary-hover, #3f3bb0);
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-agendar:active {
+  transform: translateY(0);
 }
 
 .btn-agendar:focus-visible {
-  outline: 2px solid var(--primary, #312e81);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: var(--ring);
 }
-
 
 /* =========================
-   SEMANA INTEIRA (opção do formulário)
+   DICAS
 ========================= */
-
-.toggle {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.6rem;
-
-  font-size: 0.85rem;
-  font-weight: 500;
-
-  color: #374151;
-
-  cursor: pointer;
-}
-
-.toggle input {
-  width: 16px;
-  height: 16px;
-
-  margin-top: 0.15rem;
-
-  accent-color: var(--primary, #312e81);
-
-  cursor: pointer;
-}
 
 .dica {
   margin: -0.25rem 0 0;
 
   font-size: 0.78rem;
-  line-height: 1.4;
+  line-height: 1.45;
 
-  color: var(--text-muted, #6b7280);
+  color: var(--text-muted);
+}
+
+.dica-alerta {
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+
+  background-color: var(--warning-soft);
+  color: #92400e;
+
+  border: 1px solid #fde7b0;
+  border-radius: var(--radius-sm);
 }
 
 .confirmacao-dias {
@@ -153,9 +150,8 @@
 
   font-size: 0.8rem;
 
-  color: var(--text-muted, #6b7280);
+  color: var(--text-muted);
 }
-
 
 /* =========================
    AGENDA SEMANAL
@@ -167,12 +163,10 @@
 
   padding: 1.5rem;
 
-  background-color: var(--surface, #ffffff);
-
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: var(--radius, 12px);
-
-  box-shadow: var(--shadow-sm, 0 1px 2px rgba(16, 24, 40, 0.06));
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
 }
 
 .agenda-header {
@@ -185,6 +179,16 @@
   margin-bottom: 1rem;
 }
 
+.agenda-title {
+  margin: 0;
+
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+
+  color: var(--ink);
+}
+
 .semana-nav {
   display: flex;
   align-items: center;
@@ -192,28 +196,28 @@
 }
 
 .btn-nav {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
 
   display: grid;
   place-items: center;
 
-  background-color: #ffffff;
-  color: var(--text-muted, #6b7280);
+  background-color: var(--surface);
+  color: var(--text-muted);
 
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
 
   cursor: pointer;
 
   transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+    background-color var(--transition),
+    color var(--transition);
 }
 
 .btn-nav:hover {
-  background-color: #f3f4f6;
-  color: var(--text, #111827);
+  background-color: var(--primary-soft);
+  color: var(--primary);
 }
 
 .semana-rotulo {
@@ -224,34 +228,34 @@
   font-size: 0.85rem;
   font-weight: 600;
 
-  color: var(--text, #111827);
+  color: var(--ink);
 }
 
 .btn-hoje {
-  padding: 0.4rem 0.8rem;
+  padding: 0.5rem 0.9rem;
 
-  background-color: var(--primary-soft, #eef2ff);
-  color: var(--primary, #312e81);
+  background-color: var(--primary-soft);
+  color: var(--primary);
 
   font-size: 0.8rem;
   font-weight: 600;
 
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 
   cursor: pointer;
 
-  transition: background-color 0.2s ease;
+  transition: background-color var(--transition);
 }
 
 .btn-hoje:hover {
-  background-color: #e0e7ff;
+  background-color: #e3dbff;
 }
 
 .btn-nav:focus-visible,
 .btn-hoje:focus-visible {
-  outline: 2px solid var(--primary, #312e81);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: var(--ring);
 }
 
 .dia-numero {
@@ -259,20 +263,11 @@
 
   font-weight: 700;
 
-  color: var(--text, #111827);
+  color: var(--ink);
 }
 
 .agenda-table th.hoje .dia-numero {
   color: #ffffff;
-}
-
-.agenda-title {
-  margin: 0;
-
-  font-size: 1.05rem;
-  font-weight: 700;
-
-  color: var(--text, #111827);
 }
 
 .table-scroll {
@@ -288,22 +283,22 @@
 }
 
 .agenda-table th {
-  padding: 0.6rem 0.5rem;
+  padding: 0.65rem 0.5rem;
 
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 
-  color: var(--text-muted, #6b7280);
-  background-color: #f9fafb;
+  color: var(--text-muted);
+  background-color: #faf9ff;
 
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
 /* Coluna do dia de hoje */
 .agenda-table th.hoje {
-  background-color: var(--primary, #312e81);
+  background: var(--primary-gradient);
   color: #ffffff;
 }
 
@@ -316,7 +311,7 @@
   font-size: 0.6rem;
   letter-spacing: 0.04em;
 
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.22);
   border-radius: 999px;
 }
 
@@ -329,18 +324,17 @@
   font-size: 0.8rem;
   font-weight: 600;
 
-  color: var(--text-muted, #6b7280);
+  color: var(--text-muted);
 }
 
 .agenda-slot {
   width: 18%;
-  height: 58px;
+  height: 68px;
 
   padding: 0;
 
   text-align: center;
 }
-
 
 /* =========================
    AGENDAMENTO E SLOT VAZIO
@@ -349,16 +343,16 @@
 .agendamento {
   height: 100%;
 
-  padding: 0.5rem 0.6rem;
+  padding: 0.5rem 0.65rem;
 
   text-align: left;
 
-  background-color: var(--primary, #312e81);
+  background: var(--primary-gradient);
   color: #ffffff;
 
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 
-  box-shadow: 0 2px 6px rgba(49, 46, 129, 0.25);
+  box-shadow: 0 4px 10px rgba(59, 35, 168, 0.25);
 
   box-sizing: border-box;
 }
@@ -377,28 +371,45 @@
   opacity: 0.85;
 }
 
+/* Reserva aguardando aprovação */
+.agendamento.pendente {
+  background: var(--warning-soft);
+  color: #92400e;
+
+  border: 1px dashed #f3c25d;
+  box-shadow: none;
+}
+
+.agendamento-status {
+  margin-top: 0.25rem;
+
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
 .slot-vazio {
   height: 100%;
 
-  background-color: #f9fafb;
+  background-color: #faf9ff;
 
-  border: 1px solid #f1f5f9;
-  border-radius: 8px;
+  border: 1px solid #f1effa;
+  border-radius: var(--radius-sm);
 
   box-sizing: border-box;
 
-  transition: background-color 0.2s ease;
+  transition: background-color var(--transition);
 }
 
 .slot-vazio:hover {
-  background-color: var(--primary-soft, #eef2ff);
+  background-color: var(--primary-soft);
 }
 
 .agenda-slot.hoje .slot-vazio {
-  background-color: #f5f7ff;
-  border-color: #e0e7ff;
+  background-color: #f4f1ff;
+  border-color: #e3dcff;
 }
-
 
 /* =========================
    MODAL
@@ -412,8 +423,8 @@
   align-items: center;
   justify-content: center;
 
-  background-color: rgba(17, 24, 39, 0.5);
-  backdrop-filter: blur(2px);
+  background-color: rgba(30, 27, 75, 0.55);
+  backdrop-filter: blur(3px);
 
   z-index: 9999;
 
@@ -425,11 +436,11 @@
 
   padding: 1.75rem;
 
-  background-color: #ffffff;
+  background-color: var(--surface);
 
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
 
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
 
   box-sizing: border-box;
 
@@ -437,18 +448,18 @@
 }
 
 .modal-icon {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
 
   display: grid;
   place-items: center;
 
   margin: 0 auto 0.9rem;
 
-  background-color: var(--primary-soft, #eef2ff);
-  color: var(--primary, #312e81);
+  background-color: var(--primary-soft);
+  color: var(--primary);
 
-  font-size: 1.2rem;
+  font-size: 1.25rem;
 
   border-radius: 50%;
 }
@@ -461,7 +472,7 @@
   font-size: 1.2rem;
   font-weight: 700;
 
-  color: var(--text, #111827);
+  color: var(--ink);
 }
 
 .modal-description {
@@ -471,9 +482,8 @@
 
   font-size: 0.9rem;
 
-  color: var(--text-muted, #6b7280);
+  color: var(--text-muted);
 }
-
 
 /* =========================
    DADOS DO MODAL
@@ -486,12 +496,12 @@
 }
 
 .confirmacao-item {
-  padding: 0.7rem 0.85rem;
+  padding: 0.75rem 0.9rem;
 
-  background-color: #f9fafb;
+  background-color: #faf9ff;
 
-  border: 1px solid #f3f4f6;
-  border-radius: 10px;
+  border: 1px solid #f1effa;
+  border-radius: var(--radius-sm);
 }
 
 .confirmacao-sala {
@@ -503,7 +513,7 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
 
-  color: var(--text-muted, #6b7280);
+  color: var(--text-muted);
 }
 
 .confirmacao-valor {
@@ -512,9 +522,8 @@
   font-size: 0.95rem;
   font-weight: 600;
 
-  color: var(--text, #111827);
+  color: var(--ink);
 }
-
 
 /* =========================
    BOTÕES DO MODAL
@@ -531,48 +540,51 @@
 .btn-confirmar {
   flex: 1;
 
-  padding: 0.75rem;
+  padding: 0.8rem;
 
   font-size: 0.9rem;
   font-weight: 600;
 
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 
   cursor: pointer;
 
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease;
+    background-color var(--transition),
+    border-color var(--transition),
+    transform var(--transition);
 }
 
 .btn-cancelar {
-  background-color: #ffffff;
-  color: #4b5563;
+  background-color: var(--surface);
+  color: var(--text-muted);
 
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border);
 }
 
 .btn-cancelar:hover {
-  background-color: #f3f4f6;
+  background-color: var(--primary-soft);
+  color: var(--primary);
 }
 
 .btn-confirmar {
-  background-color: var(--primary, #312e81);
+  background-color: var(--primary);
   color: #ffffff;
 
   border: none;
+  box-shadow: 0 6px 16px rgba(59, 35, 168, 0.28);
 }
 
 .btn-confirmar:hover {
-  background-color: var(--primary-hover, #3f3bb0);
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
 }
 
 .btn-cancelar:focus-visible,
 .btn-confirmar:focus-visible {
-  outline: 2px solid var(--primary, #312e81);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: var(--ring);
 }
-
 
 /* =========================
    AVISO (TOAST)
@@ -588,16 +600,16 @@
   gap: 0.6rem;
 
   max-width: 360px;
-  padding: 0.85rem 1.1rem;
+  padding: 0.9rem 1.15rem;
 
-  background-color: #111827;
+  background-color: var(--ink);
   color: #ffffff;
 
   font-size: 0.9rem;
 
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
 
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
 
   z-index: 10000;
 
@@ -611,7 +623,6 @@
 .toast-erro i {
   color: #f87171;
 }
-
 
 /* =========================
    ANIMAÇÕES
@@ -644,7 +655,6 @@
   }
 }
 
-
 /* =========================
    RESPONSIVIDADE
 ========================= */
@@ -653,5 +663,29 @@
   .form-panel {
     width: 100%;
   }
-  
+}
+
+@media (max-width: 480px) {
+  .form-panel,
+  .agenda-panel {
+    padding: 1.1rem;
+  }
+
+  .modal {
+    padding: 1.4rem;
+  }
+
+  .toast {
+    right: 0.75rem;
+    left: 0.75rem;
+    max-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay,
+  .modal,
+  .toast {
+    animation: none;
+  }
 }

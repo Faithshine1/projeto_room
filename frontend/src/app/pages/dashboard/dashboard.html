@@ -9,14 +9,16 @@
 
   <main class="main-content">
 
-    <!-- Cabeçalho -->
+    <!-- CABEÇALHO -->
     <header class="top-header">
+
       <div class="page-title">
         <h1>{{ tituloPagina }}</h1>
         <p>{{ subtituloPagina }}</p>
       </div>
 
       <div class="user-profile">
+
         <div class="user-chip">
           <span class="avatar">{{ iniciaisUsuario }}</span>
           <span class="user-name">{{ nomeUsuario }}</span>
@@ -26,15 +28,21 @@
           type="button"
           class="btn-logout"
           (click)="logout()">
+
           <i class="fa-solid fa-right-from-bracket"></i>
           Sair
+
         </button>
+
       </div>
+
     </header>
+
 
     <!-- ========================= -->
     <!-- VISTA INÍCIO -->
     <!-- ========================= -->
+
     <section
       class="inicio-section"
       *ngIf="activeCategory === 'inicio'">
@@ -43,9 +51,11 @@
 
     </section>
 
+
     <!-- ========================= -->
     <!-- VISTA MINHAS RESERVAS -->
     <!-- ========================= -->
+
     <section
       class="reservas-section"
       *ngIf="activeCategory === 'minhas-reservas'">
@@ -54,9 +64,11 @@
 
     </section>
 
+
     <!-- ========================= -->
     <!-- VISTA LEITOR QR CODE -->
     <!-- ========================= -->
+
     <section
       class="leitor-section"
       *ngIf="activeCategory === 'leitor-qr'">
@@ -65,9 +77,11 @@
 
     </section>
 
+
     <!-- ========================= -->
     <!-- VISTA SALAS E LABORATÓRIOS -->
     <!-- ========================= -->
+
     <section
       class="table-section"
       *ngIf="
@@ -75,36 +89,155 @@
         activeCategory === 'laboratorios'
       ">
 
+
+      <!-- RESUMO DOS STATUS -->
+      <div class="rooms-status-summary">
+
+        <!-- TODAS -->
+        <button
+          type="button"
+          class="status-filter"
+          [class.active]="filtroStatusSala === 'TODAS'"
+          (click)="setFiltroStatusSala('TODAS')">
+
+          <span>Todas</span>
+
+          <strong>
+            {{ contarSalas('TODAS') }}
+          </strong>
+
+        </button>
+
+
+        <!-- DISPONÍVEIS -->
+        <button
+          type="button"
+          class="status-filter available"
+          [class.active]="filtroStatusSala === 'Disponível'"
+          (click)="setFiltroStatusSala('Disponível')">
+
+          <span>Disponíveis</span>
+
+          <strong>
+            {{ contarSalas('Disponível') }}
+          </strong>
+
+        </button>
+
+
+        <!-- OCUPADAS -->
+        <button
+          type="button"
+          class="status-filter occupied"
+          [class.active]="filtroStatusSala === 'Ocupado'"
+          (click)="setFiltroStatusSala('Ocupado')">
+
+          <span>Ocupadas</span>
+
+          <strong>
+            {{ contarSalas('Ocupado') }}
+          </strong>
+
+        </button>
+
+
+        <!-- EM MANUTENÇÃO -->
+        <button
+          type="button"
+          class="status-filter maintenance"
+          [class.active]="filtroStatusSala === 'Manutenção'"
+          (click)="setFiltroStatusSala('Manutenção')">
+
+          <span>Em manutenção</span>
+
+          <strong>
+            {{ contarSalas('Manutenção') }}
+          </strong>
+
+        </button>
+
+      </div>
+
+
+      <!-- TABELA DE SALAS -->
       <div class="table-card">
 
         <table class="rooms-table">
+
           <thead>
             <tr>
+
               <th class="col-xs">Nº</th>
+
               <th>
-                {{ activeCategory === 'especiais' ? 'Sala' : 'Laboratório' }}
+                {{
+                  activeCategory === 'especiais'
+                    ? 'Sala'
+                    : 'Laboratório'
+                }}
               </th>
+
               <th>Status</th>
+
               <th>Responsável</th>
+
               <th></th>
+
             </tr>
           </thead>
 
+
           <tbody>
+
+            <!-- CARREGANDO -->
+            <tr *ngIf="carregandoSalas">
+
+              <td colspan="5">
+                Carregando salas...
+              </td>
+
+            </tr>
+
+
+            <!-- ERRO AO CARREGAR -->
+            <tr *ngIf="!carregandoSalas && erroSalas">
+
+              <td colspan="5">
+                {{ erroSalas }}
+              </td>
+
+            </tr>
+
+
+            <!-- SALAS ENCONTRADAS -->
             <tr *ngFor="let room of filteredRooms">
-              <td class="col-muted">{{ room.number }}</td>
 
-              <td class="col-main">{{ room.name }}</td>
+              <td class="col-muted">
+                {{ room.number }}
+              </td>
 
+              <td class="col-main">
+                {{ room.name }}
+              </td>
+
+
+              <!-- STATUS -->
               <td>
+
                 <span
                   class="badge"
                   [ngClass]="getStatusClass(room.status)">
+
                   {{ room.status }}
+
                 </span>
+
               </td>
 
+
+              <!-- RESPONSÁVEL -->
               <td>
+
                 <div
                   class="responsible-cell"
                   *ngIf="room.responsible">
@@ -118,9 +251,13 @@
                   </span>
 
                 </div>
+
               </td>
 
+
+              <!-- AÇÕES -->
               <td class="col-actions">
+
                 <button
                   type="button"
                   class="btn-action-dots"
@@ -130,25 +267,46 @@
                   <i class="fa-solid fa-ellipsis"></i>
 
                 </button>
+
               </td>
+
             </tr>
 
+
+            <!-- NENHUMA SALA ENCONTRADA -->
             <tr
               class="empty-row"
-              *ngIf="filteredRooms.length === 0">
+              *ngIf="
+                !carregandoSalas &&
+                !erroSalas &&
+                filteredRooms.length === 0
+              ">
 
-              <td colspan="5">Nenhuma sala encontrada.</td>
+              <td colspan="5">
+
+                {{
+                  roomsDaCategoria.length === 0
+                    ? 'Nenhuma sala cadastrada nesta categoria.'
+                    : 'Nenhuma sala corresponde ao filtro selecionado.'
+                }}
+
+              </td>
 
             </tr>
+
           </tbody>
+
         </table>
 
       </div>
+
     </section>
+
 
     <!-- ========================= -->
     <!-- VISTA AGENDAMENTOS -->
     <!-- ========================= -->
+
     <section
       class="agenda-section"
       *ngIf="activeCategory === 'agendamentos'">
@@ -160,4 +318,5 @@
     </section>
 
   </main>
+
 </div>

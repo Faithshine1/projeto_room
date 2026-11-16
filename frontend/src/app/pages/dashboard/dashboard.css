@@ -1,3 +1,4 @@
+
 /* =========================
    LAYOUT PRINCIPAL
 ========================= */
@@ -160,6 +161,88 @@
 
 .btn-logout:focus-visible,
 .btn-action-dots:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+/* =========================
+   RESUMO DOS STATUS DAS SALAS
+========================= */
+
+.rooms-status-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.status-filter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  min-width: 0;
+  min-height: 70px;
+  padding: 14px 16px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  box-shadow: var(--shadow-sm);
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.status-filter span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.status-filter strong {
+  flex-shrink: 0;
+  font-size: 1.35rem;
+  font-weight: 750;
+}
+
+.status-filter:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.status-filter.active {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  box-shadow: 0 0 0 2px rgba(75, 45, 180, 0.08);
+}
+
+.status-filter.available strong {
+  color: #15803d;
+}
+
+.status-filter.occupied strong {
+  color: #b91c1c;
+}
+
+.status-filter.maintenance strong {
+  color: #b45309;
+}
+
+.status-filter:focus-visible {
   outline: none;
   box-shadow: var(--ring);
 }
@@ -358,7 +441,7 @@
 }
 
 /* =========================
-   ESTADO VAZIO
+   ESTADO VAZIO E CARREGAMENTO
 ========================= */
 
 .empty-row td {
@@ -366,6 +449,11 @@
   color: var(--text-muted);
   text-align: center;
   font-size: 0.9rem;
+}
+
+.rooms-table tbody tr:has(td[colspan]) td {
+  text-align: center;
+  color: var(--text-muted);
 }
 
 /* =========================
@@ -384,6 +472,14 @@
   .rooms-table th,
   .rooms-table td {
     padding: 0.9rem 1rem;
+  }
+
+  .rooms-status-summary {
+    gap: 10px;
+  }
+
+  .status-filter {
+    padding: 12px;
   }
 }
 
@@ -436,6 +532,22 @@
   .btn-logout {
     min-height: 40px;
     padding: 0.55rem 0.8rem;
+  }
+
+  .rooms-status-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .status-filter {
+    min-height: 62px;
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+
+  .status-filter strong {
+    font-size: 1.15rem;
   }
 
   .table-card {
@@ -497,6 +609,20 @@
     gap: 0.35rem;
     padding: 0.5rem 0.65rem;
     font-size: 0.8rem;
+  }
+
+  .rooms-status-summary {
+    gap: 8px;
+  }
+
+  .status-filter {
+    min-height: 58px;
+    padding: 9px;
+    font-size: 0.73rem;
+  }
+
+  .status-filter strong {
+    font-size: 1.05rem;
   }
 
   .rooms-table {

@@ -1,7 +1,15 @@
-import { Component } from '@angular/core';
-import { Input } from '@angular/core';
-import { OnInit } from '@angular/core';
-import { ChangeDetectorRef } from '@angular/core';
+
+import {
+  Component,
+  Input,
+  OnInit,
+  OnDestroy,
+  ChangeDetectorRef
+} from '@angular/core';
+
+import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
+
 import { DadosService } from '../../../Service/dados.service';
 import { environment } from '../../../environments/environment';
 
@@ -13,33 +21,55 @@ interface ProximoAgendamento {
   mes: string;
 }
 
+interface AgendamentoApi {
+  sala?: string;
+  data?: string;
+  hora?: string;
+  dia?: string;
+  status?: string;
+}
+
 @Component({
   selector: 'app-inicio',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './inicio.html',
   styleUrl: './inicio.css'
 })
-export class Inicio implements OnInit {
+export class Inicio implements OnInit, OnDestroy {
+
   @Input() nomeUsuario: string = 'Usuário';
 
-  quantidadeAgendamentos: number = 0;
-  quantidadeSalas: number = 12;
-  quantidadeLaboratorios: number = 5;
+  quantidadeAgendamentos = 0;
+  quantidadeSalas = 0;
+  quantidadeLaboratorios = 0;
 
-  proximoHorario: string = '--:--';
-  proximaSala: string = 'Nenhum agendamento';
+  proximoHorario = '--:--';
+  proximaSala = 'Nenhum agendamento';
 
   proximosAgendamentos: ProximoAgendamento[] = [];
 
-  private apiUrl = `${environment.apiUrl}/agendamentos`;
+  carregandoAgendamentos = false;
+  erroAgendamentos = '';
 
-  private meses = [
+  private readonly subscriptions = new Subscription();
+
+  private readonly apiUrl =
+    `${environment.apiUrl.replace(/\/+$/, '')}/agendamentos`;
+
+  private readonly meses = [
     'jan', 'fev', 'mar', 'abr', 'mai', 'jun',
     'jul', 'ago', 'set', 'out', 'nov', 'dez'
   ];
 
-  private diasSemana = [
-    'Domingo', 'Segunda', 'Terça', 'Quarta',
-    'Quinta', 'Sexta', 'Sábado'
+  private readonly diasSemana = [
+    'Domingo',
+    'Segunda',
+    'Terça',
+    'Quarta',
+    'Quinta',
+    'Sexta',
+    'Sábado'
   ];
 
   constructor(
@@ -49,76 +79,204 @@ export class Inicio implements OnInit {
 
   ngOnInit(): void {
 
-    this.dadosService.agendamentos$.subscribe((quantidade) => {
-      this.quantidadeAgendamentos = quantidade;
-      this.cdr.detectChanges();
-    });
+    this.subscriptions.add(
+      this.dadosService.agendamentos$.subscribe(
+        (quantidade) => {
+          this.quantidadeAgendamentos = quantidade;
+          this.cdr.detectChanges();
+        }
+      )
+    );
 
-    this.dadosService.salasDisponiveis$.subscribe((quantidade) => {
-      this.quantidadeSalas = quantidade;
-      this.cdr.detectChanges();
-    });
+    this.subscriptions.add(
+      this.dadosService.salasDisponiveis$.subscribe(
+        (quantidade) => {
+          this.quantidadeSalas = quantidade;
+          this.cdr.detectChanges();
+        }
+      )
+    );
 
-    this.dadosService.laboratorios$.subscribe((quantidade) => {
-      this.quantidadeLaboratorios = quantidade;
-      this.cdr.detectChanges();
-    });
+    this.subscriptions.add(
+      this.dadosService.laboratorios$.subscribe(
+        (quantidade) => {
+          this.quantidadeLaboratorios = quantidade;
+          this.cdr.detectChanges();
+        }
+      )
+    );
 
-    this.carregarAgendamentos();
+    void this.carregarAgendamentos();
   }
 
-  async carregarAgendamentos() {
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
+  // CONVERTE A DATA E O HORÁRIO PARA UMA DATA LOCAL
+  private obterDataAgendamento(
+    agendamento: AgendamentoApi
+  ): Date | null {
+
+    const data = String(agendamento.data ?? '')
+      .slice(0, 10);
+
+    const hora = String(agendamento.hora ?? '')
+      .slice(0, 5);
+
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(data) ||
+      !/^\d{2}:\d{2}$/.test(hora)
+    ) {
+      return null;
+    }
+
+    const [ano, mes, dia] = data.split('-').map(Number);
+    const [horas, minutos] = hora.split(':').map(Number);
+
+    const resultado = new Date(
+      ano,
+      mes - 1,
+      dia,
+      horas,
+      minutos
+    );
+
+    // Impede datas ou horários inválidos
+    if (
+      resultado.getFullYear() !== ano ||
+      resultado.getMonth() !== mes - 1 ||
+      resultado.getDate() !== dia ||
+      resultado.getHours() !== horas ||
+      resultado.getMinutes() !== minutos
+    ) {
+      return null;
+    }
+
+    return resultado;
+  }
+
+  // BUSCA AGENDAMENTOS DO BACKEND
+  async carregarAgendamentos(): Promise<void> {
+
+    this.carregandoAgendamentos = true;
+    this.erroAgendamentos = '';
+
     try {
       const response = await fetch(this.apiUrl);
 
       if (!response.ok) {
-        throw new Error('Erro ao buscar agendamentos.');
+        throw new Error(
+          `Erro ao buscar agendamentos: ${response.status}`
+        );
       }
 
-      const todas: any[] = await response.json();
+      const resposta: unknown = await response.json();
 
-      // Reservas recusadas pelo admin não contam como agendamentos
-      const lista = todas.filter((a: any) => a.status !== 'REJEITADO');
+      if (!Array.isArray(resposta)) {
+        throw new Error(
+          'A API retornou um formato inesperado.'
+        );
+      }
 
-      // Atualiza o service; o subscribe acima atualiza o card
-      this.dadosService.alterarAgendamentos(lista.length);
+      const agendamentos = resposta.filter(
+        (item): item is AgendamentoApi =>
+          item !== null &&
+          typeof item === 'object' &&
+          !Array.isArray(item)
+      );
 
-      const agora = new Date().getTime();
+      // Mantém a regra original:
+      // reservas rejeitadas não entram na contagem.
+      const lista = agendamentos.filter(
+        (agendamento) =>
+          String(agendamento.status ?? '')
+            .trim()
+            .toUpperCase() !== 'REJEITADO'
+      );
 
-      // Próximos agendamentos: só os que ainda não passaram, do mais perto ao mais longe
-      this.proximosAgendamentos = lista
-        .map((a: any) => ({
-          a,
-          quando: new Date(`${a.data}T${a.hora}:00`)
-        }))
-        .filter((x: any) =>
-          !isNaN(x.quando.getTime()) &&
-          x.quando.getTime() >= agora
-        )
-        .sort((x: any, y: any) =>
-          x.quando.getTime() - y.quando.getTime()
-        )
+      this.dadosService.alterarAgendamentos(
+        lista.length
+      );
+
+      const agora = Date.now();
+
+      const futuros: {
+        agendamento: AgendamentoApi;
+        quando: Date;
+      }[] = [];
+
+      for (const agendamento of lista) {
+        const quando = this.obterDataAgendamento(
+          agendamento
+        );
+
+        if (
+          quando &&
+          quando.getTime() >= agora
+        ) {
+          futuros.push({
+            agendamento,
+            quando
+          });
+        }
+      }
+
+      // Organiza do horário mais próximo ao mais distante.
+      futuros.sort(
+        (a, b) =>
+          a.quando.getTime() - b.quando.getTime()
+      );
+
+      this.proximosAgendamentos = futuros
         .slice(0, 5)
-        .map((x: any) => ({
-          sala: x.a.sala,
-          dia: x.a.dia || this.diasSemana[x.quando.getDay()],
-          hora: x.a.hora,
-          diaNumero: String(x.quando.getDate()).padStart(2, '0'),
-          mes: this.meses[x.quando.getMonth()]
+        .map(({ agendamento, quando }) => ({
+
+          sala: String(
+            agendamento.sala ?? 'Sala não informada'
+          ),
+
+          dia:
+            agendamento.dia ||
+            this.diasSemana[quando.getDay()],
+
+          hora: String(agendamento.hora ?? '--:--')
+            .slice(0, 5),
+
+          diaNumero: String(
+            quando.getDate()
+          ).padStart(2, '0'),
+
+          mes: this.meses[quando.getMonth()]
+
         }));
 
+      // Próximo horário
       if (this.proximosAgendamentos.length > 0) {
-        this.proximoHorario = this.proximosAgendamentos[0].hora;
-        this.proximaSala = this.proximosAgendamentos[0].sala;
+        const proximo = this.proximosAgendamentos[0];
+
+        this.proximoHorario = proximo.hora;
+        this.proximaSala = proximo.sala;
       } else {
         this.proximoHorario = '--:--';
-        this.proximaSala = 'Nenhum agendamento';
+        this.proximaSala = 'Nenhum agendamento próximo';
       }
 
+    } catch (error) {
+
+      console.error(
+        'Erro ao buscar agendamentos:',
+        error
+      );
+
+      this.erroAgendamentos =
+        'Não foi possível carregar os agendamentos.';
+
+    } finally {
+
+      this.carregandoAgendamentos = false;
       this.cdr.detectChanges();
 
-    } catch (error) {
-      console.error('Erro ao buscar agendamentos:', error);
     }
   }
 }

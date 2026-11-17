@@ -4,28 +4,23 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-
 import * as QRCode from 'qrcode';
 
 import {
   SidebarComponent,
-  ActiveCategory
+  ActiveCategory,
 } from '../../components/sidebar/sidebar';
 
 import {
-  AgendaSemanalComponent
+  AgendaSemanalComponent,
 } from '../../components/agenda-semanal/agenda-semanal';
 
 import {
-  MinhasReservasComponent
+  MinhasReservasComponent,
 } from '../../components/minhas-reservas/minhas-reservas';
 
 import { Inicio } from '../../components/inicio/inicio';
 import { LeitorQrComponent } from '../leitor-qr/leitor-qr';
-
-// =====================================
-// INTERFACES
-// =====================================
 
 export interface Room {
   id: string;
@@ -64,10 +59,6 @@ type FiltroStatusSala =
   | 'Manutenção'
   | 'Reservado';
 
-// =====================================
-// COMPONENTE DASHBOARD
-// =====================================
-
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -78,165 +69,106 @@ type FiltroStatusSala =
     AgendaSemanalComponent,
     MinhasReservasComponent,
     Inicio,
-    LeitorQrComponent
+    LeitorQrComponent,
   ],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css'
+  styleUrl: './dashboard.css',
 })
-
 export class DashboardComponent implements OnInit {
 
-  // =====================================
-  // API DO BACKEND
-  // =====================================
+  // API ORIGINAL
+  private readonly apiSalas =
+    'http://localhost:3001/admin/salas';
 
-  private readonly apiSalas = 'http://localhost:3001/admin/salas';
-
-  // =====================================
-  // DADOS DO USUÁRIO
-  // =====================================
-
+  // USUÁRIO
   nomeUsuario: string = 'Usuário';
 
-  // =====================================
-  // NAVEGAÇÃO
-  // =====================================
-
+  // NAVEGAÇÃO E FILTROS
   activeCategory: ActiveCategory = 'inicio';
-
   searchTerm: string = '';
-
-  // =====================================
-  // FILTRO DE STATUS
-  // =====================================
-
   filtroStatusSala: FiltroStatusSala = 'TODAS';
 
-  // =====================================
   // CONTROLE DAS SALAS
-  // =====================================
-
   selectedRoom: Room | null = null;
-
   selectedRoomForBooking: string = '';
-
   selectedDate: string = '';
-
   selectedTime: string = '08:00';
 
-  // =====================================
-  // LISTA DE SALAS
-  // =====================================
-
+  // DADOS
   rooms: Room[] = [];
-
   carregandoSalas = false;
-
   erroSalas = '';
 
-  // =====================================
-  // SALAS ILUSTRATIVAS
-  // =====================================
-
+  // SALAS ILUSTRATIVAS DO PROJETO ORIGINAL
   private readonly salasIlustrativas: Room[] = [
-
     {
       id: 'demo-011',
       number: '011',
       name: 'Sala de Informática 1',
       type: 'ESPECIAL',
       status: 'Disponível',
-      responsible: 'Prof. Carlos'
+      responsible: 'Prof. Carlos',
     },
-
     {
       id: 'demo-200',
       number: '200',
       name: 'Sala de Reuniões',
       type: 'ESPECIAL',
       status: 'Ocupado',
-      responsible: 'Coordenação'
+      responsible: 'Coordenação',
     },
-
     {
       id: 'demo-201',
       number: '201',
       name: 'Sala Multimídia',
       type: 'ESPECIAL',
       status: 'Disponível',
-      responsible: 'Prof. João'
+      responsible: 'Prof. João',
     },
-
     {
       id: 'demo-055',
       number: '055',
       name: 'Laboratório de Ciências',
       type: 'LABORATORIO',
       status: 'Manutenção',
-      responsible: 'Prof. Ricardo'
-    }
-
+      responsible: 'Prof. Ricardo',
+    },
   ];
 
-  // =====================================
-  // CONTROLE DO QR CODE
-  // =====================================
-
+  // QR CODE
   qrCodeDataUrl: string | null = null;
-
   roomForQr: Room | null = null;
-
   qrError = '';
-
-  // =====================================
-  // CONSTRUTOR
-  // =====================================
 
   constructor(
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
   ) {
-
     if (typeof localStorage !== 'undefined') {
-
       const salvo = localStorage.getItem('usuario');
 
       if (salvo) {
-
         try {
           this.nomeUsuario =
             JSON.parse(salvo).nome || 'Usuário';
-
         } catch {
           this.nomeUsuario = 'Usuário';
         }
-
       }
-
     }
-
   }
-
-  // =====================================
-  // INICIALIZAÇÃO
-  // =====================================
 
   ngOnInit(): void {
     this.carregarSalasDoBackend();
   }
 
-  // =====================================
-  // EXTRAIR LISTA DE SALAS DA API
-  // =====================================
-
+  // EXTRAI A LISTA RETORNADA PELA API
   private extrairListaSalas(dados: unknown): SalaApi[] {
-
     if (Array.isArray(dados)) {
       return dados as SalaApi[];
     }
 
     if (dados && typeof dados === 'object') {
-
       const resposta = dados as {
         salas?: unknown;
         data?: unknown;
@@ -259,18 +191,15 @@ export class DashboardComponent implements OnInit {
       if (Array.isArray(resposta.items)) {
         return resposta.items as SalaApi[];
       }
-
     }
 
     return [];
-
   }
 
-  // =====================================
-  // NORMALIZAR STATUS
-  // =====================================
-
-  normalizarStatus(status: string | undefined): Room['status'] {
+  // NORMALIZA STATUS
+  normalizarStatus(
+    status: string | undefined
+  ): Room['status'] {
 
     const valor = String(status ?? '')
       .trim()
@@ -280,7 +209,6 @@ export class DashboardComponent implements OnInit {
       .replace(/[_-]+/g, ' ');
 
     switch (valor) {
-
       case 'DISPONIVEL':
       case 'LIVRE':
       case 'AVAILABLE':
@@ -303,16 +231,13 @@ export class DashboardComponent implements OnInit {
 
       default:
         return 'Disponível';
-
     }
-
   }
 
-  // =====================================
-  // NORMALIZAR TIPO DA SALA
-  // =====================================
-
-  private normalizarTipo(tipo: string | undefined): Room['type'] {
+  // NORMALIZA O TIPO DO ESPAÇO
+  private normalizarTipo(
+    tipo: string | undefined
+  ): Room['type'] {
 
     const valor = String(tipo ?? '')
       .trim()
@@ -323,194 +248,133 @@ export class DashboardComponent implements OnInit {
     return valor === 'LABORATORIO'
       ? 'LABORATORIO'
       : 'ESPECIAL';
-
   }
 
-  // =====================================
-  // CARREGAR SALAS DO BACKEND
-  // =====================================
-
+  // CARREGA SALAS DO BACKEND
   carregarSalasDoBackend(): void {
-
     this.carregandoSalas = true;
     this.erroSalas = '';
 
     this.http.get<unknown>(this.apiSalas).subscribe({
-
       next: (dados) => {
-
         const lista = this.extrairListaSalas(dados);
 
         this.rooms = lista
-          .map((item, index): Room => {
+          .map((item, index): Room => ({
+            id: String(item.id ?? item._id ?? ''),
 
-            return {
+            number: String(
+              item.localizacao ??
+              item.numero ??
+              `00${index + 1}`
+            ),
 
-              id: String(item.id ?? item._id ?? ''),
+            name: String(
+              item.nome ??
+              item.name ??
+              ''
+            ),
 
-              number: String(
-                item.localizacao ??
-                item.numero ??
-                `00${index + 1}`
-              ),
+            type: this.normalizarTipo(
+              item.tipo ?? item.type
+            ),
 
-              name: String(
-                item.nome ??
-                item.name ??
-                ''
-              ),
+            status: this.normalizarStatus(
+              item.status
+            ),
 
-              type: this.normalizarTipo(
-                item.tipo ?? item.type
-              ),
-
-              status: this.normalizarStatus(item.status),
-
-              responsible: String(
-                item.responsavel ??
-                item.responsible ??
-                'Coordenação'
-              )
-
-            };
-
-          })
+            responsible: String(
+              item.responsavel ??
+              item.responsible ??
+              'Coordenação'
+            ),
+          }))
           .filter(room => room.name.trim() !== '');
 
-        // Se a API não retornar salas, mostra as ilustrativas.
-
+        // MANTÉM O COMPORTAMENTO ORIGINAL
         if (this.rooms.length === 0) {
-
-          this.rooms = this.salasIlustrativas.map(room => ({
-            ...room
-          }));
-
+          this.rooms = this.salasIlustrativas.map(
+            room => ({ ...room })
+          );
         }
 
         this.erroSalas = '';
         this.carregandoSalas = false;
 
         console.log('Salas carregadas:', this.rooms);
-
       },
 
       error: (erro) => {
-
         console.error('Erro ao carregar salas:', erro);
 
-        // Se o servidor falhar, mostra as salas ilustrativas.
-
-        this.rooms = this.salasIlustrativas.map(room => ({
-          ...room
-        }));
-
-        // Não exibe mensagem de erro na tela.
+        // FALLBACK ILUSTRATIVO ORIGINAL
+        this.rooms = this.salasIlustrativas.map(
+          room => ({ ...room })
+        );
 
         this.erroSalas = '';
-
         this.carregandoSalas = false;
-
-      }
-
+      },
     });
-
   }
 
-  // =====================================
-  // GERAR QR CODE
-  // =====================================
-
+  // GERA QR CODE
   async gerarQrCode(room: Room): Promise<void> {
-
     this.roomForQr = room;
-
     this.qrCodeDataUrl = null;
-
     this.qrError = '';
 
     if (!room.id || room.id.startsWith('demo-')) {
-
       this.qrError =
         'Esta sala é ilustrativa e não possui QR Code válido para entrada.';
-
       return;
-
     }
 
     const conteudo = `EDUROOM:${room.id}`;
 
     try {
-
       this.qrCodeDataUrl = await QRCode.toDataURL(
         conteudo,
         {
           width: 320,
           margin: 3,
           errorCorrectionLevel: 'M',
-
           color: {
             dark: '#281d65',
-            light: '#ffffff'
-          }
-
+            light: '#ffffff',
+          },
         }
       );
-
     } catch (erro) {
-
       console.error('Erro ao gerar QR Code:', erro);
 
       this.qrError =
         'Não foi possível gerar o QR Code.';
-
     }
-
   }
-
-  // =====================================
-  // FECHAR MODAL QR CODE
-  // =====================================
 
   fecharQrCode(): void {
-
     this.roomForQr = null;
-
     this.qrCodeDataUrl = null;
-
     this.qrError = '';
-
   }
 
-  // =====================================
-  // SAIR DO SISTEMA
-  // =====================================
-
+  // AUTENTICAÇÃO
   logout(): void {
-
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem('usuario');
     }
 
     this.router.navigate(['/login']);
-
   }
 
-  // =====================================
-  // INICIAIS DO USUÁRIO
-  // =====================================
-
+  // DADOS DO USUÁRIO
   get iniciaisUsuario(): string {
     return this.iniciaisDe(this.nomeUsuario);
   }
 
-  // =====================================
-  // TÍTULO DA PÁGINA
-  // =====================================
-
   get tituloPagina(): string {
-
     switch (this.activeCategory) {
-
       case 'especiais':
         return 'Salas Especiais';
 
@@ -528,19 +392,11 @@ export class DashboardComponent implements OnInit {
 
       default:
         return 'Painel';
-
     }
-
   }
 
-  // =====================================
-  // SUBTÍTULO DA PÁGINA
-  // =====================================
-
   get subtituloPagina(): string {
-
     switch (this.activeCategory) {
-
       case 'especiais':
         return 'Acompanhe o status e o responsável de cada sala.';
 
@@ -558,17 +414,11 @@ export class DashboardComponent implements OnInit {
 
       default:
         return 'Resumo das suas salas e agendamentos.';
-
     }
-
   }
 
-  // =====================================
   // INICIAIS DOS NOMES
-  // =====================================
-
   iniciaisDe(nome: string): string {
-
     const palavras = (nome || '')
       .replace(/^prof\.?\s+/i, '')
       .trim()
@@ -583,15 +433,10 @@ export class DashboardComponent implements OnInit {
       .slice(0, 2)
       .map(palavra => palavra.charAt(0).toUpperCase())
       .join('');
-
   }
 
-  // =====================================
   // SALAS DA CATEGORIA ATUAL
-  // =====================================
-
   get roomsDaCategoria(): Room[] {
-
     if (
       this.activeCategory !== 'especiais' &&
       this.activeCategory !== 'laboratorios'
@@ -604,16 +449,13 @@ export class DashboardComponent implements OnInit {
         ? 'ESPECIAL'
         : 'LABORATORIO';
 
-    return this.rooms.filter(room => room.type === tipo);
-
+    return this.rooms.filter(
+      room => room.type === tipo
+    );
   }
 
-  // =====================================
-  // CONTADORES DE STATUS
-  // =====================================
-
+  // CONTADORES
   contarSalas(status: FiltroStatusSala): number {
-
     if (status === 'TODAS') {
       return this.roomsDaCategoria.length;
     }
@@ -621,19 +463,13 @@ export class DashboardComponent implements OnInit {
     return this.roomsDaCategoria.filter(
       room => room.status === status
     ).length;
-
   }
 
-  // =====================================
-  // FILTRAR SALAS
-  // =====================================
-
+  // FILTRAGEM
   get filteredRooms(): Room[] {
-
     const termo = this.searchTerm.trim().toLowerCase();
 
     return this.roomsDaCategoria.filter(room => {
-
       const correspondeStatus =
         this.filtroStatusSala === 'TODAS' ||
         room.status === this.filtroStatusSala;
@@ -644,43 +480,23 @@ export class DashboardComponent implements OnInit {
         room.responsible.toLowerCase().includes(termo);
 
       return correspondeStatus && correspondeBusca;
-
     });
-
   }
 
-  // =====================================
   // NAVEGAÇÃO
-  // =====================================
-
   setCategory(category: ActiveCategory): void {
-
     this.activeCategory = category;
-
     this.filtroStatusSala = 'TODAS';
-
     this.searchTerm = '';
-
   }
-
-  // =====================================
-  // FILTRO DE STATUS
-  // =====================================
 
   setFiltroStatusSala(status: FiltroStatusSala): void {
-
     this.filtroStatusSala = status;
-
   }
 
-  // =====================================
-  // STATUS DAS SALAS
-  // =====================================
-
+  // ESTILOS DE STATUS
   getStatusClass(status: string): string {
-
     switch (status) {
-
       case 'Disponível':
         return 'status-available';
 
@@ -695,31 +511,25 @@ export class DashboardComponent implements OnInit {
 
       default:
         return '';
-
     }
-
   }
 
-  // =====================================
-  // AÇÕES DAS SALAS
-  // =====================================
-
+  // AÇÕES
   openActionModal(room: Room): void {
-
     this.selectedRoom = { ...room };
-
   }
 
   closeModal(): void {
-
     this.selectedRoom = null;
-
   }
 
   updateRoomStatus(
-    newStatus: 'Disponível' | 'Ocupado' | 'Manutenção' | 'Reservado'
+    newStatus:
+      | 'Disponível'
+      | 'Ocupado'
+      | 'Manutenção'
+      | 'Reservado'
   ): void {
-
     if (!this.selectedRoom) {
       return;
     }
@@ -733,7 +543,5 @@ export class DashboardComponent implements OnInit {
     );
 
     this.closeModal();
-
   }
-
 }

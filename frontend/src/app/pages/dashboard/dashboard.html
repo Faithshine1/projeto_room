@@ -1,7 +1,7 @@
 
 <div class="layout-container">
 
-  <!-- Sidebar -->
+  <!-- MENU LATERAL -->
   <app-sidebar
     [activeCategory]="activeCategory"
     (categoryChange)="setCategory($event)">
@@ -9,16 +9,14 @@
 
   <main class="main-content">
 
-    <!-- CABEÇALHO -->
+    <!-- CABEÇALHO ORIGINAL -->
     <header class="top-header">
-
       <div class="page-title">
         <h1>{{ tituloPagina }}</h1>
         <p>{{ subtituloPagina }}</p>
       </div>
 
       <div class="user-profile">
-
         <div class="user-chip">
           <span class="avatar">{{ iniciaisUsuario }}</span>
           <span class="user-name">{{ nomeUsuario }}</span>
@@ -28,60 +26,34 @@
           type="button"
           class="btn-logout"
           (click)="logout()">
-
           <i class="fa-solid fa-right-from-bracket"></i>
           Sair
-
         </button>
-
       </div>
-
     </header>
 
-
-    <!-- ========================= -->
-    <!-- VISTA INÍCIO -->
-    <!-- ========================= -->
-
+    <!-- PAINEL INICIAL -->
     <section
       class="inicio-section"
       *ngIf="activeCategory === 'inicio'">
-
       <app-inicio [nomeUsuario]="nomeUsuario"></app-inicio>
-
     </section>
 
-
-    <!-- ========================= -->
-    <!-- VISTA MINHAS RESERVAS -->
-    <!-- ========================= -->
-
+    <!-- MINHAS RESERVAS -->
     <section
       class="reservas-section"
       *ngIf="activeCategory === 'minhas-reservas'">
-
       <app-minhas-reservas></app-minhas-reservas>
-
     </section>
 
-
-    <!-- ========================= -->
-    <!-- VISTA LEITOR QR CODE -->
-    <!-- ========================= -->
-
+    <!-- LEITOR QR CODE -->
     <section
       class="leitor-section"
       *ngIf="activeCategory === 'leitor-qr'">
-
       <app-leitor-qr></app-leitor-qr>
-
     </section>
 
-
-    <!-- ========================= -->
-    <!-- VISTA SALAS E LABORATÓRIOS -->
-    <!-- ========================= -->
-
+    <!-- SALAS ESPECIAIS E LABORATÓRIOS -->
     <section
       class="table-section"
       *ngIf="
@@ -89,127 +61,109 @@
         activeCategory === 'laboratorios'
       ">
 
+      <!-- FILTROS DE STATUS EXISTENTES -->
+      <div
+        class="rooms-status-summary"
+        [class.labs-summary]="activeCategory === 'laboratorios'">
 
-      <!-- RESUMO DOS STATUS -->
-      <div class="rooms-status-summary">
-
-        <!-- TODAS -->
         <button
           type="button"
           class="status-filter"
           [class.active]="filtroStatusSala === 'TODAS'"
           (click)="setFiltroStatusSala('TODAS')">
 
-          <span>Todas</span>
+          <span>
+            <i
+              *ngIf="activeCategory === 'laboratorios'"
+              class="fa-solid fa-layer-group">
+            </i>
+            Todas
+          </span>
 
-          <strong>
-            {{ contarSalas('TODAS') }}
-          </strong>
-
+          <strong>{{ contarSalas('TODAS') }}</strong>
         </button>
 
-
-        <!-- DISPONÍVEIS -->
         <button
           type="button"
           class="status-filter available"
           [class.active]="filtroStatusSala === 'Disponível'"
           (click)="setFiltroStatusSala('Disponível')">
 
-          <span>Disponíveis</span>
+          <span>
+            <i
+              *ngIf="activeCategory === 'laboratorios'"
+              class="fa-solid fa-circle-check">
+            </i>
+            Disponíveis
+          </span>
 
-          <strong>
-            {{ contarSalas('Disponível') }}
-          </strong>
-
+          <strong>{{ contarSalas('Disponível') }}</strong>
         </button>
 
-
-        <!-- OCUPADAS -->
         <button
           type="button"
           class="status-filter occupied"
           [class.active]="filtroStatusSala === 'Ocupado'"
           (click)="setFiltroStatusSala('Ocupado')">
 
-          <span>Ocupadas</span>
+          <span>
+            <i
+              *ngIf="activeCategory === 'laboratorios'"
+              class="fa-solid fa-users">
+            </i>
+            Ocupadas
+          </span>
 
-          <strong>
-            {{ contarSalas('Ocupado') }}
-          </strong>
-
+          <strong>{{ contarSalas('Ocupado') }}</strong>
         </button>
 
-
-        <!-- EM MANUTENÇÃO -->
         <button
           type="button"
           class="status-filter maintenance"
           [class.active]="filtroStatusSala === 'Manutenção'"
           (click)="setFiltroStatusSala('Manutenção')">
 
-          <span>Em manutenção</span>
+          <span>
+            <i
+              *ngIf="activeCategory === 'laboratorios'"
+              class="fa-solid fa-screwdriver-wrench">
+            </i>
+            Em manutenção
+          </span>
 
-          <strong>
-            {{ contarSalas('Manutenção') }}
-          </strong>
-
+          <strong>{{ contarSalas('Manutenção') }}</strong>
         </button>
 
       </div>
 
-
-      <!-- TABELA DE SALAS -->
-      <div class="table-card">
+      <!-- SALAS ESPECIAIS: TABELA ORIGINAL -->
+      <div
+        class="table-card"
+        *ngIf="activeCategory === 'especiais'">
 
         <table class="rooms-table">
-
           <thead>
             <tr>
-
               <th class="col-xs">Nº</th>
-
-              <th>
-                {{
-                  activeCategory === 'especiais'
-                    ? 'Sala'
-                    : 'Laboratório'
-                }}
-              </th>
-
+              <th>Sala</th>
               <th>Status</th>
-
               <th>Responsável</th>
-
               <th></th>
-
             </tr>
           </thead>
 
-
           <tbody>
-
-            <!-- CARREGANDO -->
+            <!-- CARREGAMENTO -->
             <tr *ngIf="carregandoSalas">
-
-              <td colspan="5">
-                Carregando salas...
-              </td>
-
+              <td colspan="5">Carregando salas...</td>
             </tr>
 
-
-            <!-- ERRO AO CARREGAR -->
+            <!-- ERRO -->
             <tr *ngIf="!carregandoSalas && erroSalas">
-
-              <td colspan="5">
-                {{ erroSalas }}
-              </td>
-
+              <td colspan="5">{{ erroSalas }}</td>
             </tr>
 
-
-            <!-- SALAS ENCONTRADAS -->
+            <!-- SALAS -->
             <tr *ngFor="let room of filteredRooms">
 
               <td class="col-muted">
@@ -220,24 +174,15 @@
                 {{ room.name }}
               </td>
 
-
-              <!-- STATUS -->
               <td>
-
                 <span
                   class="badge"
                   [ngClass]="getStatusClass(room.status)">
-
                   {{ room.status }}
-
                 </span>
-
               </td>
 
-
-              <!-- RESPONSÁVEL -->
               <td>
-
                 <div
                   class="responsible-cell"
                   *ngIf="room.responsible">
@@ -249,31 +194,22 @@
                   <span class="responsible-name">
                     {{ room.responsible }}
                   </span>
-
                 </div>
-
               </td>
 
-
-              <!-- AÇÕES -->
               <td class="col-actions">
-
                 <button
                   type="button"
                   class="btn-action-dots"
                   aria-label="Ações da sala"
                   (click)="openActionModal(room)">
-
                   <i class="fa-solid fa-ellipsis"></i>
-
                 </button>
-
               </td>
 
             </tr>
 
-
-            <!-- NENHUMA SALA ENCONTRADA -->
+            <!-- SEM RESULTADOS -->
             <tr
               class="empty-row"
               *ngIf="
@@ -283,30 +219,266 @@
               ">
 
               <td colspan="5">
-
                 {{
                   roomsDaCategoria.length === 0
                     ? 'Nenhuma sala cadastrada nesta categoria.'
                     : 'Nenhuma sala corresponde ao filtro selecionado.'
                 }}
-
               </td>
-
             </tr>
-
           </tbody>
-
         </table>
+      </div>
+
+      <!-- ================================= -->
+      <!-- LABORATÓRIOS: NOVO VISUAL -->
+      <!-- ================================= -->
+      <div
+        class="labs-view"
+        *ngIf="activeCategory === 'laboratorios'">
+
+        <!-- PESQUISA -->
+        <div class="labs-toolbar">
+          <div class="labs-toolbar-info">
+            <h2>
+              <i class="fa-solid fa-flask"></i>
+              Lista de laboratórios
+            </h2>
+
+            <p>
+              Consulte a disponibilidade e os responsáveis.
+            </p>
+          </div>
+
+          <div class="labs-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input
+              type="search"
+              name="buscarLaboratorio"
+              [(ngModel)]="searchTerm"
+              placeholder="Buscar laboratório, número ou responsável"
+              aria-label="Buscar laboratórios" />
+          </div>
+        </div>
+
+        <!-- CARREGANDO -->
+        <div
+          class="labs-message"
+          *ngIf="carregandoSalas"
+          role="status">
+
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          Carregando laboratórios...
+        </div>
+
+        <!-- ERRO -->
+        <div
+          class="labs-message"
+          *ngIf="!carregandoSalas && erroSalas"
+          role="alert">
+
+          <i class="fa-solid fa-circle-exclamation"></i>
+          {{ erroSalas }}
+
+          <button
+            type="button"
+            class="labs-retry"
+            (click)="carregarSalasDoBackend()">
+            Tentar novamente
+          </button>
+        </div>
+
+        <!-- GRADE DE CARTÕES -->
+        <div
+          class="labs-grid"
+          *ngIf="!carregandoSalas && !erroSalas">
+
+          <article
+            class="labs-card"
+            *ngFor="let room of filteredRooms">
+
+            <!-- TOPO DO CARTÃO -->
+            <div class="labs-card-header">
+              <span class="labs-number">
+                <i class="fa-solid fa-flask"></i>
+                Nº {{ room.number }}
+              </span>
+
+              <span
+                class="labs-status"
+                [ngClass]="getStatusClass(room.status)">
+                {{ room.status }}
+              </span>
+            </div>
+
+            <!-- CONTEÚDO -->
+            <div class="labs-card-body">
+              <div class="labs-icon">
+                <i class="fa-solid fa-flask-vial"></i>
+              </div>
+
+              <h3>{{ room.name }}</h3>
+
+              <p>Laboratório da instituição</p>
+
+              <span
+                class="labs-example"
+                *ngIf="room.id.startsWith('demo-')">
+
+                <i class="fa-solid fa-circle-info"></i>
+                Exemplo ilustrativo
+              </span>
+            </div>
+
+            <!-- RESPONSÁVEL -->
+            <div class="labs-responsible">
+              <span class="labs-label">Responsável</span>
+
+              <div class="labs-person">
+                <span class="labs-avatar">
+                  {{ iniciaisDe(room.responsible) }}
+                </span>
+
+                <div class="labs-person-text">
+                  <strong>
+                    {{ room.responsible || 'Não informado' }}
+                  </strong>
+
+                  <small>Responsável pelo espaço</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- AÇÃO -->
+            <div class="labs-card-footer">
+              <span>
+                <i class="fa-solid fa-building-columns"></i>
+                Laboratório
+              </span>
+
+              <button
+                type="button"
+                class="labs-details-button"
+                (click)="openActionModal(room)">
+
+                Ver detalhes
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+          </article>
+
+        </div>
+
+        <!-- LISTA VAZIA -->
+        <div
+          class="labs-message"
+          *ngIf="
+            !carregandoSalas &&
+            !erroSalas &&
+            filteredRooms.length === 0
+          ">
+
+          <i class="fa-regular fa-folder-open"></i>
+
+          <h3>Nenhum laboratório encontrado</h3>
+
+          <p>
+            {{
+              roomsDaCategoria.length === 0
+                ? 'Nenhum laboratório cadastrado.'
+                : 'Nenhum laboratório corresponde aos filtros.'
+            }}
+          </p>
+
+          <button
+            type="button"
+            class="labs-retry"
+            *ngIf="
+              roomsDaCategoria.length > 0 &&
+              (searchTerm || filtroStatusSala !== 'TODAS')
+            "
+            (click)="searchTerm = ''; setFiltroStatusSala('TODAS')">
+            Limpar filtros
+          </button>
+        </div>
+
+        <!-- MODAL DE DETALHES -->
+        <div
+          class="labs-modal-overlay"
+          *ngIf="selectedRoom as room"
+          (click)="closeModal()">
+
+          <section
+            class="labs-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="labs-modal-title"
+            (click)="$event.stopPropagation()">
+
+            <div class="labs-modal-header">
+              <div class="labs-icon">
+                <i class="fa-solid fa-flask"></i>
+              </div>
+
+              <button
+                type="button"
+                class="labs-modal-close"
+                aria-label="Fechar detalhes"
+                (click)="closeModal()">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <h2 id="labs-modal-title">
+              {{ room.name }}
+            </h2>
+
+            <p>Informações do laboratório selecionado.</p>
+
+            <div class="labs-modal-info">
+              <div>
+                <span>Número</span>
+                <strong>{{ room.number }}</strong>
+              </div>
+
+              <div>
+                <span>Status</span>
+                <strong>{{ room.status }}</strong>
+              </div>
+
+              <div class="labs-modal-wide">
+                <span>Responsável</span>
+                <strong>
+                  {{ room.responsible || 'Não informado' }}
+                </strong>
+              </div>
+            </div>
+
+            <p
+              class="labs-modal-warning"
+              *ngIf="room.id.startsWith('demo-')">
+
+              Este laboratório é ilustrativo e não
+              representa um cadastro confirmado no backend.
+            </p>
+
+            <button
+              type="button"
+              class="labs-modal-done"
+              (click)="closeModal()">
+              Fechar
+            </button>
+
+          </section>
+        </div>
 
       </div>
+      <!-- FIM DOS LABORATÓRIOS -->
 
     </section>
 
-
-    <!-- ========================= -->
-    <!-- VISTA AGENDAMENTOS -->
-    <!-- ========================= -->
-
+    <!-- AGENDAMENTOS: ORIGINAL -->
     <section
       class="agenda-section"
       *ngIf="activeCategory === 'agendamentos'">
@@ -318,5 +490,4 @@
     </section>
 
   </main>
-
 </div>

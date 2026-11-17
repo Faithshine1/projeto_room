@@ -1,130 +1,578 @@
+
 <div class="reservas-container">
-  <div class="header-section">
+
+  <!-- CABEÇALHO -->
+  <header class="reservas-header">
+
+    <div class="reservas-header-info">
+      <h2>
+        <i class="fa-regular fa-calendar-check"></i>
+        Gerenciamento de reservas
+      </h2>
+
+      <p>
+        Consulte, filtre e acompanhe os agendamentos cadastrados.
+      </p>
+    </div>
+
+    <div class="reservas-header-actions">
+
+      <button
+        type="button"
+        class="reservas-btn-atualizar"
+        [disabled]="carregando || removendoTodos"
+        (click)="carregarAgendamentos()">
+
+        <i
+          class="fa-solid fa-rotate"
+          [class.fa-spin]="carregando">
+        </i>
+
+        Atualizar
+      </button>
+
+      <button
+        type="button"
+        class="reservas-btn-excluir-todos"
+        [disabled]="
+          removendoTodos ||
+          removendoIds.length > 0 ||
+          carregando ||
+          totalReservas === 0
+        "
+        (click)="removerTodos()">
+
+        <i class="fa-regular fa-trash-can"></i>
+
+        {{
+          removendoTodos
+            ? 'Removendo...'
+            : 'Remover todos'
+        }}
+      </button>
+
+    </div>
+
+  </header>
+
+  <!-- INDICADORES -->
+  <section
+    class="reservas-indicadores"
+    aria-label="Resumo das reservas">
+
+    <!-- TOTAL -->
     <button
       type="button"
-      class="btn-remover"
-      [disabled]="removendoTodos || agendamentos.length === 0"
-      (click)="removerTodos()"
-    >
-      {{ removendoTodos ? 'Removendo...' : 'Remover todos os agendamentos' }}
+      class="reservas-indicador reservas-total"
+      [class.reservas-indicador-ativo]="filtroStatus === ''"
+      (click)="selecionarStatus('')">
+
+      <div class="reservas-indicador-topo">
+        <span class="reservas-indicador-icone">
+          <i class="fa-solid fa-calendar-days"></i>
+        </span>
+
+        <i class="fa-solid fa-arrow-trend-up reservas-indicador-decoracao"></i>
+      </div>
+
+      <div class="reservas-indicador-conteudo">
+        <span>Total de reservas</span>
+
+        <strong>
+          {{ totalReservas }}
+        </strong>
+
+        <small>
+          Todas as solicitações
+        </small>
+      </div>
+
     </button>
-  </div>
 
-  <!-- BARRA DE FILTROS -->
-  <div class="filtros-card">
-    <div class="filtro-item">
-      <label class="label">Buscar por Sala</label>
-      <input
-        type="text"
-        class="form-input"
-        placeholder="Ex: Laboratório de Ciências"
-        [(ngModel)]="filtroSala"
-      />
-    </div>
-
-    <div class="filtro-item">
-      <label class="label">Data Específica</label>
-      <input
-        type="date"
-        class="form-input"
-        [(ngModel)]="buscaData"
-      />
-    </div>
-
-    <div class="filtro-item">
-      <label class="label">Status</label>
-      <select class="form-input" [(ngModel)]="filtroStatus">
-        <option value="">Todos os status</option>
-        <option value="APROVADO">Aprovado</option>
-        <option value="PENDENTE">Aguardando Aprovação</option>
-        <option value="REJEITADO">Recusado</option>
-      </select>
-    </div>
-
+    <!-- PENDENTES -->
     <button
       type="button"
-      class="btn-limpar"
-      (click)="limparFiltros()"
-      *ngIf="filtroSala || filtroStatus || buscaData"
-    >
-      Limpar Filtros
+      class="reservas-indicador reservas-pendentes"
+      [class.reservas-indicador-ativo]="filtroStatus === 'PENDENTE'"
+      (click)="selecionarStatus('PENDENTE')">
+
+      <div class="reservas-indicador-topo">
+        <span class="reservas-indicador-icone">
+          <i class="fa-regular fa-clock"></i>
+        </span>
+      </div>
+
+      <div class="reservas-indicador-conteudo">
+        <span>Pendentes</span>
+
+        <strong>
+          {{ totalPendentes }}
+        </strong>
+
+        <small>
+          Aguardando aprovação
+        </small>
+      </div>
+
     </button>
-  </div>
 
-  <!-- TABELA DE RESERVAS -->
-  <div class="tabela-card">
-    <table class="reservas-table">
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Dia</th>
-          <th>Horário</th>
-          <th>Sala</th>
-          <th>Assunto / Matéria</th>
-          <th>Status</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
+    <!-- APROVADAS -->
+    <button
+      type="button"
+      class="reservas-indicador reservas-aprovadas"
+      [class.reservas-indicador-ativo]="filtroStatus === 'APROVADO'"
+      (click)="selecionarStatus('APROVADO')">
 
-      <tbody>
-        <tr *ngFor="let item of agendamentosFiltrados">
-          <td>
-            <strong>{{ formatarData(item.data) }}</strong>
-          </td>
+      <div class="reservas-indicador-topo">
+        <span class="reservas-indicador-icone">
+          <i class="fa-regular fa-circle-check"></i>
+        </span>
+      </div>
 
-          <!-- Dia calculado a partir da data da reserva -->
-          <td>{{ formatarDia(item.data) }}</td>
+      <div class="reservas-indicador-conteudo">
+        <span>Aprovadas</span>
 
-          <td>
-            <span class="hora-badge">{{ item.hora }}</span>
-          </td>
+        <strong>
+          {{ totalAprovadas }}
+        </strong>
 
-          <td>{{ item.sala }}</td>
+        <small>
+          Solicitações autorizadas
+        </small>
+      </div>
 
-          <td>{{ item.materia || 'Agendado' }}</td>
+    </button>
 
-          <td>
-            <span
-              class="badge"
-              [ngClass]="item.status === 'PENDENTE'
-                ? 'badge-pendente'
-                : item.status === 'REJEITADO'
-                  ? 'badge-recusado'
-                  : 'badge-aprovado'"
-            >
-              {{
-                item.status === 'PENDENTE'
-                  ? 'Aguardando Aprovação'
-                  : item.status === 'REJEITADO'
-                    ? 'Recusado'
-                    : 'Aprovado'
-              }}
-            </span>
-          </td>
+    <!-- RECUSADAS -->
+    <button
+      type="button"
+      class="reservas-indicador reservas-recusadas"
+      [class.reservas-indicador-ativo]="filtroStatus === 'REJEITADO'"
+      (click)="selecionarStatus('REJEITADO')">
 
-          <td>
-            <button
-              type="button"
-              class="btn-remover"
-              [disabled]="estaRemovendo(item.id)"
-              (click)="removerAgendamento(item.id)"
-              [attr.aria-label]="'Remover reserva de ' + item.sala"
-            >
-              {{
-                estaRemovendo(item.id)
-                  ? 'Removendo...'
-                  : 'Remover'
-              }}
-            </button>
-          </td>
-        </tr>
+      <div class="reservas-indicador-topo">
+        <span class="reservas-indicador-icone">
+          <i class="fa-regular fa-circle-xmark"></i>
+        </span>
+      </div>
 
-        <tr *ngIf="agendamentosFiltrados.length === 0">
-          <td colspan="7" class="vazio">
-            {{ erro || 'Nenhum agendamento encontrado para os filtros selecionados.' }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+      <div class="reservas-indicador-conteudo">
+        <span>Recusadas</span>
+
+        <strong>
+          {{ totalRecusadas }}
+        </strong>
+
+        <small>
+          Solicitações não autorizadas
+        </small>
+      </div>
+
+    </button>
+
+  </section>
+
+  <!-- FILTROS -->
+  <section
+    class="reservas-filtros"
+    aria-label="Filtros de reservas">
+
+    <div class="reservas-filtros-cabecalho">
+      <div>
+        <h3>
+          <i class="fa-solid fa-sliders"></i>
+          Filtrar reservas
+        </h3>
+
+        <p>
+          Encontre rapidamente o agendamento desejado.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="reservas-btn-limpar"
+        [disabled]="!temFiltros"
+        (click)="limparFiltros()">
+
+        <i class="fa-solid fa-filter-circle-xmark"></i>
+        Limpar filtros
+
+      </button>
+    </div>
+
+    <div class="reservas-filtros-grid">
+
+      <!-- SALA -->
+      <div class="reservas-campo">
+        <label for="filtro-reserva-sala">
+          Buscar por sala
+        </label>
+
+        <div class="reservas-input-icone">
+          <i class="fa-solid fa-magnifying-glass"></i>
+
+          <input
+            id="filtro-reserva-sala"
+            type="search"
+            name="filtroSala"
+            [(ngModel)]="filtroSala"
+            placeholder="Nome da sala ou laboratório" />
+        </div>
+      </div>
+
+      <!-- DATA -->
+      <div class="reservas-campo">
+        <label for="filtro-reserva-data">
+          Data específica
+        </label>
+
+        <input
+          id="filtro-reserva-data"
+          type="date"
+          name="buscaData"
+          class="reservas-input"
+          [(ngModel)]="buscaData" />
+      </div>
+
+      <!-- STATUS -->
+      <div class="reservas-campo">
+        <label for="filtro-reserva-status">
+          Status da reserva
+        </label>
+
+        <select
+          id="filtro-reserva-status"
+          name="filtroStatus"
+          class="reservas-input"
+          [(ngModel)]="filtroStatus">
+
+          <option value="">
+            Todos os status
+          </option>
+
+          <option value="PENDENTE">
+            Aguardando aprovação
+          </option>
+
+          <option value="APROVADO">
+            Aprovado
+          </option>
+
+          <option value="REJEITADO">
+            Recusado
+          </option>
+
+        </select>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- LISTAGEM -->
+  <section class="reservas-listagem">
+
+    <div class="reservas-listagem-header">
+
+      <div class="reservas-listagem-titulo">
+        <span class="reservas-listagem-icone">
+          <i class="fa-solid fa-list-check"></i>
+        </span>
+
+        <div>
+          <h3>Lista de agendamentos</h3>
+          <p>Reservas registradas no sistema</p>
+        </div>
+      </div>
+
+      <span class="reservas-resultados">
+        {{ agendamentosFiltrados.length }}
+        resultado(s)
+      </span>
+
+    </div>
+
+    <!-- CARREGANDO -->
+    <div
+      class="reservas-estado"
+      *ngIf="carregando"
+      role="status">
+
+      <div class="reservas-estado-icone">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+      </div>
+
+      <h3>Carregando reservas...</h3>
+
+      <p>
+        Estamos consultando os agendamentos cadastrados.
+      </p>
+    </div>
+
+    <!-- ERRO -->
+    <div
+      class="reservas-estado"
+      *ngIf="!carregando && erro"
+      role="alert">
+
+      <div class="reservas-estado-icone">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+
+      <h3>Não foi possível carregar</h3>
+
+      <p>
+        {{ erro }}
+      </p>
+
+      <button
+        type="button"
+        class="reservas-btn-tentar"
+        (click)="carregarAgendamentos()">
+        Tentar novamente
+      </button>
+    </div>
+
+    <!-- TABELA PARA COMPUTADOR -->
+    <div
+      class="reservas-tabela-wrapper"
+      *ngIf="
+        !carregando &&
+        !erro &&
+        agendamentosFiltrados.length > 0
+      ">
+
+      <table class="reservas-table">
+
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Dia</th>
+            <th>Horário</th>
+            <th>Sala</th>
+            <th>Assunto / Matéria</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr
+            *ngFor="
+              let item of agendamentosFiltrados;
+              trackBy: trackByReserva
+            ">
+
+            <!-- DATA -->
+            <td>
+              <strong class="reservas-data">
+                {{ formatarData(item.data) }}
+              </strong>
+            </td>
+
+            <!-- DIA -->
+            <td>
+              {{ formatarDia(item.data) }}
+            </td>
+
+            <!-- HORÁRIO -->
+            <td>
+              <span class="reservas-hora">
+                <i class="fa-regular fa-clock"></i>
+                {{ formatarHora(item.hora) }}
+              </span>
+            </td>
+
+            <!-- SALA -->
+            <td>
+              <div class="reservas-sala">
+                <span class="reservas-sala-icone">
+                  <i class="fa-solid fa-door-open"></i>
+                </span>
+
+                <strong>
+                  {{ item.sala || 'Não informada' }}
+                </strong>
+              </div>
+            </td>
+
+            <!-- MATÉRIA -->
+            <td class="reservas-materia">
+              {{ item.materia || 'Agendado' }}
+            </td>
+
+            <!-- STATUS -->
+            <td>
+              <span
+                class="reservas-badge"
+                [ngClass]="getStatusClass(item.status)">
+
+                {{ getStatusLabel(item.status) }}
+              </span>
+            </td>
+
+            <!-- AÇÕES -->
+            <td>
+              <button
+                type="button"
+                class="reservas-btn-remover"
+                [disabled]="
+                  !obterId(item) ||
+                  estaRemovendo(obterId(item)) ||
+                  removendoTodos
+                "
+                (click)="removerAgendamento(obterId(item))"
+                [attr.aria-label]="
+                  'Remover reserva de ' +
+                  (item.sala || 'sala não informada')
+                ">
+
+                <i
+                  class="fa-regular fa-trash-can"
+                  *ngIf="!estaRemovendo(obterId(item))">
+                </i>
+
+                {{
+                  estaRemovendo(obterId(item))
+                    ? 'Removendo...'
+                    : 'Remover'
+                }}
+              </button>
+            </td>
+
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CARTÕES PARA CELULARES -->
+    <div
+      class="reservas-mobile-grid"
+      *ngIf="
+        !carregando &&
+        !erro &&
+        agendamentosFiltrados.length > 0
+      ">
+
+      <article
+        class="reservas-mobile-card"
+        *ngFor="
+          let item of agendamentosFiltrados;
+          trackBy: trackByReserva
+        ">
+
+        <div class="reservas-mobile-topo">
+
+          <span
+            class="reservas-badge"
+            [ngClass]="getStatusClass(item.status)">
+
+            {{ getStatusLabel(item.status) }}
+          </span>
+
+          <span class="reservas-mobile-data">
+            {{ formatarData(item.data) }}
+          </span>
+
+        </div>
+
+        <h3>
+          <i class="fa-solid fa-door-open"></i>
+          {{ item.sala || 'Sala não informada' }}
+        </h3>
+
+        <div class="reservas-mobile-detalhes">
+
+          <div>
+            <span>Dia</span>
+            <strong>{{ formatarDia(item.data) }}</strong>
+          </div>
+
+          <div>
+            <span>Horário</span>
+            <strong>
+              {{ formatarHora(item.hora) }}
+            </strong>
+          </div>
+
+          <div class="reservas-mobile-materia">
+            <span>Assunto / Matéria</span>
+            <strong>
+              {{ item.materia || 'Agendado' }}
+            </strong>
+          </div>
+
+        </div>
+
+        <button
+          type="button"
+          class="reservas-btn-remover reservas-mobile-remover"
+          [disabled]="
+            !obterId(item) ||
+            estaRemovendo(obterId(item)) ||
+            removendoTodos
+          "
+          (click)="removerAgendamento(obterId(item))">
+
+          <i class="fa-regular fa-trash-can"></i>
+
+          {{
+            estaRemovendo(obterId(item))
+              ? 'Removendo...'
+              : 'Remover reserva'
+          }}
+        </button>
+
+      </article>
+    </div>
+
+    <!-- NENHUM RESULTADO -->
+    <div
+      class="reservas-estado"
+      *ngIf="
+        !carregando &&
+        !erro &&
+        agendamentosFiltrados.length === 0
+      ">
+
+      <div class="reservas-estado-icone">
+        <i class="fa-regular fa-calendar-xmark"></i>
+      </div>
+
+      <h3>
+        Nenhum agendamento encontrado
+      </h3>
+
+      <p>
+        {{
+          totalReservas === 0
+            ? 'Ainda não existem reservas cadastradas.'
+            : 'Nenhuma reserva corresponde aos filtros selecionados.'
+        }}
+      </p>
+
+      <button
+        type="button"
+        class="reservas-btn-tentar"
+        *ngIf="temFiltros"
+        (click)="limparFiltros()">
+
+        Limpar filtros
+      </button>
+
+    </div>
+
+    <!-- RODAPÉ -->
+    <div class="reservas-listagem-footer">
+      <i class="fa-solid fa-circle-info"></i>
+
+      Os dados apresentados são obtidos do sistema
+      de agendamentos.
+    </div>
+
+  </section>
+
 </div>

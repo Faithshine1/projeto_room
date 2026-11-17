@@ -1,7 +1,29 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit
+} from '@angular/core';
+
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../environments/environment';
+
+interface Agendamento {
+  id?: number | string;
+  _id?: string;
+  data?: string;
+  hora?: string;
+  sala?: string;
+  materia?: string;
+  status?: string;
+}
+
+type StatusReserva =
+  | 'PENDENTE'
+  | 'APROVADO'
+  | 'REJEITADO'
+  | 'OUTRO';
 
 @Component({
   selector: 'app-minhas-reservas',
@@ -11,87 +33,147 @@ import { environment } from '../../../environments/environment';
   styleUrl: './minhas-reservas.css',
 })
 export class MinhasReservasComponent implements OnInit {
-  agendamentos: any[] = [];
 
+  agendamentos: Agendamento[] = [];
+
+  // FILTROS
   filtroSala = '';
   filtroStatus = '';
   buscaData = '';
 
+  // ESTADOS
+  carregando = false;
+  erro = '';
+
   removendoIds: string[] = [];
   removendoTodos = false;
 
-  // Mensagem mostrada na tabela quando a lista não pôde ser carregada
-  erro = '';
+  private readonly apiUrl =
+    `${environment.apiUrl.replace(/\/+$/, '')}/agendamentos`;
 
-  private apiUrl = `${environment.apiUrl}/agendamentos`;
-
-  // O Angular 22 não usa zone.js por padrão (modo "zoneless"). Isso significa que
-  // alterar uma propriedade depois de um await/fetch NÃO atualiza a tela sozinho.
-  // Por isso injetamos o ChangeDetectorRef e avisamos o Angular com markForCheck().
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
-    this.carregarAgendamentos();
+    void this.carregarAgendamentos();
   }
 
+  // =====================================
+  // CARREGAR AGENDAMENTOS
+  // =====================================
+
   async carregarAgendamentos(): Promise<void> {
+
+    if (this.carregando) {
+      return;
+    }
+
+    this.carregando = true;
+    this.erro = '';
+    this.cdr.markForCheck();
+
     try {
       const response = await fetch(this.apiUrl);
 
       if (!response.ok) {
-        throw new Error(`Erro ao buscar agendamentos. HTTP ${response.status}`);
+        throw new Error(
+          `Erro ao buscar agendamentos. HTTP ${response.status}`
+        );
       }
 
-      const dados = await response.json();
+      const dados: unknown = await response.json();
 
       if (!Array.isArray(dados)) {
-        throw new Error('A API não retornou uma lista de agendamentos.');
+        throw new Error(
+          'A API não retornou uma lista de agendamentos.'
+        );
       }
 
-      this.agendamentos = dados.sort((a: any, b: any) => {
-        const dataA = `${this.extrairApenasData(a.data)} ${a.hora ?? ''}`;
-        const dataB = `${this.extrairApenasData(b.data)} ${b.hora ?? ''}`;
+      this.agendamentos = dados
+        .filter(
+          (item): item is Agendamento =>
+            item !== null &&
+            typeof item === 'object' &&
+            !Array.isArray(item)
+        )
+        .sort((a, b) => {
 
-        return dataA.localeCompare(dataB);
-      });
+          const dataA =
+            `${this.extrairApenasData(a.data)} ${a.hora ?? ''}`;
+
+          const dataB =
+            `${this.extrairApenasData(b.data)} ${b.hora ?? ''}`;
+
+          return dataA.localeCompare(dataB);
+        });
 
       this.erro = '';
+
     } catch (error) {
-      console.error('Erro ao carregar reservas:', error);
+
+      console.error(
+        'Erro ao carregar reservas:',
+        error
+      );
+
+      this.agendamentos = [];
+
       this.erro =
-        'Não foi possível carregar as reservas. Verifique se o backend está rodando.';
+        'Não foi possível carregar as reservas. Verifique a conexão com o backend.';
+
     } finally {
-      // Garante que a tela seja redesenhada com a lista (ou com a mensagem de erro)
+
+      this.carregando = false;
       this.cdr.markForCheck();
+
     }
   }
 
-  private extrairApenasData(dataInput: any): string {
+  // =====================================
+  // FORMATAR DATAS
+  // =====================================
+
+  private extrairApenasData(
+    dataInput: unknown
+  ): string {
+
     if (!dataInput) {
       return '';
     }
 
     const valor = String(dataInput).trim();
 
-    // Formato ISO: 2026-10-27 ou 2026-10-27T14:30:00
-    const iso = valor.match(/^(\d{4}-\d{2}-\d{2})/);
+    // Formato ISO
+    const iso = valor.match(
+      /^(\d{4}-\d{2}-\d{2})/
+    );
 
     if (iso) {
       return iso[1];
     }
 
-    // Formato brasileiro: 27/10/2026
-    const brasileira = valor.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    // Formato brasileiro
+    const brasileira = valor.match(
+      /^(\d{2})\/(\d{2})\/(\d{4})$/
+    );
 
     if (brasileira) {
-      return `${brasileira[3]}-${brasileira[2]}-${brasileira[1]}`;
+      return (
+        `${brasileira[3]}-` +
+        `${brasileira[2]}-` +
+        `${brasileira[1]}`
+      );
     }
 
     return '';
   }
 
-  formatarData(dataString: string): string {
-    const data = this.extrairApenasData(dataString);
+  formatarData(dataString: unknown): string {
+
+    const data = this.extrairApenasData(
+      dataString
+    );
 
     if (!data) {
       return '-';
@@ -102,17 +184,26 @@ export class MinhasReservasComponent implements OnInit {
     return `${dia}/${mes}/${ano}`;
   }
 
-  formatarDia(dataString: string): string {
-    const data = this.extrairApenasData(dataString);
+  formatarDia(dataString: unknown): string {
+
+    const data = this.extrairApenasData(
+      dataString
+    );
 
     if (!data) {
       return '-';
     }
 
-    const [ano, mes, dia] = data.split('-').map(Number);
-    const dataLocal = new Date(ano, mes - 1, dia);
+    const [ano, mes, dia] = data
+      .split('-')
+      .map(Number);
 
-    // Evita aceitar datas inválidas silenciosamente.
+    const dataLocal = new Date(
+      ano,
+      mes - 1,
+      dia
+    );
+
     if (
       dataLocal.getFullYear() !== ano ||
       dataLocal.getMonth() !== mes - 1 ||
@@ -121,144 +212,375 @@ export class MinhasReservasComponent implements OnInit {
       return '-';
     }
 
-    const diaSemana = [
+    const diasSemana = [
       'Domingo',
       'Segunda-feira',
       'Terça-feira',
       'Quarta-feira',
       'Quinta-feira',
       'Sexta-feira',
-      'Sábado',
+      'Sábado'
     ];
 
-    return diaSemana[dataLocal.getDay()];
+    return diasSemana[dataLocal.getDay()];
   }
 
-  async removerAgendamento(id: number | string): Promise<void> {
+  formatarHora(hora: unknown): string {
+
+    if (!hora) {
+      return '--:--';
+    }
+
+    return String(hora).slice(0, 5);
+  }
+
+  // =====================================
+  // STATUS
+  // =====================================
+
+  private normalizarStatus(
+    status: unknown
+  ): StatusReserva {
+
+    const valor = String(status ?? '')
+      .trim()
+      .toUpperCase();
+
+    switch (valor) {
+      case 'APROVADO':
+        return 'APROVADO';
+
+      case 'PENDENTE':
+        return 'PENDENTE';
+
+      case 'REJEITADO':
+        return 'REJEITADO';
+
+      default:
+        return 'OUTRO';
+    }
+  }
+
+  getStatusLabel(status: unknown): string {
+
+    switch (this.normalizarStatus(status)) {
+      case 'APROVADO':
+        return 'Aprovado';
+
+      case 'PENDENTE':
+        return 'Aguardando aprovação';
+
+      case 'REJEITADO':
+        return 'Recusado';
+
+      default:
+        return 'Não informado';
+    }
+  }
+
+  getStatusClass(status: unknown): string {
+
+    switch (this.normalizarStatus(status)) {
+      case 'APROVADO':
+        return 'badge-aprovado';
+
+      case 'PENDENTE':
+        return 'badge-pendente';
+
+      case 'REJEITADO':
+        return 'badge-recusado';
+
+      default:
+        return 'badge-neutro';
+    }
+  }
+
+  // =====================================
+  // INDICADORES
+  // =====================================
+
+  get totalReservas(): number {
+    return this.agendamentos.length;
+  }
+
+  get totalPendentes(): number {
+    return this.contarPorStatus('PENDENTE');
+  }
+
+  get totalAprovadas(): number {
+    return this.contarPorStatus('APROVADO');
+  }
+
+  get totalRecusadas(): number {
+    return this.contarPorStatus('REJEITADO');
+  }
+
+  private contarPorStatus(
+    status: StatusReserva
+  ): number {
+
+    return this.agendamentos.filter(
+      agendamento =>
+        this.normalizarStatus(agendamento.status) === status
+    ).length;
+  }
+
+  // =====================================
+  // FILTROS
+  // =====================================
+
+  get agendamentosFiltrados(): Agendamento[] {
+
+    const busca = this.filtroSala
+      .trim()
+      .toLowerCase();
+
+    return this.agendamentos.filter(
+      agendamento => {
+
+        const sala = String(
+          agendamento.sala ?? ''
+        ).toLowerCase();
+
+        const correspondeSala =
+          !busca || sala.includes(busca);
+
+        const correspondeStatus =
+          !this.filtroStatus ||
+          this.normalizarStatus(
+            agendamento.status
+          ) === this.filtroStatus;
+
+        const data = this.extrairApenasData(
+          agendamento.data
+        );
+
+        const correspondeData =
+          !this.buscaData ||
+          data === this.buscaData;
+
+        return (
+          correspondeSala &&
+          correspondeStatus &&
+          correspondeData
+        );
+      }
+    );
+  }
+
+  get temFiltros(): boolean {
+
+    return Boolean(
+      this.filtroSala ||
+      this.filtroStatus ||
+      this.buscaData
+    );
+  }
+
+  selecionarStatus(status: string): void {
+    this.filtroStatus = status;
+  }
+
+  limparFiltros(): void {
+
+    this.filtroSala = '';
+    this.filtroStatus = '';
+    this.buscaData = '';
+
+  }
+
+  // =====================================
+  // IDENTIFICAÇÃO DAS RESERVAS
+  // =====================================
+
+  obterId(agendamento: Agendamento): string {
+
+    return String(
+      agendamento.id ??
+      agendamento._id ??
+      ''
+    );
+  }
+
+  estaRemovendo(id: number | string): boolean {
+
+    return this.removendoIds.includes(
+      String(id)
+    );
+  }
+
+  trackByReserva(
+    index: number,
+    agendamento: Agendamento
+  ): string | number {
+
+    return this.obterId(agendamento) || index;
+  }
+
+  // =====================================
+  // REMOVER UMA RESERVA
+  // =====================================
+
+  async removerAgendamento(
+    id: number | string
+  ): Promise<void> {
+
     const idTexto = String(id);
 
-    if (this.removendoIds.includes(idTexto)) {
+    if (
+      !idTexto ||
+      this.removendoIds.includes(idTexto) ||
+      this.removendoTodos
+    ) {
       return;
     }
 
     const confirmar = window.confirm(
-      'Tem certeza de que deseja remover esta reserva?',
+      'Tem certeza de que deseja remover esta reserva?'
     );
 
     if (!confirmar) {
       return;
     }
 
-    this.removendoIds = [...this.removendoIds, idTexto];
+    this.removendoIds = [
+      ...this.removendoIds,
+      idTexto
+    ];
+
+    this.cdr.markForCheck();
 
     try {
       const response = await fetch(
         `${this.apiUrl}/${encodeURIComponent(idTexto)}`,
-        { method: 'DELETE' },
+        {
+          method: 'DELETE'
+        }
       );
 
-      // 404 = o servidor não tem mais essa reserva (ex.: o backend reiniciou e
-      // perdeu os dados em memória). Sincroniza a lista com o que existe de verdade.
       if (response.status === 404) {
+
         await this.carregarAgendamentos();
+
         window.alert(
-          'Essa reserva não existe mais no servidor. A lista foi atualizada.',
+          'Essa reserva não existe mais no servidor. A lista foi atualizada.'
         );
+
         return;
       }
 
       if (!response.ok) {
         throw new Error(
-          `Não foi possível remover a reserva. HTTP ${response.status}`,
+          `Erro ao remover reserva. HTTP ${response.status}`
         );
       }
 
       this.agendamentos = this.agendamentos.filter(
-        (agendamento) => String(agendamento.id) !== idTexto,
+        agendamento =>
+          this.obterId(agendamento) !== idTexto
       );
+
       this.cdr.markForCheck();
 
-      window.alert('Reserva removida com sucesso!');
-    } catch (error) {
-      console.error('Erro ao remover reserva:', error);
       window.alert(
-        'Erro ao remover a reserva. Verifique o backend e tente novamente.',
+        'Reserva removida com sucesso!'
       );
+
+    } catch (error) {
+
+      console.error(
+        'Erro ao remover reserva:',
+        error
+      );
+
+      window.alert(
+        'Não foi possível remover a reserva. Verifique o backend.'
+      );
+
     } finally {
-      this.removendoIds = this.removendoIds.filter(
-        (itemId) => itemId !== idTexto,
-      );
-      // Sem isso o botão ficava preso em "Removendo..." e a linha não sumia
+
+      this.removendoIds =
+        this.removendoIds.filter(
+          itemId => itemId !== idTexto
+        );
+
       this.cdr.markForCheck();
+
     }
   }
 
-  async removerTodos(): Promise<void> {
-    const total = this.agendamentos.length;
+  // =====================================
+  // REMOVER TODAS AS RESERVAS
+  // =====================================
 
-    if (this.removendoTodos || total === 0) {
+  async removerTodos(): Promise<void> {
+
+    if (
+      this.removendoTodos ||
+      this.removendoIds.length > 0 ||
+      this.agendamentos.length === 0
+    ) {
       return;
     }
 
     const confirmar = window.confirm(
-      `Tem certeza de que deseja remover TODAS as ${total} reservas? Essa ação não pode ser desfeita.`,
+      `Você está prestes a excluir TODAS as ${this.agendamentos.length} reservas retornadas pelo sistema.\n\n` +
+      'Esta operação pode afetar reservas de outros usuários e não pode ser desfeita.\n\n' +
+      'Deseja continuar?'
     );
 
     if (!confirmar) {
       return;
     }
 
+    const confirmacao = window.prompt(
+      'Para confirmar a exclusão de todas as reservas, digite EXCLUIR:'
+    );
+
+    if (confirmacao !== 'EXCLUIR') {
+      return;
+    }
+
     this.removendoTodos = true;
+    this.cdr.markForCheck();
 
     try {
-      const response = await fetch(this.apiUrl, { method: 'DELETE' });
+      const response = await fetch(
+        this.apiUrl,
+        {
+          method: 'DELETE'
+        }
+      );
 
       if (!response.ok) {
         throw new Error(
-          `Não foi possível remover as reservas. HTTP ${response.status}`,
+          `Erro ao remover reservas. HTTP ${response.status}`
         );
       }
 
       this.agendamentos = [];
       this.cdr.markForCheck();
 
-      window.alert('Todas as reservas foram removidas!');
-    } catch (error) {
-      console.error('Erro ao remover todas as reservas:', error);
       window.alert(
-        'Erro ao remover as reservas. Verifique o backend e tente novamente.',
+        'Todas as reservas foram removidas!'
       );
+
+    } catch (error) {
+
+      console.error(
+        'Erro ao remover todas as reservas:',
+        error
+      );
+
+      window.alert(
+        'Não foi possível remover todas as reservas. Verifique o backend.'
+      );
+
     } finally {
+
       this.removendoTodos = false;
       this.cdr.markForCheck();
+
     }
-  }
-
-  estaRemovendo(id: number | string): boolean {
-    return this.removendoIds.includes(String(id));
-  }
-
-  get agendamentosFiltrados(): any[] {
-    return this.agendamentos.filter((a) => {
-      const matchSala =
-        !this.filtroSala ||
-        String(a.sala ?? '')
-          .toLowerCase()
-          .includes(this.filtroSala.toLowerCase());
-
-      const matchStatus = !this.filtroStatus || a.status === this.filtroStatus;
-
-      const dataReserva = this.extrairApenasData(a.data);
-
-      const matchData = !this.buscaData || dataReserva === this.buscaData;
-
-      return matchSala && matchStatus && matchData;
-    });
-  }
-
-  limparFiltros(): void {
-    this.filtroSala = '';
-    this.filtroStatus = '';
-    this.buscaData = '';
   }
 }

@@ -1,38 +1,351 @@
-<main class="leitor-container">
-  <section class="leitor-card">
-    <h1>Confirmar entrada</h1>
 
-    <p>
-      Posicione o QR Code da sala diante da câmera
-      para confirmar sua entrada automaticamente.
-    </p>
+<section class="qr-page">
 
-    <video
-      #video
-      autoplay
-      muted
-      playsinline
-      class="camera"
-      [hidden]="!lendo()">
-    </video>
+  <!-- INTRODUÇÃO -->
+  <div class="qr-intro">
 
-    <div
-      class="status"
-      [class.status-sucesso]="sucesso()"
-      role="status"
-      aria-live="polite">
-      {{ mensagem() }}
+    <div class="qr-intro-text">
+      <span class="qr-eyebrow">
+        <i class="fa-solid fa-shield-halved"></i>
+        CONTROLE DE ACESSO
+      </span>
+
+      <h2>Validação de entrada</h2>
+
+      <p>
+        Escaneie o QR Code da sala para registrar
+        sua entrada de maneira rápida e prática.
+      </p>
     </div>
 
-    @if (!lendo()) {
-      <button type="button" (click)="iniciarLeitura()">
-        <i class="fa-solid fa-camera"></i>
-        Iniciar leitor
-      </button>
-    } @else {
-      <button type="button" class="btn-parar" (click)="pararLeitura()">
-        Parar câmera
-      </button>
-    }
-  </section>
-</main>
+    <span class="qr-intro-label">
+      <i class="fa-solid fa-qrcode"></i>
+      Leitura por câmera
+    </span>
+
+  </div>
+
+  <div class="qr-layout">
+
+    <!-- ================================== -->
+    <!-- PAINEL DO LEITOR -->
+    <!-- ================================== -->
+    <section class="qr-scanner-card">
+
+      <div class="qr-card-header">
+
+        <div class="qr-card-title">
+          <span class="qr-card-icon">
+            <i class="fa-solid fa-camera"></i>
+          </span>
+
+          <div>
+            <h3>Leitor de QR Code</h3>
+            <p>Utilize a câmera do seu dispositivo</p>
+          </div>
+        </div>
+
+        <span
+          class="qr-camera-badge"
+          [class.qr-camera-badge--active]="lendo()">
+
+          <span class="qr-badge-dot"></span>
+
+          {{
+            lendo()
+              ? 'Câmera ativa'
+              : 'Câmera desligada'
+          }}
+        </span>
+
+      </div>
+
+      <!-- VISUALIZAÇÃO DA CÂMERA -->
+      <div
+        class="qr-preview"
+        [class.qr-preview--active]="lendo()">
+
+        <video
+          #video
+          autoplay
+          muted
+          playsinline
+          class="qr-video"
+          [hidden]="!lendo()"
+          aria-label="Visualização da câmera para leitura do QR Code">
+        </video>
+
+        <!-- ESTADO SEM CÂMERA -->
+        <div
+          class="qr-placeholder"
+          *ngIf="!lendo()">
+
+          <div
+            class="qr-placeholder-icon"
+            [class.qr-placeholder-icon--success]="sucesso()">
+
+            <i
+              [ngClass]="
+                validando()
+                  ? 'fa-solid fa-spinner fa-spin'
+                  : sucesso()
+                    ? 'fa-solid fa-circle-check'
+                    : 'fa-solid fa-qrcode'
+              ">
+            </i>
+
+          </div>
+
+          <h4>
+            {{
+              validando()
+                ? 'Validando entrada'
+                : sucesso()
+                  ? 'Leitura concluída'
+                  : 'Câmera não iniciada'
+            }}
+          </h4>
+
+          <p>
+            {{
+              validando()
+                ? 'Aguarde a confirmação do sistema.'
+                : sucesso()
+                  ? 'Seu QR Code foi processado.'
+                  : 'Inicie o leitor para escanear o código da sala.'
+            }}
+          </p>
+
+        </div>
+
+        <!-- GUIA DE LEITURA -->
+        <div
+          class="qr-scan-overlay"
+          *ngIf="lendo()"
+          aria-hidden="true">
+
+          <div class="qr-scan-frame">
+            <span class="qr-corner qr-corner--tl"></span>
+            <span class="qr-corner qr-corner--tr"></span>
+            <span class="qr-corner qr-corner--bl"></span>
+            <span class="qr-corner qr-corner--br"></span>
+          </div>
+
+        </div>
+
+        <span
+          class="qr-live-indicator"
+          *ngIf="lendo()">
+
+          <i
+            class="fa-solid"
+            [ngClass]="
+              iniciando()
+                ? 'fa-spinner fa-spin'
+                : 'fa-circle-dot'
+            ">
+          </i>
+
+          {{
+            iniciando()
+              ? 'Iniciando câmera'
+              : 'Aguardando QR Code'
+          }}
+        </span>
+
+      </div>
+
+      <!-- STATUS DA LEITURA -->
+      <div
+        class="qr-status"
+        [ngClass]="{
+          'qr-status--success': sucesso(),
+          'qr-status--error': erro(),
+          'qr-status--busy': lendo() || validando()
+        }"
+        role="status"
+        aria-live="polite">
+
+        <span class="qr-status-icon">
+
+          <i
+            [ngClass]="
+              validando()
+                ? 'fa-solid fa-spinner fa-spin'
+                : sucesso()
+                  ? 'fa-solid fa-circle-check'
+                  : erro()
+                    ? 'fa-solid fa-circle-exclamation'
+                    : lendo()
+                      ? 'fa-solid fa-camera'
+                      : 'fa-solid fa-circle-info'
+            ">
+          </i>
+
+        </span>
+
+        <span>{{ mensagem() }}</span>
+
+      </div>
+
+      <!-- BOTÕES -->
+      <div class="qr-actions">
+
+        <button
+          *ngIf="!lendo()"
+          type="button"
+          class="qr-btn qr-btn-primary"
+          [disabled]="validando()"
+          (click)="iniciarLeitura()">
+
+          <i
+            [ngClass]="
+              validando()
+                ? 'fa-solid fa-spinner fa-spin'
+                : 'fa-solid fa-camera'
+            ">
+          </i>
+
+          {{
+            validando()
+              ? 'Validando entrada...'
+              : sucesso()
+                ? 'Ler outro QR Code'
+                : 'Iniciar leitor'
+          }}
+
+        </button>
+
+        <button
+          *ngIf="lendo()"
+          type="button"
+          class="qr-btn qr-btn-stop"
+          (click)="pararLeitura()">
+
+          <i class="fa-solid fa-stop"></i>
+          Parar câmera
+
+        </button>
+
+      </div>
+
+      <p class="qr-camera-note">
+        <i class="fa-solid fa-lock"></i>
+        O navegador solicitará permissão para acessar a câmera.
+      </p>
+
+    </section>
+
+    <!-- ================================== -->
+    <!-- INSTRUÇÕES E RESULTADO -->
+    <!-- ================================== -->
+    <aside class="qr-side">
+
+      <!-- COMO UTILIZAR -->
+      <section class="qr-guide-card">
+
+        <div class="qr-guide-header">
+          <span class="qr-guide-icon">
+            <i class="fa-solid fa-list-ol"></i>
+          </span>
+
+          <div>
+            <h3>Como utilizar</h3>
+            <p>Siga estas etapas</p>
+          </div>
+        </div>
+
+        <div class="qr-steps">
+
+          <div class="qr-step">
+            <span class="qr-step-number">1</span>
+
+            <div>
+              <strong>Inicie o leitor</strong>
+
+              <p>
+                Clique no botão e permita
+                o acesso à câmera.
+              </p>
+            </div>
+          </div>
+
+          <div class="qr-step">
+            <span class="qr-step-number">2</span>
+
+            <div>
+              <strong>Posicione o QR Code</strong>
+
+              <p>
+                Enquadre o código da sala
+                na área de leitura.
+              </p>
+            </div>
+          </div>
+
+          <div class="qr-step">
+            <span class="qr-step-number">3</span>
+
+            <div>
+              <strong>Aguarde a confirmação</strong>
+
+              <p>
+                O sistema validará o código
+                e informará o resultado.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ENTRADA CONFIRMADA -->
+      <section
+        class="qr-result-card"
+        *ngIf="entradaConfirmada() as entrada">
+
+        <div class="qr-result-heading">
+          <i class="fa-solid fa-circle-check"></i>
+
+          <div>
+            <h3>Entrada confirmada</h3>
+            <p>Registro retornado pelo sistema</p>
+          </div>
+        </div>
+
+        <div class="qr-result-detail">
+          <span>Sala</span>
+          <strong>
+            {{ entrada.sala || 'Não informada' }}
+          </strong>
+        </div>
+
+        <div class="qr-result-detail">
+          <span>Horário de entrada</span>
+          <strong>
+            {{ entrada.horario || 'Não informado' }}
+          </strong>
+        </div>
+
+      </section>
+
+      <!-- INFORMAÇÃO ADICIONAL -->
+      <section class="qr-tip-card">
+        <i class="fa-solid fa-lightbulb"></i>
+
+        <div>
+          <strong>Dica de leitura</strong>
+
+          <p>
+            Mantenha o QR Code bem iluminado,
+            visível e sem reflexos.
+          </p>
+        </div>
+      </section>
+
+    </aside>
+
+  </div>
+
+</section>

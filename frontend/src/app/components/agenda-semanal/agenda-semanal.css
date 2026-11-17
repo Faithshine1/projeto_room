@@ -1,507 +1,798 @@
-.agenda-container {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 1.5rem;
-}
 
-/* =========================
-   PAINEL LATERAL (FORMULÁRIO)
-========================= */
-
-.form-panel {
-  width: 300px;
-  padding: 1.5rem;
-
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-md);
-}
-
-.form-panel h3 {
-  margin: 0 0 1.25rem;
-
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-
-  color: var(--ink);
-}
-
-.agendamento-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-label {
-  margin-bottom: 0.4rem;
-
-  font-size: 0.8rem;
-  font-weight: 600;
-
-  color: var(--text);
-}
-
-.form-input {
+:host {
+  display: block;
   width: 100%;
-  padding: 0.7rem 0.85rem;
+}
 
-  font-size: 0.9rem;
-
-  color: var(--text);
-  background-color: var(--surface);
-
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-
+* {
   box-sizing: border-box;
-
-  transition:
-    border-color var(--transition),
-    box-shadow var(--transition);
 }
 
-.form-input:hover {
-  border-color: #cfc6f3;
+button, input, select {
+  font: inherit;
 }
 
-.form-input:focus {
-  outline: none;
-
-  border-color: var(--accent);
-  box-shadow: var(--ring);
+.agenda-container {
+  width: 100%;
 }
-
-.btn-agendar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-
-  margin-top: 0.25rem;
-  padding: 0.85rem;
-
-  background-color: var(--primary);
-  color: #ffffff;
-
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  border: none;
-  border-radius: var(--radius-sm);
-  box-shadow: 0 6px 16px rgba(59, 35, 168, 0.28);
-
-  cursor: pointer;
-
-  transition:
-    background-color var(--transition),
-    transform var(--transition);
-}
-
-.btn-agendar:hover {
-  background-color: var(--primary-hover);
-  transform: translateY(-1px);
-}
-
-.btn-agendar:active {
-  transform: translateY(0);
-}
-
-.btn-agendar:focus-visible {
-  outline: none;
-  box-shadow: var(--ring);
-}
-
-/* =========================
-   DICAS
-========================= */
-
-.dica {
-  margin: -0.25rem 0 0;
-
-  font-size: 0.78rem;
-  line-height: 1.45;
-
-  color: var(--text-muted);
-}
-
-.dica-alerta {
-  margin: 0;
-  padding: 0.7rem 0.85rem;
-
-  background-color: var(--warning-soft);
-  color: #92400e;
-
-  border: 1px solid #fde7b0;
-  border-radius: var(--radius-sm);
-}
-
-.confirmacao-dias {
-  margin: 0.75rem 0 0;
-
-  text-align: center;
-
-  font-size: 0.8rem;
-
-  color: var(--text-muted);
-}
-
-/* =========================
-   AGENDA SEMANAL
-========================= */
 
 .agenda-panel {
-  flex: 1;
-  min-width: 0;
+  width: 100%;
+  padding: 24px;
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #e8e4f4);
+  border-radius: 18px;
+  box-shadow: 0 9px 27px rgba(46, 24, 112, 0.055);
+}
 
-  padding: 1.5rem;
+/* CABEÇALHO */
 
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-md);
+.agenda-header,
+.agenda-heading,
+.agenda-toolbar,
+.semana-nav,
+.filtro-sala,
+.agenda-footer,
+.mini-cal-header,
+.mini-cal-nav,
+.legenda-item,
+.modal-form-header,
+.modal-form-footer,
+.modal-buttons {
+  display: flex;
+  align-items: center;
 }
 
 .agenda-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 18px;
+  margin-bottom: 24px;
+}
 
-  margin-bottom: 1rem;
+.agenda-heading {
+  gap: 12px;
+}
+
+.heading-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: var(--primary-soft, #eee8ff);
+  color: var(--primary, #4520aa);
+  font-size: 20px;
 }
 
 .agenda-title {
   margin: 0;
-
-  font-size: 1.1rem;
+  font-size: 21px;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  color: var(--ink, #17143a);
+}
 
-  color: var(--ink);
+.agenda-subtitle {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: var(--text-muted, #7d7994);
+}
+
+.btn-nova-reserva,
+.btn-agendar,
+.btn-confirmar {
+  border: 0;
+  color: #fff;
+  cursor: pointer;
+  background: var(--primary, #4420ab);
+  box-shadow: 0 6px 15px rgba(65, 30, 155, 0.18);
+  font-weight: 700;
+  transition: background-color 0.18s, transform 0.18s;
+}
+
+.btn-nova-reserva {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 17px;
+  border-radius: 10px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.btn-nova-reserva:hover,
+.btn-agendar:hover,
+.btn-confirmar:hover {
+  background: var(--primary-hover, #321682);
+  transform: translateY(-1px);
+}
+
+/* BARRA SUPERIOR */
+
+.agenda-toolbar {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 13px 0 18px;
+  border-top: 1px solid var(--border, #eeeaf6);
+}
+
+.filtro-sala {
+  gap: 11px;
+  flex-wrap: wrap;
+}
+
+.filtro-sala label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted, #6d6885);
+}
+
+.filtro-sala label i {
+  color: var(--primary, #4420ab);
+  margin-right: 5px;
+}
+
+.filtro-sala select {
+  padding: 10px 12px;
+  max-width: 100%;
+  min-width: 185px;
+  background: #fff;
+  border: 1px solid var(--border, #e6e0f1);
+  border-radius: 8px;
+  color: var(--ink, #201a3e);
+  font-size: 12px;
 }
 
 .semana-nav {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  gap: 8px;
+}
+
+.btn-nav,
+.mini-cal-nav button,
+.btn-fechar {
+  display: grid;
+  place-items: center;
+  background: #fff;
+  border: 1px solid var(--border, #eae6f3);
+  color: #686080;
+  cursor: pointer;
 }
 
 .btn-nav {
-  width: 36px;
-  height: 36px;
-
-  display: grid;
-  place-items: center;
-
-  background-color: var(--surface);
-  color: var(--text-muted);
-
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-
-  cursor: pointer;
-
-  transition:
-    background-color var(--transition),
-    color var(--transition);
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
 }
 
-.btn-nav:hover {
-  background-color: var(--primary-soft);
-  color: var(--primary);
+.btn-nav:hover,
+.mini-cal-nav button:hover {
+  background: var(--primary-soft, #f0eaff);
+  color: var(--primary, #4420ab);
 }
 
 .semana-rotulo {
-  min-width: 110px;
-
+  min-width: 98px;
   text-align: center;
-
-  font-size: 0.85rem;
-  font-weight: 600;
-
-  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink, #201a3e);
 }
 
 .btn-hoje {
-  padding: 0.5rem 0.9rem;
-
-  background-color: var(--primary-soft);
-  color: var(--primary);
-
-  font-size: 0.8rem;
-  font-weight: 600;
-
-  border: none;
-  border-radius: var(--radius-sm);
-
+  padding: 10px 13px;
+  background: var(--primary-soft, #eee8ff);
+  color: var(--primary, #4420ab);
+  border: 0;
+  border-radius: 8px;
   cursor: pointer;
-
-  transition: background-color var(--transition);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .btn-hoje:hover {
-  background-color: #e3dbff;
+  background: #e6dbff;
 }
 
-.btn-nav:focus-visible,
-.btn-hoje:focus-visible {
-  outline: none;
-  box-shadow: var(--ring);
+/* CALENDÁRIO SEMANAL */
+
+.agenda-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 230px;
+  align-items: start;
+  gap: 20px;
 }
 
-.dia-numero {
-  margin-left: 0.3rem;
-
-  font-weight: 700;
-
-  color: var(--ink);
-}
-
-.agenda-table th.hoje .dia-numero {
-  color: #ffffff;
+.agenda-main {
+  min-width: 0;
 }
 
 .table-scroll {
+  width: 100%;
   overflow-x: auto;
 }
 
 .agenda-table {
   width: 100%;
-  min-width: 640px;
-
+  min-width: 655px;
+  table-layout: fixed;
   border-collapse: separate;
-  border-spacing: 6px;
+  border-spacing: 4px;
 }
 
-.agenda-table th {
-  padding: 0.65rem 0.5rem;
-
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+.agenda-table thead th {
+  height: 59px;
+  padding: 8px 4px 12px;
+  border-bottom: 1px solid #efedf5;
+  text-align: center;
+  color: #766f8d;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-
-  color: var(--text-muted);
-  background-color: #faf9ff;
-
-  border-radius: var(--radius-sm);
 }
 
-/* Coluna do dia de hoje */
-.agenda-table th.hoje {
-  background: var(--primary-gradient);
-  color: #ffffff;
+.agenda-table thead th.hoje {
+  background: #f4efff;
+  color: var(--primary, #4420ab);
+  border-radius: 9px 9px 0 0;
+}
+
+.agenda-table thead .hora-coluna {
+  width: 68px;
+}
+
+.dia-nome {
+  display: inline-block;
+}
+
+.dia-numero {
+  display: inline-block;
+  margin-left: 6px;
+  color: var(--ink, #261a45);
+  font-size: 17px;
+  font-weight: 800;
 }
 
 .tag-hoje {
   display: inline-block;
-
-  margin-left: 0.35rem;
-  padding: 0.1rem 0.4rem;
-
-  font-size: 0.6rem;
-  letter-spacing: 0.04em;
-
-  background-color: rgba(255, 255, 255, 0.22);
-  border-radius: 999px;
+  margin-left: 5px;
+  padding: 2px 5px;
+  border-radius: 10px;
+  background: var(--primary, #4420ab);
+  color: white;
+  font-size: 9px;
+  text-transform: none;
 }
 
-.horario {
-  width: 70px;
-  padding: 0 0.5rem;
-
+.agenda-table tbody th.horario {
+  width: 68px;
+  padding-top: 24px;
   text-align: center;
-
-  font-size: 0.8rem;
+  vertical-align: top;
+  font-size: 12px;
   font-weight: 600;
-
-  color: var(--text-muted);
+  color: #807991;
 }
 
 .agenda-slot {
-  width: 18%;
-  height: 68px;
-
+  height: 75px;
   padding: 0;
-
-  text-align: center;
+  vertical-align: top;
 }
 
-/* =========================
-   AGENDAMENTO E SLOT VAZIO
-========================= */
-
-.agendamento {
-  height: 100%;
-
-  padding: 0.5rem 0.65rem;
-
-  text-align: left;
-
-  background: var(--primary-gradient);
-  color: #ffffff;
-
-  border-radius: var(--radius-sm);
-
-  box-shadow: 0 4px 10px rgba(59, 35, 168, 0.25);
-
-  box-sizing: border-box;
-}
-
-.agendamento-sala {
-  font-size: 0.8rem;
-  font-weight: 600;
-  line-height: 1.25;
-}
-
-.agendamento-materia {
-  margin-top: 0.15rem;
-
-  font-size: 0.7rem;
-
-  opacity: 0.85;
-}
-
-/* Reserva aguardando aprovação */
-.agendamento.pendente {
-  background: var(--warning-soft);
-  color: #92400e;
-
-  border: 1px dashed #f3c25d;
-  box-shadow: none;
-}
-
-.agendamento-status {
-  margin-top: 0.25rem;
-
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
+.agenda-slot.hoje {
+  background: #faf8ff;
 }
 
 .slot-vazio {
-  height: 100%;
-
-  background-color: #faf9ff;
-
-  border: 1px solid #f1effa;
-  border-radius: var(--radius-sm);
-
-  box-sizing: border-box;
-
-  transition: background-color var(--transition);
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 72px;
+  border: 1px solid #eeebf8;
+  border-radius: 7px;
+  background: #f8f7fd;
+  color: transparent;
+  cursor: pointer;
+  transition: background-color 0.18s, color 0.18s;
 }
 
-.slot-vazio:hover {
-  background-color: var(--primary-soft);
+.slot-vazio:hover,
+.slot-vazio:focus-visible {
+  background: #eee8ff;
+  border: 1px dashed #9477ed;
+  color: var(--primary, #4420ab);
 }
 
-.agenda-slot.hoje .slot-vazio {
-  background-color: #f4f1ff;
-  border-color: #e3dcff;
+.slot-vazio:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+  background: #fbfafc;
 }
 
-/* =========================
-   MODAL
-========================= */
+.slot-vazio:disabled:hover {
+  color: transparent;
+  border: 1px solid #eeebf8;
+}
+
+.agendamento {
+  height: 72px;
+  overflow: hidden;
+  padding: 9px;
+  text-align: left;
+  border: 1px solid #ded3ff;
+  border-left: 4px solid #6d45d8;
+  border-radius: 7px;
+  background: #eee9ff;
+  color: #442194;
+}
+
+.agendamento-sala {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.agendamento-materia {
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  opacity: 0.85;
+}
+
+.agendamento-status {
+  margin-top: 3px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.agendamento.pendente {
+  background: #fff8e6;
+  color: #94600b;
+  border-color: #f6e2b3;
+  border-left-color: #e3a12e;
+}
+
+.agenda-footer {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 16px 4px 0;
+  font-size: 11px;
+  color: var(--text-muted, #827c95);
+}
+
+.agenda-footer i {
+  color: #7952d4;
+  margin-right: 5px;
+}
+
+/* CALENDÁRIO LATERAL */
+
+.agenda-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 2px;
+}
+
+.mini-calendario,
+.legenda-card {
+  padding: 16px 14px;
+  background: #fff;
+  border: 1px solid #efedf7;
+  border-radius: 11px;
+}
+
+.mini-cal-header {
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 13px;
+}
+
+.mini-cal-header h3 {
+  margin: 0;
+  color: var(--ink, #201a3e);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.mini-cal-nav {
+  gap: 4px;
+}
+
+.mini-cal-nav button {
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 6px;
+  font-size: 10px;
+}
+
+.mini-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.mini-cal-dia-nome {
+  padding: 3px 0 7px;
+  text-align: center;
+  color: #ada8bd;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.mini-cal-dia {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #524c6e;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.mini-cal-dia:hover {
+  background: #efe9ff;
+}
+
+.mini-cal-dia.fora-mes {
+  color: #c5c1ce;
+}
+
+.mini-cal-dia.semana-ativa {
+  background: #eee9ff;
+  color: #4420ab;
+  font-weight: 800;
+}
+
+.mini-cal-dia.dia-atual {
+  background: var(--primary, #4420ab);
+  color: #fff;
+  font-weight: 800;
+}
+
+/* LEGENDA */
+
+.legenda-card h3 {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--ink, #201a3e);
+}
+
+.legenda-item {
+  gap: 9px;
+  margin-bottom: 12px;
+  font-size: 11px;
+  color: #645f78;
+}
+
+.legenda-ponto {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-radius: 3px;
+}
+
+.legenda-ponto.aprovado {
+  background: #7751de;
+}
+
+.legenda-ponto.pendente {
+  background: #efb644;
+}
+
+.legenda-ponto.disponivel {
+  background: #e9e6f2;
+  border: 1px solid #cec8df;
+}
+
+.legenda-card p {
+  margin: 10px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid #efedf6;
+  font-size: 10px;
+  line-height: 1.55;
+  color: #8b859b;
+}
+
+/* JANELAS */
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  background-color: rgba(30, 27, 75, 0.55);
-  backdrop-filter: blur(3px);
-
-  z-index: 9999;
-
-  animation: fade-in 0.15s ease;
+  padding: 20px;
+  background: rgba(19, 11, 47, 0.6);
+  backdrop-filter: blur(4px);
+  animation: fade-in 0.18s ease;
 }
 
 .modal {
-  width: min(420px, 92vw);
+  width: min(100%, 470px);
+  max-height: min(90vh, 900px);
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #eae5f4;
+  border-radius: 17px;
+  box-shadow: 0 22px 65px rgba(20, 10, 60, 0.24);
+  animation: pop-in 0.2s ease;
+}
 
-  padding: 1.75rem;
+.modal-formulario {
+  width: min(100%, 485px);
+  padding: 0 27px 25px;
+}
 
-  background-color: var(--surface);
+.modal-form-header {
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 -27px 24px;
+  padding: 25px 27px 20px;
+  background: linear-gradient(140deg, #faf9ff, #f0ebff);
+  border-bottom: 3px solid var(--primary, #4420ab);
+}
 
-  border-radius: var(--radius-lg);
+.modal-eyebrow {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  color: #7456c7;
+}
 
-  box-shadow: var(--shadow-lg);
+.modal-form-header h2 {
+  margin: 5px 0 6px;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ink, #1e153e);
+}
 
-  box-sizing: border-box;
+.modal-form-header p {
+  margin: 0;
+  font-size: 12px;
+  color: #757088;
+}
 
-  animation: pop-in 0.18s ease;
+.btn-fechar {
+  flex-shrink: 0;
+  width: 31px;
+  height: 31px;
+  border-radius: 8px;
+}
+
+.btn-fechar:hover {
+  color: #4420ab;
+  background: #eee8ff;
+}
+
+/* FORMULÁRIO */
+
+.agendamento-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #39304c;
+}
+
+.opcional {
+  color: #918ba2;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #ddd8e9;
+  border-radius: 8px;
+  outline: none;
+  background: #fff;
+  color: #312846;
+  font-size: 13px;
+}
+
+.form-input:hover {
+  border-color: #bdaeee;
+}
+
+.form-input:focus {
+  border-color: var(--primary, #4420ab);
+  box-shadow: 0 0 0 3px rgba(85, 45, 177, 0.11);
+}
+
+/* INÍCIO E TÉRMINO */
+
+.horario-intervalo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.campo-horario {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.campo-horario label {
+  color: #383047;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.campo-horario .form-input {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.campo-horario .form-input:disabled {
+  background: #f7f5fb;
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+/* DIA TODO */
+
+.dia-todo-opcao {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 12px;
+  color: #514763;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.dia-todo-opcao input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary, #5127b1);
+}
+
+.horario-resumo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 6px;
+  padding: 11px 12px;
+  border: 1px solid #e4dbfa;
+  border-radius: 9px;
+  background: #f4f0ff;
+  color: var(--primary, #5127b1);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dica {
+  margin: 0;
+  color: #817b92;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.dica-alerta {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #f5e6bc;
+  border-radius: 8px;
+  background: #fff8e9;
+  color: #96610f;
+}
+
+.dica-alerta i {
+  margin-top: 2px;
+}
+
+.modal-form-footer {
+  gap: 10px;
+  margin-top: 5px;
+}
+
+/* BOTÕES */
+
+.btn-cancelar,
+.btn-agendar,
+.btn-confirmar {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 10px 15px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-cancelar {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #ded9ea;
+  color: #68617e;
+}
+
+.btn-cancelar:hover {
+  background: #f6f3ff;
+}
+
+.btn-agendar {
+  flex: 1.5;
+}
+
+/* CONFIRMAÇÃO */
+
+.modal-confirmacao {
+  padding: 27px;
 }
 
 .modal-icon {
-  width: 52px;
-  height: 52px;
-
   display: grid;
   place-items: center;
-
-  margin: 0 auto 0.9rem;
-
-  background-color: var(--primary-soft);
-  color: var(--primary);
-
-  font-size: 1.25rem;
-
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 13px;
   border-radius: 50%;
+  background: var(--primary-soft, #ede8ff);
+  color: var(--primary, #4420ab);
+  font-size: 20px;
 }
 
 .modal-title {
   margin: 0;
-
   text-align: center;
-
-  font-size: 1.2rem;
-  font-weight: 700;
-
-  color: var(--ink);
+  font-size: 20px;
+  color: var(--ink, #1e153e);
 }
 
 .modal-description {
-  margin: 0.3rem 0 1.25rem;
-
+  margin: 8px 0 19px;
   text-align: center;
-
-  font-size: 0.9rem;
-
-  color: var(--text-muted);
+  color: #827b93;
+  font-size: 12px;
 }
-
-/* =========================
-   DADOS DO MODAL
-========================= */
 
 .confirmacao-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.6rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
 }
 
 .confirmacao-item {
-  padding: 0.75rem 0.9rem;
-
-  background-color: #faf9ff;
-
-  border: 1px solid #f1effa;
-  border-radius: var(--radius-sm);
+  min-width: 0;
+  padding: 12px;
+  background: #faf9ff;
+  border: 1px solid #f0edf7;
+  border-radius: 8px;
 }
 
 .confirmacao-sala {
@@ -509,110 +800,64 @@
 }
 
 .confirmacao-item strong {
-  font-size: 0.7rem;
-  letter-spacing: 0.05em;
+  display: block;
+  color: #8b859c;
+  font-size: 10px;
   text-transform: uppercase;
-
-  color: var(--text-muted);
 }
 
 .confirmacao-valor {
-  margin-top: 0.2rem;
-
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  color: var(--ink);
+  margin-top: 5px;
+  color: #282044;
+  font-size: 13px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
-/* =========================
-   BOTÕES DO MODAL
-========================= */
+.valor-pendente {
+  color: #ad7107;
+}
+
+.confirmacao-dias {
+  margin-top: 12px;
+  text-align: center;
+  color: #817a95;
+  font-size: 11px;
+  line-height: 1.5;
+}
 
 .modal-buttons {
-  display: flex;
-  gap: 0.75rem;
-
-  margin-top: 1.5rem;
+  gap: 12px;
+  margin-top: 20px;
 }
 
-.btn-cancelar,
-.btn-confirmar {
+.modal-buttons > button {
   flex: 1;
-
-  padding: 0.8rem;
-
-  font-size: 0.9rem;
-  font-weight: 600;
-
-  border-radius: var(--radius-sm);
-
-  cursor: pointer;
-
-  transition:
-    background-color var(--transition),
-    border-color var(--transition),
-    transform var(--transition);
 }
 
-.btn-cancelar {
-  background-color: var(--surface);
-  color: var(--text-muted);
-
-  border: 1px solid var(--border);
+.modal-buttons button:disabled {
+  opacity: 0.6;
+  cursor: wait;
 }
 
-.btn-cancelar:hover {
-  background-color: var(--primary-soft);
-  color: var(--primary);
-}
-
-.btn-confirmar {
-  background-color: var(--primary);
-  color: #ffffff;
-
-  border: none;
-  box-shadow: 0 6px 16px rgba(59, 35, 168, 0.28);
-}
-
-.btn-confirmar:hover {
-  background-color: var(--primary-hover);
-  transform: translateY(-1px);
-}
-
-.btn-cancelar:focus-visible,
-.btn-confirmar:focus-visible {
-  outline: none;
-  box-shadow: var(--ring);
-}
-
-/* =========================
-   AVISO (TOAST)
-========================= */
+/* NOTIFICAÇÃO */
 
 .toast {
   position: fixed;
-  right: 1.5rem;
-  bottom: 1.5rem;
-
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-
-  max-width: 360px;
-  padding: 0.9rem 1.15rem;
-
-  background-color: var(--ink);
-  color: #ffffff;
-
-  font-size: 0.9rem;
-
-  border-radius: var(--radius-sm);
-
-  box-shadow: var(--shadow-lg);
-
+  right: 22px;
+  bottom: 22px;
   z-index: 10000;
-
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  max-width: 400px;
+  padding: 13px 17px;
+  background: #282044;
+  color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 13px 30px rgba(20, 10, 60, 0.28);
+  font-size: 12px;
+  line-height: 1.5;
   animation: slide-up 0.2s ease;
 }
 
@@ -621,12 +866,17 @@
 }
 
 .toast-erro i {
-  color: #f87171;
+  color: #fb8888;
 }
 
-/* =========================
-   ANIMAÇÕES
-========================= */
+/* ACESSIBILIDADE */
+
+button:focus-visible {
+  outline: 3px solid rgba(100, 65, 200, 0.4);
+  outline-offset: 2px;
+}
+
+/* ANIMAÇÕES */
 
 @keyframes fade-in {
   from { opacity: 0; }
@@ -636,18 +886,18 @@
 @keyframes pop-in {
   from {
     opacity: 0;
-    transform: scale(0.96);
+    transform: translateY(8px) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0) scale(1);
   }
 }
 
 @keyframes slide-up {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(9px);
   }
   to {
     opacity: 1;
@@ -655,30 +905,91 @@
   }
 }
 
-/* =========================
-   RESPONSIVIDADE
-========================= */
+/* RESPONSIVIDADE */
 
-@media (max-width: 900px) {
-  .form-panel {
+@media (max-width: 1180px) {
+  .agenda-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .agenda-aside {
+    display: grid;
+    grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (max-width: 700px) {
+  .agenda-panel {
+    padding: 16px;
+  }
+
+  .agenda-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .agenda-toolbar {
+    align-items: stretch;
+  }
+
+  .filtro-sala,
+  .filtro-sala select {
     width: 100%;
+  }
+
+  .semana-nav {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .agenda-aside {
+    grid-template-columns: 1fr;
+  }
+
+  .agenda-footer {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 
 @media (max-width: 480px) {
-  .form-panel,
-  .agenda-panel {
-    padding: 1.1rem;
+  .modal-overlay {
+    padding: 12px;
   }
 
-  .modal {
-    padding: 1.4rem;
+  .modal-formulario {
+    padding: 0 18px 18px;
+  }
+
+  .modal-form-header {
+    margin: 0 -18px 20px;
+    padding: 20px 18px 17px;
+  }
+
+  .modal-confirmacao {
+    padding: 20px;
+  }
+
+  .agenda-title {
+    font-size: 19px;
+  }
+
+  .btn-nova-reserva {
+    width: 100%;
+    justify-content: center;
   }
 
   .toast {
-    right: 0.75rem;
-    left: 0.75rem;
-    max-width: none;
+    right: 12px;
+    left: 12px;
+    bottom: 12px;
+  }
+}
+
+@media (max-width: 390px) {
+  .horario-intervalo {
+    gap: 8px;
   }
 }
 

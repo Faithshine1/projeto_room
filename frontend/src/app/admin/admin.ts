@@ -1,9 +1,24 @@
+
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
+
+type Secao = 'inicio' | 'salas' | 'solicitacoes';
+
+type StatusSolicitacao =
+  | 'PENDENTE'
+  | 'APROVADA'
+  | 'RECUSADA';
 
 interface Sala {
   id: string;
@@ -13,17 +28,17 @@ interface Sala {
   recursos: string[];
 }
 
-// Formato que a tela já usava. Cada reserva do sistema é exibida como uma "solicitação".
 interface Solicitacao {
   id: string;
   nomeSala: string;
   solicitante: string;
   justificativa: string;
-  status: 'PENDENTE' | 'APROVADA' | 'RECUSADA';
+  status: StatusSolicitacao;
   criadaEm: string;
+  data: string;
+  hora: string;
 }
 
-// Formato que vem do backend (GET /agendamentos)
 interface AgendamentoApi {
   id: string;
   sala: string;
@@ -50,13 +65,42 @@ interface Dashboard {
   styleUrl: './admin.css',
 })
 export class Admin implements OnInit {
-  private readonly api = `${environment.apiUrl}/admin`;
-  private readonly apiAgendamentos = `${environment.apiUrl}/agendamentos`;
 
-  secao = 'inicio';
+  private readonly api =
+    `${environment.apiUrl.replace(/\/+$/, '')}/admin`;
+
+  private readonly apiAgendamentos =
+    `${environment.apiUrl.replace(/\/+$/, '')}/agendamentos`;
+
+  @ViewChild('modalSala', { static: true })
+  modalSala!: ElementRef<HTMLDialogElement>;
+
+  secao: Secao = 'inicio';
+
   carregando = false;
+  cadastrandoSala = false;
+  removendoSalas = false;
+  processandoSolicitacao: string | null = null;
+
+  salasCarregadas = false;
+  solicitacoesCarregadas = false;
+
   mensagem = '';
   erro = '';
+  erroSalas = '';
+  erroSolicitacoes = '';
+  erroModal = '';
+
+  nomeAdministrador = 'Administrador';
+
+  pesquisaSala = '';
+  pesquisaSolicitacao = '';
+
+  filtroStatus: StatusSolicitacao | 'TODAS' = 'TODAS';
+
+  salas: Sala[] = [];
+  solicitacoes: Solicitacao[] = [];
+  salasSelecionadas: string[] = [];
 
   dashboard: Dashboard = {
     totalSalas: 0,
@@ -65,13 +109,6 @@ export class Admin implements OnInit {
     recusadas: 0,
   };
 
-  salas: Sala[] = [];
-  solicitacoes: Solicitacao[] = [];
-
-  // Salas marcadas na tabela (para remover várias de uma vez)
-  salasSelecionadas: string[] = [];
-  removendoSalas = false;
-
   novaSala = {
     nome: '',
     localizacao: '',
@@ -79,152 +116,533 @@ export class Admin implements OnInit {
     recursosTexto: '',
   };
 
-  // Angular 22 é "zoneless": depois de uma resposta HTTP é preciso avisar
-  // o Angular para redesenhar a tela (markForCheck).
+  graficoSemana: {
+    dia: string;
+    quantidade: number;
+    altura: number;
+  }[] = [];
+
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.carregarDados();
+    this.carregarAdministrador();
+    this.atualizarGrafico();
+    void this.carregarDados();
   }
 
-  carregarDados(): void {
-    this.carregando = true;
-    this.erro = '';
+  // ==========================================
+  // ADMINISTRADOR
+  // ==========================================
 
-    let concluidas = 0;
-    const finalizar = () => {
-      concluidas++;
-      if (concluidas === 2) {
-        this.carregando = false;
+  private carregarAdministrador(): void {
+    try {
+      const salvo = localStorage.getItem('usuario');
+
+      if (salvo) {
+        const usuario = JSON.parse(salvo);
+
+        this.nomeAdministrador =
+          usuario.nome || 'Administrador';
       }
-      this.atualizarResumo();
-      this.cdr.markForCheck();
-    };
-
-    this.http.get<Sala[]>(`${this.api}/salas`).subscribe({
-      next: (dados) => {
-        this.salas = dados;
-        // Descarta da seleção salas que não existem mais
-        this.salasSelecionadas = this.salasSelecionadas.filter((id) =>
-          dados.some((sala) => sala.id === id),
-        );
-        finalizar();
-      },
-      error: () => {
-        this.erro = 'Não foi possível carregar as salas.';
-        finalizar();
-      },
-    });
-
-    this.http.get<AgendamentoApi[]>(this.apiAgendamentos).subscribe({
-      next: (dados) => {
-        this.solicitacoes = this.ordenar(dados.map((a) => this.paraSolicitacao(a)));
-        finalizar();
-      },
-      error: () => {
-        this.erro = 'Não foi possível carregar as solicitações de reserva.';
-        finalizar();
-      },
-    });
+    } catch {
+      this.nomeAdministrador = 'Administrador';
+    }
   }
 
-  // Converte uma reserva no formato de "solicitação" usado pela tela
-  private paraSolicitacao(a: AgendamentoApi): Solicitacao {
-    const [ano, mes, dia] = String(a.data).split('-');
-    const detalhe = a.materia ? ` · ${a.materia}` : '';
+  get iniciaisAdministrador(): string {
+    return this.nomeAdministrador
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map(nome => nome.charAt(0).toUpperCase())
+      .join('') || 'AD';
+  }
+
+  sair(): void {
+    const confirmar = window.confirm(
+      'Deseja sair do painel administrativo?'
+    );
+
+    if (!confirmar) return;
+
+    localStorage.removeItem('usuario');
+
+    void this.router.navigate(['/login']);
+  }
+
+  // ==========================================
+  // NAVEGAÇÃO
+  // ==========================================
+
+  get tituloPagina(): string {
+    switch (this.secao) {
+      case 'salas':
+        return 'Gerenciar salas';
+
+      case 'solicitacoes':
+        return 'Solicitações de reservas';
+
+      default:
+        return 'Visão geral';
+    }
+  }
+
+  get subtituloPagina(): string {
+    switch (this.secao) {
+      case 'salas':
+        return 'Cadastre e organize os espaços da instituição.';
+
+      case 'solicitacoes':
+        return 'Acompanhe, aprove ou recuse os pedidos de reserva.';
+
+      default:
+        return 'Acompanhe os principais indicadores da instituição.';
+    }
+  }
+
+  mudarSecao(secao: Secao): void {
+    this.secao = secao;
+    this.mensagem = '';
+    this.erro = '';
+    this.filtroStatus = 'TODAS';
+    this.pesquisaSolicitacao = '';
+    this.pesquisaSala = '';
+    this.salasSelecionadas = [];
+  }
+
+  abrirSolicitacoes(
+    status: StatusSolicitacao | 'TODAS' = 'TODAS'
+  ): void {
+    this.mudarSecao('solicitacoes');
+    this.filtroStatus = status;
+  }
+
+  // ==========================================
+  // CARREGAR DADOS DO BACKEND
+  // ==========================================
+
+  async carregarDados(): Promise<void> {
+    if (this.carregando) return;
+
+    this.carregando = true;
+    this.erroSalas = '';
+    this.erroSolicitacoes = '';
+
+    const [salasResultado, solicitacoesResultado] =
+      await Promise.allSettled([
+        firstValueFrom(
+          this.http.get<Sala[]>(`${this.api}/salas`)
+        ),
+        firstValueFrom(
+          this.http.get<AgendamentoApi[]>(
+            this.apiAgendamentos
+          )
+        ),
+      ]);
+
+    if (
+      salasResultado.status === 'fulfilled' &&
+      Array.isArray(salasResultado.value)
+    ) {
+      this.salas = salasResultado.value.map(sala => ({
+        ...sala,
+        recursos: Array.isArray(sala.recursos)
+          ? sala.recursos
+          : []
+      }));
+
+      this.salasCarregadas = true;
+
+      this.salasSelecionadas =
+        this.salasSelecionadas.filter(id =>
+          this.salas.some(sala => sala.id === id)
+        );
+
+    } else {
+      this.erroSalas =
+        'Não foi possível carregar as salas. Verifique a conexão com o backend.';
+    }
+
+    if (
+      solicitacoesResultado.status === 'fulfilled' &&
+      Array.isArray(solicitacoesResultado.value)
+    ) {
+      this.solicitacoes = this.ordenar(
+        solicitacoesResultado.value.map(
+          agendamento => this.paraSolicitacao(agendamento)
+        )
+      );
+
+      this.solicitacoesCarregadas = true;
+
+    } else {
+      this.erroSolicitacoes =
+        'Não foi possível carregar as solicitações de reserva.';
+    }
+
+    this.atualizarResumo();
+    this.atualizarGrafico();
+
+    this.carregando = false;
+
+    this.cdr.markForCheck();
+  }
+
+  // ==========================================
+  // CONVERSÃO E ORGANIZAÇÃO
+  // ==========================================
+
+  private paraSolicitacao(
+    agendamento: AgendamentoApi
+  ): Solicitacao {
+
+    const data = String(agendamento.data || '').slice(0, 10);
+    const hora = String(agendamento.hora || '').slice(0, 5);
+
+    const detalhe = agendamento.materia
+      ? ` · ${agendamento.materia}`
+      : '';
 
     return {
-      id: a.id,
-      nomeSala: a.sala,
-      solicitante: a.professor || 'Professor',
-      justificativa: `Reserva para ${dia}/${mes}/${ano} às ${a.hora}${detalhe}`,
+      id: agendamento.id,
+
+      nomeSala: agendamento.sala,
+
+      solicitante: agendamento.professor || 'Professor',
+
+      justificativa:
+        `Reserva para ${this.formatarData(data)} às ${hora}${detalhe}`,
+
       status:
-        a.status === 'APROVADO'
+        agendamento.status === 'APROVADO'
           ? 'APROVADA'
-          : a.status === 'REJEITADO'
+          : agendamento.status === 'REJEITADO'
             ? 'RECUSADA'
             : 'PENDENTE',
-      criadaEm: a.criadaEm,
+
+      criadaEm: agendamento.criadaEm,
+      data,
+      hora
     };
   }
 
-  // Pendentes primeiro (são as que precisam de ação); o resto mantém a ordem
+  formatarData(data: string): string {
+    const resultado = /^(\d{4})-(\d{2})-(\d{2})/.exec(data);
+
+    if (!resultado) return data || 'Não informada';
+
+    return `${resultado[3]}/${resultado[2]}/${resultado[1]}`;
+  }
+
   private ordenar(lista: Solicitacao[]): Solicitacao[] {
-    const peso = (s: Solicitacao) => (s.status === 'PENDENTE' ? 0 : 1);
-    return [...lista].sort((a, b) => peso(a) - peso(b));
+    const peso = (s: Solicitacao) =>
+      s.status === 'PENDENTE' ? 0 : 1;
+
+    return [...lista].sort((a, b) =>
+      peso(a) - peso(b) ||
+      (b.criadaEm || '').localeCompare(a.criadaEm || '')
+    );
   }
 
   private atualizarResumo(): void {
-    const contar = (status: Solicitacao['status']) =>
-      this.solicitacoes.filter((s) => s.status === status).length;
+    const contar = (status: StatusSolicitacao) =>
+      this.solicitacoes.filter(
+        solicitacao => solicitacao.status === status
+      ).length;
 
     this.dashboard = {
       totalSalas: this.salas.length,
       pendentes: contar('PENDENTE'),
       aprovadas: contar('APROVADA'),
-      recusadas: contar('RECUSADA'),
+      recusadas: contar('RECUSADA')
     };
   }
 
-  mudarSecao(secao: string): void {
-    this.secao = secao;
-    this.mensagem = '';
-    this.erro = '';
+  // ==========================================
+  // GRÁFICOS
+  // ==========================================
+
+  get totalReservas(): number {
+    return this.solicitacoes.length;
   }
 
-  criarSala(): void {
-    this.mensagem = '';
-    this.erro = '';
+  get totalSemana(): number {
+    return this.graficoSemana.reduce(
+      (total, dia) => total + dia.quantidade,
+      0
+    );
+  }
 
-    if (!this.novaSala.nome.trim()) {
-      this.erro = 'Informe o nome da sala.';
-      return;
+  private dataLocal(data: Date): string {
+    const ano = data.getFullYear();
+
+    const mes = String(
+      data.getMonth() + 1
+    ).padStart(2, '0');
+
+    const dia = String(
+      data.getDate()
+    ).padStart(2, '0');
+
+    return `${ano}-${mes}-${dia}`;
+  }
+
+  private atualizarGrafico(): void {
+    const dias = [
+      'Seg', 'Ter', 'Qua', 'Qui',
+      'Sex', 'Sáb', 'Dom'
+    ];
+
+    const segunda = new Date();
+
+    segunda.setHours(0, 0, 0, 0);
+
+    const deslocamento =
+      (segunda.getDay() + 6) % 7;
+
+    segunda.setDate(
+      segunda.getDate() - deslocamento
+    );
+
+    const dados = dias.map((dia, indice) => {
+      const data = new Date(segunda);
+
+      data.setDate(segunda.getDate() + indice);
+
+      const dataFormatada = this.dataLocal(data);
+
+      const quantidade = this.solicitacoes.filter(
+        solicitacao => solicitacao.data === dataFormatada
+      ).length;
+
+      return {
+        dia,
+        quantidade,
+        altura: 0
+      };
+    });
+
+    const maior = Math.max(
+      1,
+      ...dados.map(item => item.quantidade)
+    );
+
+    this.graficoSemana = dados.map(item => ({
+      ...item,
+      altura: (item.quantidade / maior) * 100
+    }));
+  }
+
+  percentual(quantidade: number): number {
+    if (!this.totalReservas) return 0;
+
+    return Math.round(
+      quantidade / this.totalReservas * 100
+    );
+  }
+
+  get graficoStatus(): string {
+    if (!this.totalReservas) {
+      return '#ece8f3';
     }
 
-    if (!Number.isFinite(this.novaSala.capacidade) ||
-        this.novaSala.capacidade < 1) {
-      this.erro = 'A capacidade deve ser maior que zero.';
-      return;
-    }
+    const aprovadas =
+      this.dashboard.aprovadas / this.totalReservas * 100;
 
-    const recursos = this.novaSala.recursosTexto
-      .split(',')
-      .map((recurso) => recurso.trim())
-      .filter((recurso) => recurso.length > 0);
+    const pendentes =
+      this.dashboard.pendentes / this.totalReservas * 100;
 
-    this.http.post<Sala>(`${this.api}/salas`, {
-      nome: this.novaSala.nome.trim(),
-      localizacao: this.novaSala.localizacao.trim(),
-      capacidade: this.novaSala.capacidade,
-      recursos,
-    }).subscribe({
-      next: () => {
-        this.mensagem = 'Sala criada com sucesso! Ela já aparece para os usuários na hora de agendar.';
-        this.novaSala = {
-          nome: '',
-          localizacao: '',
-          capacidade: 30,
-          recursosTexto: '',
-        };
-        this.carregarDados();
-      },
-      error: () => {
-        this.erro = 'Não foi possível criar a sala.';
-        this.cdr.markForCheck();
-      },
+    return `conic-gradient(
+      #22a66b 0% ${aprovadas}%,
+      #e9a83b ${aprovadas}% ${aprovadas + pendentes}%,
+      #e45368 ${aprovadas + pendentes}% 100%
+    )`;
+  }
+
+  get solicitacoesRecentes(): Solicitacao[] {
+    return this.solicitacoes.slice(0, 5);
+  }
+
+  // ==========================================
+  // PESQUISA E FILTROS
+  // ==========================================
+
+  private normalizar(texto: string): string {
+    return texto
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
+
+  get salasFiltradas(): Sala[] {
+    const termo = this.normalizar(this.pesquisaSala);
+
+    if (!termo) return this.salas;
+
+    return this.salas.filter(sala => {
+      const texto = [
+        sala.nome,
+        sala.localizacao,
+        sala.capacidade,
+        ...(sala.recursos || [])
+      ].join(' ');
+
+      return this.normalizar(texto).includes(termo);
     });
   }
 
-  // ---------- Seleção e remoção de salas ----------
+  get solicitacoesFiltradas(): Solicitacao[] {
+    const termo = this.normalizar(
+      this.pesquisaSolicitacao
+    );
+
+    return this.solicitacoes.filter(solicitacao => {
+      const statusCorreto =
+        this.filtroStatus === 'TODAS' ||
+        solicitacao.status === this.filtroStatus;
+
+      const texto = [
+        solicitacao.nomeSala,
+        solicitacao.solicitante,
+        solicitacao.justificativa,
+        solicitacao.id
+      ].join(' ');
+
+      return statusCorreto &&
+        this.normalizar(texto).includes(termo);
+    });
+  }
+
+  selecionarStatus(
+    status: StatusSolicitacao | 'TODAS'
+  ): void {
+    this.filtroStatus = status;
+  }
+
+  limparPesquisaSala(): void {
+    this.pesquisaSala = '';
+    this.salasSelecionadas = [];
+  }
+
+  limparFiltrosSolicitacoes(): void {
+    this.pesquisaSolicitacao = '';
+    this.filtroStatus = 'TODAS';
+  }
+
+  // ==========================================
+  // MODAL DE CADASTRO DE SALAS
+  // ==========================================
+
+  abrirModalSala(): void {
+    this.erroModal = '';
+    this.mensagem = '';
+    this.erro = '';
+
+    this.novaSala = {
+      nome: '',
+      localizacao: '',
+      capacidade: 30,
+      recursosTexto: ''
+    };
+
+    this.modalSala.nativeElement.showModal();
+  }
+
+  fecharModalSala(): void {
+    if (this.cadastrandoSala) return;
+
+    this.modalSala.nativeElement.close();
+    this.erroModal = '';
+  }
+
+  cancelarModal(evento: Event): void {
+    if (this.cadastrandoSala) {
+      evento.preventDefault();
+    }
+  }
+
+  async criarSala(): Promise<void> {
+    if (this.cadastrandoSala || this.carregando) return;
+
+    this.erroModal = '';
+    this.mensagem = '';
+    this.erro = '';
+
+    const nome = this.novaSala.nome.trim();
+
+    if (!nome) {
+      this.erroModal = 'Informe o nome da sala.';
+      return;
+    }
+
+    if (
+      !Number.isInteger(this.novaSala.capacidade) ||
+      this.novaSala.capacidade < 1
+    ) {
+      this.erroModal =
+        'Informe uma capacidade inteira maior que zero.';
+
+      return;
+    }
+
+    const recursos = [
+      ...new Set(
+        this.novaSala.recursosTexto
+          .split(',')
+          .map(recurso => recurso.trim())
+          .filter(Boolean)
+      )
+    ];
+
+    this.cadastrandoSala = true;
+
+    try {
+      await firstValueFrom(
+        this.http.post<Sala>(
+          `${this.api}/salas`,
+          {
+            nome,
+            localizacao: this.novaSala.localizacao.trim(),
+            capacidade: this.novaSala.capacidade,
+            recursos
+          }
+        )
+      );
+
+      this.mudarSecao('salas');
+
+      this.mensagem = 'Sala cadastrada com sucesso!';
+
+      this.modalSala.nativeElement.close();
+
+      await this.carregarDados();
+
+    } catch (error) {
+      this.erroModal = this.obterMensagemErro(
+        error,
+        'Não foi possível cadastrar a sala.'
+      );
+
+    } finally {
+      this.cadastrandoSala = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  // ==========================================
+  // SELEÇÃO DE SALAS
+  // ==========================================
 
   get todasSelecionadas(): boolean {
-    return (
-      this.salas.length > 0 &&
-      this.salasSelecionadas.length === this.salas.length
-    );
+    return this.salasFiltradas.length > 0 &&
+      this.salasFiltradas.every(
+        sala => this.salasSelecionadas.includes(sala.id)
+      );
   }
 
   estaSelecionada(id: string): boolean {
@@ -232,48 +650,82 @@ export class Admin implements OnInit {
   }
 
   alternarSelecao(id: string): void {
+    if (this.removendoSalas) return;
+
     this.salasSelecionadas = this.estaSelecionada(id)
-      ? this.salasSelecionadas.filter((item) => item !== id)
+      ? this.salasSelecionadas.filter(item => item !== id)
       : [...this.salasSelecionadas, id];
   }
 
   alternarTodas(): void {
-    this.salasSelecionadas = this.todasSelecionadas
-      ? []
-      : this.salas.map((sala) => sala.id);
-  }
+    if (this.removendoSalas) return;
 
-  async removerSala(sala: Sala): Promise<void> {
-    if (this.removendoSalas) {
-      return;
-    }
-
-    const confirmar = window.confirm(
-      `Remover a sala "${sala.nome}"?\n\n` +
-        'Ela deixará de aparecer para os usuários na hora de agendar. ' +
-        'Reservas já feitas nela continuam existindo.',
+    const visiveis = this.salasFiltradas.map(
+      sala => sala.id
     );
 
-    if (!confirmar) {
-      return;
+    if (this.todasSelecionadas) {
+      this.salasSelecionadas =
+        this.salasSelecionadas.filter(
+          id => !visiveis.includes(id)
+        );
+    } else {
+      this.salasSelecionadas = [
+        ...new Set([
+          ...this.salasSelecionadas,
+          ...visiveis
+        ])
+      ];
     }
+  }
+
+  // ==========================================
+  // REMOVER SALAS
+  // ==========================================
+
+  async removerSala(sala: Sala): Promise<void> {
+    if (this.removendoSalas || this.carregando) return;
+
+    const confirmar = window.confirm(
+      `Deseja remover a sala "${sala.nome}"?\n\n` +
+      'Confirme se ela possui reservas antes de continuar.'
+    );
+
+    if (!confirmar) return;
 
     this.mensagem = '';
     this.erro = '';
     this.removendoSalas = true;
 
     try {
-      await firstValueFrom(this.http.delete(`${this.api}/salas/${sala.id}`));
+      await firstValueFrom(
+        this.http.delete(
+          `${this.api}/salas/${encodeURIComponent(sala.id)}`
+        )
+      );
+
+      this.salas = this.salas.filter(
+        item => item.id !== sala.id
+      );
+
+      this.salasSelecionadas =
+        this.salasSelecionadas.filter(
+          id => id !== sala.id
+        );
 
       this.mensagem = `Sala "${sala.nome}" removida.`;
-      this.salasSelecionadas = this.salasSelecionadas.filter(
-        (id) => id !== sala.id,
+
+      await this.carregarDados();
+
+    } catch (error) {
+      this.erro = this.obterMensagemErro(
+        error,
+        'Não foi possível remover a sala.'
       );
-      this.carregarDados();
-    } catch (e: any) {
-      this.erro = e?.error?.message || 'Não foi possível remover a sala.';
+
     } finally {
       this.removendoSalas = false;
+      this.atualizarResumo();
       this.cdr.markForCheck();
     }
   }
@@ -281,66 +733,169 @@ export class Admin implements OnInit {
   async removerSelecionadas(): Promise<void> {
     const ids = [...this.salasSelecionadas];
 
-    if (this.removendoSalas || ids.length === 0) {
-      return;
-    }
+    if (
+      this.removendoSalas ||
+      this.carregando ||
+      ids.length === 0
+    ) return;
 
     const confirmar = window.confirm(
       `Remover ${ids.length} sala(s) selecionada(s)?\n\n` +
-        'Elas deixarão de aparecer para os usuários na hora de agendar. ' +
-        'Reservas já feitas nelas continuam existindo.',
+      'Confirme se existem reservas vinculadas antes de continuar.'
     );
 
-    if (!confirmar) {
-      return;
-    }
+    if (!confirmar) return;
 
     this.mensagem = '';
     this.erro = '';
     this.removendoSalas = true;
 
-    let removidas = 0;
-    let falhas = 0;
+    const removidas: string[] = [];
+    const falhas: string[] = [];
 
     for (const id of ids) {
       try {
-        await firstValueFrom(this.http.delete(`${this.api}/salas/${id}`));
-        removidas++;
+        await firstValueFrom(
+          this.http.delete(
+            `${this.api}/salas/${encodeURIComponent(id)}`
+          )
+        );
+
+        removidas.push(id);
+
       } catch {
-        falhas++;
+        falhas.push(id);
       }
     }
 
-    if (falhas === 0) {
-      this.mensagem = `${removidas} sala(s) removida(s).`;
+    this.salas = this.salas.filter(
+      sala => !removidas.includes(sala.id)
+    );
+
+    this.salasSelecionadas = falhas;
+
+    if (falhas.length === 0) {
+      this.mensagem =
+        `${removidas.length} sala(s) removida(s).`;
     } else {
-      this.erro = `${removidas} sala(s) removida(s), mas ${falhas} não puderam ser removidas.`;
+      this.erro =
+        `${removidas.length} sala(s) removida(s). ` +
+        `${falhas.length} não puderam ser removidas.`;
     }
 
-    this.salasSelecionadas = [];
+    await this.carregarDados();
+
     this.removendoSalas = false;
-    this.carregarDados();
+    this.atualizarResumo();
+    this.cdr.markForCheck();
   }
 
-  analisarSolicitacao(id: string, acao: 'aprovar' | 'recusar'): void {
+  // ==========================================
+  // APROVAR OU RECUSAR SOLICITAÇÕES
+  // ==========================================
+
+  async analisarSolicitacao(
+    id: string,
+    acao: 'aprovar' | 'recusar'
+  ): Promise<void> {
+    if (
+      this.processandoSolicitacao ||
+      this.carregando
+    ) return;
+
+    const solicitacao = this.solicitacoes.find(
+      item => item.id === id
+    );
+
+    if (
+      !solicitacao ||
+      solicitacao.status !== 'PENDENTE'
+    ) return;
+
+    const confirmar = window.confirm(
+      `Deseja ${acao} a reserva de "${solicitacao.nomeSala}"?`
+    );
+
+    if (!confirmar) return;
+
     this.mensagem = '';
     this.erro = '';
+    this.processandoSolicitacao = id;
 
-    this.http.patch(
-      `${this.apiAgendamentos}/${id}/${acao}`,
-      {},
-    ).subscribe({
-      next: () => {
-        this.mensagem = acao === 'aprovar'
-          ? 'Reserva aprovada!'
-          : 'Reserva recusada!';
-        this.carregarDados();
-      },
-      error: (resposta) => {
-        this.erro = resposta.error?.message
-          || 'Não foi possível atualizar a reserva.';
-        this.cdr.markForCheck();
-      },
-    });
+    try {
+      await firstValueFrom(
+        this.http.patch(
+          `${this.apiAgendamentos}/${encodeURIComponent(id)}/${acao}`,
+          {}
+        )
+      );
+
+      this.solicitacoes = this.ordenar(
+        this.solicitacoes.map(item =>
+          item.id === id
+            ? {
+                ...item,
+                status: acao === 'aprovar'
+                  ? 'APROVADA'
+                  : 'RECUSADA'
+              }
+            : item
+        )
+      );
+
+      this.mensagem = acao === 'aprovar'
+        ? 'Reserva aprovada com sucesso!'
+        : 'Reserva recusada com sucesso!';
+
+      await this.carregarDados();
+
+    } catch (error) {
+      this.erro = this.obterMensagemErro(
+        error,
+        'Não foi possível atualizar a reserva.'
+      );
+
+    } finally {
+      this.processandoSolicitacao = null;
+      this.atualizarResumo();
+      this.cdr.markForCheck();
+    }
+  }
+
+  // ==========================================
+  // TRATAMENTO DE ERROS
+  // ==========================================
+
+  private obterMensagemErro(
+    error: unknown,
+    padrao: string
+  ): string {
+    const resposta = error as {
+      status?: number;
+      error?: {
+        message?: string | string[];
+      };
+    };
+
+    if (resposta?.status === 0) {
+      return 'Não foi possível conectar ao backend.';
+    }
+
+    const mensagem = resposta?.error?.message;
+
+    if (Array.isArray(mensagem)) {
+      return mensagem.join(' ');
+    }
+
+    return typeof mensagem === 'string'
+      ? mensagem
+      : padrao;
+  }
+
+  trackById(
+    _index: number,
+    item: { id: string }
+  ): string {
+    return item.id;
   }
 }

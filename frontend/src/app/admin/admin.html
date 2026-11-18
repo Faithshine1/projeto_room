@@ -1,344 +1,1279 @@
 
 <div class="admin-layout">
+
+  <!-- ======================================
+       MENU LATERAL
+  ======================================= -->
+
   <aside class="sidebar">
+
     <div class="brand">
-      <div class="brand-icon">E</div>
+      <div class="brand-icon">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+
       <div>
-        <h2>EduRoom</h2>
+        <h2>EduRoom's</h2>
         <span>Painel administrativo</span>
       </div>
     </div>
 
     <p class="menu-label">MENU PRINCIPAL</p>
 
-    <button [class.active]="secao === 'inicio'"
-      (click)="mudarSecao('inicio')">
-      <span>▦</span> Dashboard
-    </button>
+    <nav class="sidebar-nav">
 
-    <button [class.active]="secao === 'salas'"
-      (click)="mudarSecao('salas')">
-      <span>▤</span> Salas
-    </button>
+      <button
+        type="button"
+        [class.active]="secao === 'inicio'"
+        (click)="mudarSecao('inicio')">
 
-    <button [class.active]="secao === 'solicitacoes'"
-      (click)="mudarSecao('solicitacoes')">
-      <span>☷</span> Solicitações
-      <span class="badge" *ngIf="dashboard.pendentes">
-        {{ dashboard.pendentes }}
-      </span>
-    </button>
+        <i class="fa-solid fa-table-columns"></i>
+        <span>Dashboard</span>
+      </button>
+
+      <button
+        type="button"
+        [class.active]="secao === 'salas'"
+        (click)="mudarSecao('salas')">
+
+        <i class="fa-solid fa-door-open"></i>
+        <span>Salas</span>
+      </button>
+
+      <button
+        type="button"
+        [class.active]="secao === 'solicitacoes'"
+        (click)="mudarSecao('solicitacoes')">
+
+        <i class="fa-solid fa-clipboard-list"></i>
+        <span>Solicitações</span>
+
+        <span class="badge" *ngIf="dashboard.pendentes">
+          {{ dashboard.pendentes }}
+        </span>
+      </button>
+
+    </nav>
+
+    <!-- PERFIL ADMINISTRATIVO -->
 
     <div class="sidebar-footer">
-      <span class="status-dot"></span>
-      Sistema EduRoom
-      <small>Área administrativa</small>
+
+      <div class="admin-profile">
+
+        <div class="admin-avatar">
+          {{ iniciaisAdministrador }}
+        </div>
+
+        <div class="admin-profile-info">
+          <strong>{{ nomeAdministrador }}</strong>
+          <small>Administrador</small>
+        </div>
+
+      </div>
+
+      <button
+        type="button"
+        class="logout-button"
+        (click)="sair()">
+
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Sair da conta
+      </button>
+
+      <div class="system-info">
+        <i class="fa-solid fa-shield-halved"></i>
+        Área administrativa
+      </div>
+
     </div>
+
   </aside>
 
+  <!-- ======================================
+       CONTEÚDO PRINCIPAL
+  ======================================= -->
+
   <main class="main-content">
+
+    <!-- CABEÇALHO -->
+
     <header class="topbar">
+
       <div>
-        <span class="eyebrow">EDUROOM / ADMINISTRAÇÃO</span>
-        <h1>
-          {{ secao === 'inicio' ? 'Dashboard'
-             : secao === 'salas' ? 'Gerenciar salas'
-             : 'Solicitações de reservas' }}
-        </h1>
-        <p>Gerencie os espaços e aprove ou recuse as reservas dos usuários.</p>
+        <span class="eyebrow">
+          EDUROOM'S / ADMINISTRAÇÃO
+        </span>
+
+        <h1>{{ tituloPagina }}</h1>
+
+        <p>{{ subtituloPagina }}</p>
       </div>
 
-      <button class="refresh-button" (click)="carregarDados()">
-        ↻ Atualizar
-      </button>
+      <div class="topbar-actions">
+
+        <button
+          type="button"
+          class="refresh-button"
+          [disabled]="carregando || cadastrandoSala ||
+            removendoSalas || !!processandoSolicitacao"
+          (click)="carregarDados()">
+
+          <i
+            class="fa-solid fa-rotate-right"
+            [class.spin]="carregando">
+          </i>
+
+          {{ carregando ? 'Atualizando...' : 'Atualizar' }}
+
+        </button>
+
+        <div class="header-avatar" title="Administrador">
+          <i class="fa-solid fa-user-shield"></i>
+        </div>
+
+      </div>
+
     </header>
 
-    <div class="alert success" *ngIf="mensagem">
-      ✓ {{ mensagem }}
+    <!-- MENSAGENS -->
+
+    <div class="alert success" *ngIf="mensagem" role="status">
+
+      <i class="fa-solid fa-circle-check"></i>
+      <span>{{ mensagem }}</span>
+
+      <button
+        type="button"
+        aria-label="Fechar mensagem"
+        (click)="mensagem = ''">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
     </div>
 
-    <div class="alert error" *ngIf="erro">
-      {{ erro }}
+    <div class="alert error" *ngIf="erro" role="alert">
+
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <span>{{ erro }}</span>
+
+      <button
+        type="button"
+        aria-label="Fechar erro"
+        (click)="erro = ''">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
     </div>
 
-    <div class="loading" *ngIf="carregando">
-      Atualizando informações...
+    <div class="alert error" *ngIf="erroSalas" role="alert">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span>{{ erroSalas }}</span>
     </div>
 
-    <section *ngIf="secao === 'inicio'">
-      <div class="stats-grid">
-        <article class="stat-card">
-          <div class="stat-icon purple">▤</div>
-          <span>Total de salas</span>
-          <strong>{{ dashboard.totalSalas }}</strong>
-          <small>Espaços cadastrados</small>
-        </article>
+    <div
+      class="alert error"
+      *ngIf="erroSolicitacoes"
+      role="alert">
 
-        <article class="stat-card">
-          <div class="stat-icon orange">◷</div>
-          <span>Pendentes</span>
-          <strong>{{ dashboard.pendentes }}</strong>
-          <small>Aguardando análise</small>
-        </article>
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span>{{ erroSolicitacoes }}</span>
+    </div>
 
-        <article class="stat-card">
-          <div class="stat-icon green">✓</div>
-          <span>Aprovadas</span>
-          <strong>{{ dashboard.aprovadas }}</strong>
-          <small>Reservas aprovadas</small>
-        </article>
+    <div class="loading" *ngIf="carregando" role="status">
+      <i class="fa-solid fa-spinner spin"></i>
+      Atualizando informações do sistema...
+    </div>
 
-        <article class="stat-card">
-          <div class="stat-icon red">×</div>
-          <span>Recusadas</span>
-          <strong>{{ dashboard.recusadas }}</strong>
-          <small>Reservas recusadas</small>
-        </article>
+    <!-- ======================================
+         DASHBOARD
+    ======================================= -->
+
+    <section *ngIf="secao === 'inicio'" class="section-content">
+
+      <!-- BANNER -->
+
+      <div class="welcome-banner">
+
+        <div class="banner-circle circle-one"></div>
+        <div class="banner-circle circle-two"></div>
+
+        <div class="welcome-content">
+
+          <span class="welcome-label">
+            <i class="fa-solid fa-shield-halved"></i>
+            PAINEL DE CONTROLE
+          </span>
+
+          <h2>Bem-vindo, {{ nomeAdministrador }}!</h2>
+
+          <p>
+            Gerencie os espaços da instituição e acompanhe
+            as solicitações de reservas em um único lugar.
+          </p>
+
+          <button
+            type="button"
+            class="banner-button"
+            (click)="abrirModalSala()">
+
+            <i class="fa-solid fa-plus"></i>
+            Cadastrar nova sala
+          </button>
+
+        </div>
+
+        <div class="welcome-illustration">
+          <i class="fa-solid fa-building-columns"></i>
+        </div>
+
       </div>
 
+      <!-- INDICADORES -->
+
+      <div class="stats-grid">
+
+        <button
+          type="button"
+          class="stat-card"
+          (click)="mudarSecao('salas')">
+
+          <div class="stat-card-top">
+            <div class="stat-icon purple">
+              <i class="fa-solid fa-door-open"></i>
+            </div>
+
+            <i class="fa-solid fa-arrow-up-right-from-square
+              stat-arrow"></i>
+          </div>
+
+          <span>Total de salas</span>
+
+          <strong>
+            {{ salasCarregadas ? dashboard.totalSalas : '—' }}
+          </strong>
+
+          <small>Espaços cadastrados</small>
+
+        </button>
+
+        <button
+          type="button"
+          class="stat-card"
+          (click)="abrirSolicitacoes('PENDENTE')">
+
+          <div class="stat-card-top">
+            <div class="stat-icon orange">
+              <i class="fa-regular fa-clock"></i>
+            </div>
+
+            <i class="fa-solid fa-arrow-up-right-from-square
+              stat-arrow"></i>
+          </div>
+
+          <span>Pendentes</span>
+
+          <strong>
+            {{ solicitacoesCarregadas ? dashboard.pendentes : '—' }}
+          </strong>
+
+          <small>Aguardando análise</small>
+
+        </button>
+
+        <button
+          type="button"
+          class="stat-card"
+          (click)="abrirSolicitacoes('APROVADA')">
+
+          <div class="stat-card-top">
+            <div class="stat-icon green">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+
+            <i class="fa-solid fa-arrow-up-right-from-square
+              stat-arrow"></i>
+          </div>
+
+          <span>Aprovadas</span>
+
+          <strong>
+            {{ solicitacoesCarregadas ? dashboard.aprovadas : '—' }}
+          </strong>
+
+          <small>Reservas aprovadas</small>
+
+        </button>
+
+        <button
+          type="button"
+          class="stat-card"
+          (click)="abrirSolicitacoes('RECUSADA')">
+
+          <div class="stat-card-top">
+            <div class="stat-icon red">
+              <i class="fa-solid fa-circle-xmark"></i>
+            </div>
+
+            <i class="fa-solid fa-arrow-up-right-from-square
+              stat-arrow"></i>
+          </div>
+
+          <span>Recusadas</span>
+
+          <strong>
+            {{ solicitacoesCarregadas ? dashboard.recusadas : '—' }}
+          </strong>
+
+          <small>Reservas recusadas</small>
+
+        </button>
+
+      </div>
+
+      <!-- GRÁFICOS -->
+
+      <div class="charts-grid">
+
+        <!-- GRÁFICO SEMANAL -->
+
+        <section class="panel chart-panel">
+
+          <div class="panel-heading">
+            <div>
+              <h2>Reservas da semana</h2>
+              <p>Agendamentos por dia da semana atual.</p>
+            </div>
+
+            <span class="chart-total">
+              {{ solicitacoesCarregadas ? totalSemana : '—' }}
+              reservas
+            </span>
+          </div>
+
+          <ng-container *ngIf="solicitacoesCarregadas; else graficoIndisponivel">
+
+            <div class="bar-chart">
+
+              <div
+                class="chart-column"
+                *ngFor="let dia of graficoSemana">
+
+                <div class="chart-track">
+
+                  <div
+                    class="chart-bar"
+                    [style.height.%]="dia.altura"
+                    [attr.title]="dia.quantidade + ' reserva(s)'">
+
+                    <span class="bar-value"
+                      *ngIf="dia.quantidade > 0">
+                      {{ dia.quantidade }}
+                    </span>
+
+                  </div>
+
+                  <span
+                    class="zero-value"
+                    *ngIf="dia.quantidade === 0">
+                    0
+                  </span>
+
+                </div>
+
+                <span class="chart-day">
+                  {{ dia.dia }}
+                </span>
+
+              </div>
+
+            </div>
+
+          </ng-container>
+
+        </section>
+
+        <!-- GRÁFICO DE STATUS -->
+
+        <section class="panel chart-panel">
+
+          <div class="panel-heading">
+            <div>
+              <h2>Status das reservas</h2>
+              <p>Distribuição das solicitações.</p>
+            </div>
+          </div>
+
+          <ng-container *ngIf="solicitacoesCarregadas; else graficoIndisponivel">
+
+            <div class="donut-layout">
+
+              <div
+                class="donut-chart"
+                [style.background]="graficoStatus">
+
+                <div class="donut-center">
+                  <strong>{{ totalReservas }}</strong>
+                  <span>Reservas</span>
+                </div>
+
+              </div>
+
+              <div class="chart-legend">
+
+                <div class="legend-item">
+                  <span class="legend-dot green"></span>
+                  <span>Aprovadas</span>
+
+                  <strong>
+                    {{ percentual(dashboard.aprovadas) }}%
+                  </strong>
+                </div>
+
+                <div class="legend-item">
+                  <span class="legend-dot orange"></span>
+                  <span>Pendentes</span>
+
+                  <strong>
+                    {{ percentual(dashboard.pendentes) }}%
+                  </strong>
+                </div>
+
+                <div class="legend-item">
+                  <span class="legend-dot red"></span>
+                  <span>Recusadas</span>
+
+                  <strong>
+                    {{ percentual(dashboard.recusadas) }}%
+                  </strong>
+                </div>
+
+              </div>
+
+            </div>
+
+          </ng-container>
+
+        </section>
+
+        <ng-template #graficoIndisponivel>
+          <div class="empty-state">
+            <i class="fa-solid fa-chart-column"></i>
+            <p>
+              {{ carregando
+                ? 'Carregando gráfico...'
+                : 'Dados indisponíveis.' }}
+            </p>
+          </div>
+        </ng-template>
+
+      </div>
+
+      <!-- SOLICITAÇÕES RECENTES -->
+
       <section class="panel">
+
         <div class="panel-heading">
+
           <div>
             <h2>Solicitações recentes</h2>
-            <p>Reservas dos usuários que precisam de atenção.</p>
+            <p>Pedidos de reserva que precisam de atenção.</p>
           </div>
-          <button class="text-button"
-            (click)="mudarSecao('solicitacoes')">
-            Ver todas →
+
+          <button
+            type="button"
+            class="text-button"
+            (click)="abrirSolicitacoes()">
+
+            Ver todas
+            <i class="fa-solid fa-arrow-right"></i>
+
           </button>
+
         </div>
 
-        <div class="empty-state"
-          *ngIf="solicitacoes.length === 0">
-          <div class="empty-icon">☷</div>
-          <strong>Nenhuma solicitação encontrada</strong>
-          <p>Quando houver solicitações, elas aparecerão aqui.</p>
+        <div
+          class="empty-state"
+          *ngIf="solicitacoesRecentes.length === 0">
+
+          <div class="empty-icon">
+            <i class="fa-solid fa-clipboard-list"></i>
+          </div>
+
+          <strong>
+            {{ !solicitacoesCarregadas
+              ? 'Solicitações indisponíveis'
+              : 'Nenhuma solicitação encontrada' }}
+          </strong>
+
+          <p>
+            {{ carregando
+              ? 'Buscando informações...'
+              : erroSolicitacoes
+                ? 'Verifique a conexão e tente atualizar.'
+                : 'As reservas aparecerão nesta área.' }}
+          </p>
+
         </div>
 
-        <div class="request-list"
-          *ngIf="solicitacoes.length > 0">
-          <article class="request-row"
-            *ngFor="let s of solicitacoes.slice(0, 5)">
+        <div class="request-list">
+
+          <article
+            class="request-row"
+            *ngFor="let s of solicitacoesRecentes; trackBy: trackById">
+
             <div class="request-avatar">
               {{ s.solicitante.charAt(0).toUpperCase() }}
             </div>
+
             <div class="request-info">
               <strong>{{ s.nomeSala }}</strong>
               <span>{{ s.solicitante }}</span>
-              <small>{{ s.justificativa || 'Sem justificativa informada' }}</small>
+              <small>{{ s.justificativa }}</small>
             </div>
-            <span class="status"
+
+            <span
+              class="status"
               [ngClass]="s.status.toLowerCase()">
               {{ s.status }}
             </span>
+
           </article>
+
         </div>
+
       </section>
 
+      <!-- SALAS CADASTRADAS -->
+
       <section class="panel">
+
         <div class="panel-heading">
+
           <div>
             <h2>Salas cadastradas</h2>
-            <p>Visão geral dos espaços disponíveis no sistema.</p>
+            <p>Confira os espaços da instituição.</p>
           </div>
-          <button class="primary-button"
+
+          <button
+            type="button"
+            class="text-button"
             (click)="mudarSecao('salas')">
-            + Nova sala
+            Ver todas
+            <i class="fa-solid fa-arrow-right"></i>
           </button>
+
         </div>
 
         <div class="empty-state" *ngIf="salas.length === 0">
-          <strong>Nenhuma sala cadastrada</strong>
-          <p>Cadastre sua primeira sala para começar.</p>
+
+          <div class="empty-icon">
+            <i class="fa-solid fa-door-open"></i>
+          </div>
+
+          <strong>
+            {{ salasCarregadas
+              ? 'Nenhuma sala cadastrada'
+              : 'Informações indisponíveis' }}
+          </strong>
+
+          <p>
+            {{ salasCarregadas
+              ? 'Cadastre a primeira sala para começar.'
+              : 'Verifique a conexão com o servidor.' }}
+          </p>
+
         </div>
 
-        <div class="room-grid" *ngIf="salas.length > 0">
-          <article class="room-card" *ngFor="let sala of salas">
-            <div class="room-symbol">▤</div>
-            <h3>{{ sala.nome }}</h3>
-            <p>{{ sala.localizacao || 'Localização não informada' }}</p>
-            <div class="room-meta">
-              <span>♙ {{ sala.capacidade }} lugares</span>
+        <div class="room-grid">
+
+          <article
+            class="room-card"
+            *ngFor="let sala of salas.slice(0, 6); trackBy: trackById">
+
+            <div class="room-symbol">
+              <i class="fa-solid fa-door-open"></i>
             </div>
+
+            <h3>{{ sala.nome }}</h3>
+
+            <p>
+              <i class="fa-solid fa-location-dot"></i>
+              {{ sala.localizacao || 'Localização não informada' }}
+            </p>
+
+            <div class="room-meta">
+              <i class="fa-solid fa-users"></i>
+              {{ sala.capacidade }} lugares
+            </div>
+
             <div class="resource-list">
               <span *ngFor="let recurso of sala.recursos">
                 {{ recurso }}
               </span>
             </div>
+
           </article>
+
         </div>
+
       </section>
+
     </section>
 
-    <section *ngIf="secao === 'salas'">
-      <section class="panel">
-        <div class="panel-heading">
-          <div>
-            <h2>Cadastrar nova sala</h2>
-            <p>Preencha os dados do novo espaço.</p>
-          </div>
+    <!-- ======================================
+         GERENCIAMENTO DE SALAS
+    ======================================= -->
+
+    <section *ngIf="secao === 'salas'" class="section-content">
+
+      <div class="section-banner">
+
+        <div class="section-banner-icon">
+          <i class="fa-solid fa-door-open"></i>
         </div>
 
-        <form class="room-form" (ngSubmit)="criarSala()">
-          <label>
-            Nome da sala *
-            <input name="nome" [(ngModel)]="novaSala.nome"
-              placeholder="Ex.: Laboratório de Informática" required />
-          </label>
+        <div class="section-banner-info">
+          <h2>Gerenciamento de espaços</h2>
+          <p>Organize as salas e os recursos da instituição.</p>
+        </div>
 
-          <label>
-            Localização
-            <input name="localizacao"
-              [(ngModel)]="novaSala.localizacao"
-              placeholder="Ex.: Bloco A, sala 201" />
-          </label>
+        <button
+          type="button"
+          class="primary-button"
+          (click)="abrirModalSala()">
 
-          <label>
-            Capacidade *
-            <input type="number" name="capacidade"
-              [(ngModel)]="novaSala.capacidade"
-              min="1" required />
-          </label>
+          <i class="fa-solid fa-plus"></i>
+          Nova sala
+        </button>
 
-          <label>
-            Recursos disponíveis
-            <input name="recursos"
-              [(ngModel)]="novaSala.recursosTexto"
-              placeholder="Projetor, computadores, ar-condicionado" />
-            <small>Separe os recursos por vírgulas.</small>
-          </label>
-
-          <div class="form-actions">
-            <button type="submit" class="primary-button">
-              + Cadastrar sala
-            </button>
-          </div>
-        </form>
-      </section>
+      </div>
 
       <section class="panel">
+
         <div class="panel-heading">
+
           <div>
             <h2>Todas as salas</h2>
+
             <p>
-              {{ salas.length }} sala(s) cadastrada(s).
-              <ng-container *ngIf="salasSelecionadas.length > 0">
-                {{ salasSelecionadas.length }} selecionada(s).
-              </ng-container>
+              {{ salasCarregadas
+                ? salas.length + ' sala(s) cadastrada(s).'
+                : 'Total indisponível.' }}
             </p>
           </div>
 
-          <button type="button" class="danger-button"
-            *ngIf="salasSelecionadas.length > 0"
-            [disabled]="removendoSalas"
-            (click)="removerSelecionadas()">
-            {{ removendoSalas ? 'Removendo...' : 'Remover selecionadas (' + salasSelecionadas.length + ')' }}
+          <span class="count-label">
+            {{ salasCarregadas ? salas.length : '—' }}
+            espaços
+          </span>
+
+        </div>
+
+        <!-- PESQUISA -->
+
+        <div class="filter-toolbar">
+
+          <div class="search-field">
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input
+              type="search"
+              aria-label="Pesquisar salas"
+              placeholder="Pesquisar por nome, localização ou recurso..."
+              [(ngModel)]="pesquisaSala"
+              (ngModelChange)="salasSelecionadas = []"
+              [disabled]="removendoSalas">
+
+          </div>
+
+          <button
+            type="button"
+            class="secondary-button"
+            *ngIf="pesquisaSala"
+            (click)="limparPesquisaSala()">
+
+            <i class="fa-solid fa-filter-circle-xmark"></i>
+            Limpar
           </button>
+
         </div>
 
-        <div class="empty-state" *ngIf="salas.length === 0">
-          Nenhuma sala cadastrada ainda.
+        <!-- AÇÕES COLETIVAS -->
+
+        <div
+          class="selection-toolbar"
+          *ngIf="salasSelecionadas.length > 0">
+
+          <span>
+            <i class="fa-solid fa-square-check"></i>
+            {{ salasSelecionadas.length }} selecionada(s)
+          </span>
+
+          <button
+            type="button"
+            class="danger-button"
+            [disabled]="removendoSalas || carregando"
+            (click)="removerSelecionadas()">
+
+            <i class="fa-solid fa-trash-can"></i>
+
+            {{ removendoSalas
+              ? 'Removendo...'
+              : 'Remover selecionadas' }}
+
+          </button>
+
         </div>
 
-        <div class="table-wrap" *ngIf="salas.length > 0">
+        <!-- TABELA -->
+
+        <div class="table-wrap"
+          *ngIf="salasFiltradas.length > 0">
+
           <table>
+
             <thead>
               <tr>
+
                 <th class="col-check">
-                  <input type="checkbox"
-                    aria-label="Selecionar todas as salas"
+                  <input
+                    type="checkbox"
+                    aria-label="Selecionar todas as salas exibidas"
                     [checked]="todasSelecionadas"
-                    (change)="alternarTodas()" />
+                    [disabled]="removendoSalas"
+                    (change)="alternarTodas()">
                 </th>
-                <th>Nome</th>
+
+                <th>Sala</th>
                 <th>Localização</th>
                 <th>Capacidade</th>
                 <th>Recursos</th>
                 <th class="col-acoes">Ações</th>
+
               </tr>
             </thead>
+
             <tbody>
-              <tr *ngFor="let sala of salas"
+
+              <tr
+                *ngFor="let sala of salasFiltradas; trackBy: trackById"
                 [class.selecionada]="estaSelecionada(sala.id)">
+
                 <td class="col-check">
-                  <input type="checkbox"
+                  <input
+                    type="checkbox"
                     [attr.aria-label]="'Selecionar ' + sala.nome"
                     [checked]="estaSelecionada(sala.id)"
-                    (change)="alternarSelecao(sala.id)" />
-                </td>
-                <td><strong>{{ sala.nome }}</strong></td>
-                <td>{{ sala.localizacao || '—' }}</td>
-                <td>{{ sala.capacidade }} lugares</td>
-                <td>{{ sala.recursos.join(', ') || '—' }}</td>
-                <td class="col-acoes">
-                  <button type="button" class="reject-button"
                     [disabled]="removendoSalas"
-                    (click)="removerSala(sala)">
-                    Remover
-                  </button>
+                    (change)="alternarSelecao(sala.id)">
                 </td>
+
+                <td>
+                  <div class="table-room">
+
+                    <div class="table-room-icon">
+                      <i class="fa-solid fa-door-open"></i>
+                    </div>
+
+                    <strong>{{ sala.nome }}</strong>
+
+                  </div>
+                </td>
+
+                <td>{{ sala.localizacao || '—' }}</td>
+
+                <td>
+                  <i class="fa-solid fa-users muted-icon"></i>
+                  {{ sala.capacidade }} lugares
+                </td>
+
+                <td>
+                  <div class="resource-list table-resources">
+
+                    <span *ngFor="let recurso of sala.recursos">
+                      {{ recurso }}
+                    </span>
+
+                    <small *ngIf="sala.recursos.length === 0">
+                      Não informado
+                    </small>
+
+                  </div>
+                </td>
+
+                <td class="col-acoes">
+
+                  <button
+                    type="button"
+                    class="icon-danger-button"
+                    [attr.aria-label]="'Remover ' + sala.nome"
+                    [disabled]="removendoSalas || carregando"
+                    (click)="removerSala(sala)"
+                    title="Remover sala">
+
+                    <i class="fa-solid fa-trash-can"></i>
+
+                  </button>
+
+                </td>
+
               </tr>
+
             </tbody>
+
           </table>
+
         </div>
+
+        <!-- ESTADO VAZIO -->
+
+        <div class="empty-state" *ngIf="salasFiltradas.length === 0">
+
+          <div class="empty-icon">
+            <i class="fa-solid fa-door-open"></i>
+          </div>
+
+          <strong>
+            {{ !salasCarregadas
+              ? 'Não foi possível exibir as salas'
+              : pesquisaSala
+                ? 'Nenhum resultado encontrado'
+                : 'Nenhuma sala cadastrada' }}
+          </strong>
+
+          <p>
+            {{ !salasCarregadas
+              ? 'Atualize os dados para tentar novamente.'
+              : pesquisaSala
+                ? 'Tente pesquisar outros termos.'
+                : 'Adicione um novo espaço à instituição.' }}
+          </p>
+
+          <button
+            type="button"
+            class="primary-button"
+            *ngIf="salasCarregadas && !pesquisaSala"
+            (click)="abrirModalSala()">
+
+            <i class="fa-solid fa-plus"></i>
+            Cadastrar sala
+
+          </button>
+
+        </div>
+
       </section>
+
     </section>
 
-    <section *ngIf="secao === 'solicitacoes'">
+    <!-- ======================================
+         SOLICITAÇÕES
+    ======================================= -->
+
+    <section
+      *ngIf="secao === 'solicitacoes'"
+      class="section-content">
+
+      <!-- FILTROS RÁPIDOS -->
+
+      <div class="request-stats">
+
+        <button
+          type="button"
+          class="request-stat"
+          [class.selected]="filtroStatus === 'TODAS'"
+          (click)="selecionarStatus('TODAS')">
+
+          <div class="stat-icon purple">
+            <i class="fa-solid fa-clipboard-list"></i>
+          </div>
+
+          <div>
+            <span>Todas</span>
+            <strong>
+              {{ solicitacoesCarregadas ? totalReservas : '—' }}
+            </strong>
+          </div>
+
+        </button>
+
+        <button
+          type="button"
+          class="request-stat"
+          [class.selected]="filtroStatus === 'PENDENTE'"
+          (click)="selecionarStatus('PENDENTE')">
+
+          <div class="stat-icon orange">
+            <i class="fa-regular fa-clock"></i>
+          </div>
+
+          <div>
+            <span>Pendentes</span>
+            <strong>
+              {{ solicitacoesCarregadas ? dashboard.pendentes : '—' }}
+            </strong>
+          </div>
+
+        </button>
+
+        <button
+          type="button"
+          class="request-stat"
+          [class.selected]="filtroStatus === 'APROVADA'"
+          (click)="selecionarStatus('APROVADA')">
+
+          <div class="stat-icon green">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+
+          <div>
+            <span>Aprovadas</span>
+            <strong>
+              {{ solicitacoesCarregadas ? dashboard.aprovadas : '—' }}
+            </strong>
+          </div>
+
+        </button>
+
+        <button
+          type="button"
+          class="request-stat"
+          [class.selected]="filtroStatus === 'RECUSADA'"
+          (click)="selecionarStatus('RECUSADA')">
+
+          <div class="stat-icon red">
+            <i class="fa-solid fa-circle-xmark"></i>
+          </div>
+
+          <div>
+            <span>Recusadas</span>
+            <strong>
+              {{ solicitacoesCarregadas ? dashboard.recusadas : '—' }}
+            </strong>
+          </div>
+
+        </button>
+
+      </div>
+
+      <!-- LISTA DE SOLICITAÇÕES -->
+
       <section class="panel">
+
         <div class="panel-heading">
+
           <div>
             <h2>Solicitações recebidas</h2>
-            <p>Analise cada pedido e aprove ou recuse.</p>
+            <p>Analise e gerencie os pedidos de reserva.</p>
           </div>
-          <span class="counter">{{ dashboard.pendentes }} pendentes</span>
+
+          <span class="counter">
+            {{ solicitacoesCarregadas
+              ? dashboard.pendentes
+              : '—' }} pendentes
+          </span>
+
         </div>
 
-        <div class="empty-state"
-          *ngIf="solicitacoes.length === 0">
-          <div class="empty-icon">☷</div>
-          <strong>Nenhuma solicitação recebida</strong>
-          <p>As solicitações aparecerão nesta área.</p>
+        <div class="filter-toolbar">
+
+          <div class="search-field">
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input
+              type="search"
+              aria-label="Pesquisar solicitações"
+              placeholder="Pesquisar sala, professor ou reserva..."
+              [(ngModel)]="pesquisaSolicitacao">
+          </div>
+
+          <select
+            aria-label="Filtrar por status"
+            class="filter-select"
+            [(ngModel)]="filtroStatus">
+
+            <option value="TODAS">Todos os status</option>
+            <option value="PENDENTE">Pendentes</option>
+            <option value="APROVADA">Aprovadas</option>
+            <option value="RECUSADA">Recusadas</option>
+
+          </select>
+
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="limparFiltrosSolicitacoes()">
+
+            <i class="fa-solid fa-filter-circle-xmark"></i>
+            Limpar
+          </button>
+
         </div>
 
-        <div class="request-list"
-          *ngIf="solicitacoes.length > 0">
-          <article class="request-card" *ngFor="let s of solicitacoes">
+        <div
+          class="empty-state"
+          *ngIf="solicitacoesFiltradas.length === 0">
+
+          <div class="empty-icon">
+            <i class="fa-solid fa-clipboard-list"></i>
+          </div>
+
+          <strong>
+            {{ !solicitacoesCarregadas
+              ? 'Solicitações indisponíveis'
+              : 'Nenhuma solicitação encontrada' }}
+          </strong>
+
+          <p>
+            {{ !solicitacoesCarregadas
+              ? 'Verifique a conexão com o servidor.'
+              : 'Nenhuma reserva corresponde aos filtros.' }}
+          </p>
+
+        </div>
+
+        <div class="request-list">
+
+          <article
+            class="request-card"
+            *ngFor="let s of solicitacoesFiltradas; trackBy: trackById">
+
             <div class="request-card-top">
+
               <div class="request-avatar large">
                 {{ s.solicitante.charAt(0).toUpperCase() }}
               </div>
+
               <div class="request-info">
+
                 <h3>{{ s.nomeSala }}</h3>
-                <span>Solicitante: {{ s.solicitante }}</span>
-                <small>Pedido #{{ s.id.slice(-6) }} ·
-                  {{ s.criadaEm | date:'dd/MM/yyyy HH:mm' }}
+
+                <span>{{ s.solicitante }}</span>
+
+                <small>
+                  Pedido #{{ s.id.slice(-6) }}
+                  <ng-container *ngIf="s.criadaEm">
+                    · {{ s.criadaEm | date:'dd/MM/yyyy HH:mm' }}
+                  </ng-container>
                 </small>
+
               </div>
-              <span class="status"
+
+              <span
+                class="status"
                 [ngClass]="s.status.toLowerCase()">
                 {{ s.status }}
               </span>
+
+            </div>
+
+            <div class="request-details">
+
+              <div>
+                <i class="fa-regular fa-calendar"></i>
+                <span>
+                  <small>Data da reserva</small>
+                  <strong>{{ formatarData(s.data) }}</strong>
+                </span>
+              </div>
+
+              <div>
+                <i class="fa-regular fa-clock"></i>
+                <span>
+                  <small>Horário</small>
+                  <strong>{{ s.hora || 'Não informado' }}</strong>
+                </span>
+              </div>
+
             </div>
 
             <p class="justification">
-              {{ s.justificativa || 'Nenhuma justificativa informada.' }}
+              <i class="fa-solid fa-circle-info"></i>
+              {{ s.justificativa }}
             </p>
 
-            <div class="request-actions"
+            <div
+              class="request-actions"
               *ngIf="s.status === 'PENDENTE'">
-              <button class="reject-button"
+
+              <button
+                type="button"
+                class="reject-button"
+                [disabled]="carregando || !!processandoSolicitacao"
                 (click)="analisarSolicitacao(s.id, 'recusar')">
-                Recusar
+
+                <i class="fa-solid fa-xmark"></i>
+                Recusar reserva
+
               </button>
-              <button class="approve-button"
+
+              <button
+                type="button"
+                class="approve-button"
+                [disabled]="carregando || !!processandoSolicitacao"
                 (click)="analisarSolicitacao(s.id, 'aprovar')">
-                ✓ Aprovar reserva
+
+                <i class="fa-solid fa-check"></i>
+
+                {{ processandoSolicitacao === s.id
+                  ? 'Processando...'
+                  : 'Aprovar reserva' }}
+
               </button>
+
             </div>
+
           </article>
+
         </div>
+
       </section>
+
     </section>
+
   </main>
+
+  <!-- ======================================
+       MODAL DE CADASTRO DE SALA
+  ======================================= -->
+
+  <dialog
+    #modalSala
+    class="room-modal"
+    aria-labelledby="modal-sala-titulo"
+    (cancel)="cancelarModal($event)">
+
+    <div class="modal-heading">
+
+      <div class="modal-icon">
+        <i class="fa-solid fa-door-open"></i>
+      </div>
+
+      <div class="modal-title">
+        <h2 id="modal-sala-titulo">Cadastrar nova sala</h2>
+        <p>Preencha as informações do novo espaço.</p>
+      </div>
+
+      <button
+        type="button"
+        class="modal-close"
+        aria-label="Fechar"
+        [disabled]="cadastrandoSala"
+        (click)="fecharModalSala()">
+
+        <i class="fa-solid fa-xmark"></i>
+
+      </button>
+
+    </div>
+
+    <form
+      class="room-form"
+      (ngSubmit)="criarSala()"
+      novalidate>
+
+      <label class="full-field">
+
+        Nome da sala *
+
+        <input
+          name="nome"
+          [(ngModel)]="novaSala.nome"
+          placeholder="Ex.: Laboratório de Informática"
+          maxlength="120"
+          [disabled]="cadastrandoSala"
+          required>
+
+      </label>
+
+      <label>
+
+        Localização
+
+        <input
+          name="localizacao"
+          [(ngModel)]="novaSala.localizacao"
+          placeholder="Ex.: Bloco A"
+          maxlength="150"
+          [disabled]="cadastrandoSala">
+
+      </label>
+
+      <label>
+
+        Capacidade *
+
+        <input
+          type="number"
+          name="capacidade"
+          [(ngModel)]="novaSala.capacidade"
+          min="1"
+          step="1"
+          [disabled]="cadastrandoSala"
+          required>
+
+      </label>
+
+      <label class="full-field">
+
+        Recursos disponíveis
+
+        <textarea
+          name="recursos"
+          [(ngModel)]="novaSala.recursosTexto"
+          placeholder="Projetor, computadores, ar-condicionado..."
+          rows="3"
+          [disabled]="cadastrandoSala">
+        </textarea>
+
+        <small>Separe os recursos por vírgulas.</small>
+
+      </label>
+
+      <div
+        class="alert error full-field"
+        *ngIf="erroModal"
+        role="alert">
+
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>{{ erroModal }}</span>
+
+      </div>
+
+      <div class="form-actions">
+
+        <button
+          type="button"
+          class="secondary-button"
+          [disabled]="cadastrandoSala"
+          (click)="fecharModalSala()">
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="primary-button"
+          [disabled]="cadastrandoSala || carregando">
+
+          <i
+            class="fa-solid"
+            [ngClass]="cadastrandoSala
+              ? 'fa-spinner spin'
+              : 'fa-plus'">
+          </i>
+
+          {{ cadastrandoSala
+            ? 'Cadastrando...'
+            : 'Cadastrar sala' }}
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </dialog>
+
 </div>

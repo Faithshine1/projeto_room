@@ -1,110 +1,332 @@
 
 <div class="login-page">
 
-  <div class="login-card">
+  <!-- ELEMENTOS DECORATIVOS -->
+  <div class="decoracao decoracao-1"></div>
+  <div class="decoracao decoracao-2"></div>
+  <div class="decoracao decoracao-3"></div>
 
-    <!-- MARCA -->
-    <div class="brand">
+  <main class="login-container">
 
-      <span class="brand-mark">
-        <i class="fa-solid fa-graduation-cap"></i>
-      </span>
+    <!-- =================================
+         PAINEL DE APRESENTAÇÃO
+    ================================== -->
 
-      <h1>EduRoom's</h1>
+    <section class="login-apresentacao">
 
-      <p>Gerenciamento de salas</p>
+      <div class="apresentacao-circulo circulo-1"></div>
+      <div class="apresentacao-circulo circulo-2"></div>
 
-    </div>
+      <!-- LOGO -->
+      <div class="brand">
 
-    <form (ngSubmit)="entrar()">
+        <span class="brand-mark">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </span>
 
-      <!-- E-MAIL -->
-      <div class="campo-grupo">
+        <div class="brand-info">
+          <h1>EduRoom's<span>.</span></h1>
+          <p>Gerenciamento de salas</p>
+        </div>
 
-        <label for="email">E-mail</label>
+      </div>
 
-        <div class="campo">
+      <!-- APRESENTAÇÃO -->
+      <div class="apresentacao-conteudo">
 
-          <i class="fa-regular fa-envelope"></i>
+        <span class="apresentacao-tag">
+          <i class="fa-solid fa-layer-group"></i>
+          GESTÃO INTELIGENTE DE ESPAÇOS
+        </span>
 
-          <input
-            type="email"
-            id="email"
-            name="email"
-            autocomplete="email"
-            [(ngModel)]="email"
-            (input)="erro = ''"
-            placeholder="Digite seu e-mail"
-          >
+        <h2>
+          Organize espaços.
+          <br>
+          Simplifique sua
+          <br>
+          <span>rotina.</span>
+        </h2>
+
+        <p class="apresentacao-descricao">
+          Gerencie salas, laboratórios e agendamentos
+          em uma única plataforma, de forma simples
+          e organizada.
+        </p>
+
+        <!-- FUNCIONALIDADES -->
+        <div class="funcionalidades">
+
+          <div class="funcionalidade">
+
+            <div class="funcionalidade-icone">
+              <i class="fa-regular fa-calendar-check"></i>
+            </div>
+
+            <div>
+              <h3>Reservas simplificadas</h3>
+              <p>Organize seus horários e agendamentos.</p>
+            </div>
+
+          </div>
+
+          <div class="funcionalidade">
+
+            <div class="funcionalidade-icone">
+              <i class="fa-solid fa-qrcode"></i>
+            </div>
+
+            <div>
+              <h3>Controle por QR Code</h3>
+              <p>Valide o acesso aos espaços.</p>
+            </div>
+
+          </div>
+
+          <div class="funcionalidade">
+
+            <div class="funcionalidade-icone">
+              <i class="fa-solid fa-flask"></i>
+            </div>
+
+            <div>
+              <h3>Gestão de laboratórios</h3>
+              <p>Acompanhe os espaços disponíveis.</p>
+            </div>
+
+          </div>
 
         </div>
 
       </div>
 
-      <!-- SENHA -->
-      <div class="campo-grupo">
+      <!-- RODAPÉ DA APRESENTAÇÃO -->
+      <footer class="apresentacao-rodape">
 
-        <label for="senha">Senha</label>
+        <span>
+          <i class="fa-solid fa-graduation-cap"></i>
+          Tecnologia para a educação.
+        </span>
 
-        <div class="campo">
+        <span>2026</span>
 
-          <i class="fa-solid fa-lock"></i>
+      </footer>
 
-          <input
-            [type]="mostrarSenha ? 'text' : 'password'"
-            id="senha"
-            name="senha"
-            autocomplete="current-password"
-            [(ngModel)]="senha"
-            (input)="erro = ''"
-            placeholder="Digite sua senha"
-          >
+    </section>
 
-          <!-- MOSTRAR/OCULTAR SENHA -->
+    <!-- =================================
+         PAINEL DE LOGIN
+    ================================== -->
+
+    <section class="login-painel">
+
+      <div class="login-card">
+
+        <!-- MARCA MOBILE -->
+        <div class="marca-mobile">
+
+          <div class="marca-mobile-icone">
+            <i class="fa-solid fa-graduation-cap"></i>
+          </div>
+
+          <strong>EduRoom's</strong>
+
+        </div>
+
+        <!-- CABEÇALHO -->
+        <header class="login-cabecalho">
+
+          <div class="login-icone">
+            <i class="fa-regular fa-user"></i>
+          </div>
+
+          <span class="login-tag">
+            ACESSO AO SISTEMA
+          </span>
+
+          <h2>Bem-vindo de volta!</h2>
+
+          <p>
+            Entre com suas informações para continuar
+            acessando o EduRoom's.
+          </p>
+
+        </header>
+
+        <!-- FORMULÁRIO -->
+        <form
+          class="login-formulario"
+          (ngSubmit)="entrar()"
+          novalidate
+        >
+
+          <!-- E-MAIL -->
+          <div class="campo-grupo">
+
+            <label for="email">
+              E-mail
+            </label>
+
+            <div class="campo">
+
+              <i class="fa-regular fa-envelope campo-icone"></i>
+
+              <input
+                type="text"
+                inputmode="email"
+                id="email"
+                name="email"
+                autocomplete="username"
+                [(ngModel)]="email"
+                (input)="limparErro()"
+                placeholder="Digite seu e-mail"
+                [disabled]="carregando"
+                required
+              >
+
+            </div>
+
+          </div>
+
+          <!-- SENHA -->
+          <div class="campo-grupo">
+
+            <label for="senha">
+              Senha
+            </label>
+
+            <div class="campo">
+
+              <i class="fa-solid fa-lock campo-icone"></i>
+
+              <input
+                [type]="mostrarSenha ? 'text' : 'password'"
+                id="senha"
+                name="senha"
+                autocomplete="current-password"
+                [(ngModel)]="senha"
+                (input)="limparErro()"
+                placeholder="Digite sua senha"
+                [disabled]="carregando"
+                required
+              >
+
+              <button
+                type="button"
+                class="olho-button"
+                [attr.aria-label]="
+                  mostrarSenha
+                    ? 'Ocultar senha'
+                    : 'Mostrar senha'
+                "
+                [attr.aria-pressed]="mostrarSenha"
+                (click)="alternarSenha()"
+              >
+
+                <i
+                  class="fa-regular"
+                  [ngClass]="
+                    mostrarSenha
+                      ? 'fa-eye-slash'
+                      : 'fa-eye'
+                  "
+                ></i>
+
+              </button>
+
+            </div>
+
+          </div>
+
+          <!-- RECUPERAÇÃO DE SENHA -->
+          <div class="login-opcoes">
+
+            <button
+              type="button"
+              class="esquecerSenha"
+              (click)="abrirRecuperacao()"
+              [attr.aria-expanded]="mostrarRecuperacao"
+            >
+              Esqueceu a senha?
+            </button>
+
+          </div>
+
+          <!-- INFORMAÇÕES DE RECUPERAÇÃO -->
+          @if (mostrarRecuperacao) {
+
+            <div class="recuperacao-aviso">
+
+              <i class="fa-solid fa-circle-info"></i>
+
+              <div>
+                <strong>Recuperação de acesso</strong>
+                <p>
+                  A recuperação automática ainda não está
+                  disponível. Entre em contato com o
+                  administrador da instituição.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                aria-label="Fechar aviso"
+                (click)="fecharRecuperacao()"
+              >
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+
+            </div>
+
+          }
+
+          <!-- MENSAGEM DE ERRO -->
+          @if (erro) {
+
+            <div class="erro" role="alert">
+
+              <i class="fa-solid fa-circle-exclamation"></i>
+
+              <span>{{ erro }}</span>
+
+            </div>
+
+          }
+
+          <!-- BOTÃO ENTRAR -->
           <button
-            type="button"
-            class="olho-button"
-            [attr.aria-label]="mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'"
-            (click)="alternarSenha()"
+            type="submit"
+            class="btn-entrar"
+            [disabled]="carregando"
+            [attr.aria-busy]="carregando"
           >
-            <i
-              class="fa-regular"
-              [ngClass]="mostrarSenha ? 'fa-eye-slash' : 'fa-eye'"
-            ></i>
+
+            @if (carregando) {
+
+              <i class="fa-solid fa-spinner loading-icon"></i>
+
+              <span>Entrando...</span>
+
+            } @else {
+
+              <span>Entrar na minha conta</span>
+
+              <i class="fa-solid fa-arrow-right"></i>
+
+            }
+
           </button>
 
-        </div>
+        </form>
+ 
+        <!-- RODAPÉ -->
+        <footer class="login-rodape">
+          © 2026 EduRoom's. Todos os direitos reservados.
+        </footer>
 
       </div>
 
-      <!-- MENSAGEM DE ERRO -->
-      @if (erro) {
+    </section>
 
-        <div class="erro" role="alert">
-          <i class="fa-solid fa-circle-exclamation"></i>
-          <span>{{ erro }}</span>
-        </div>
-
-      }
-
-      <!-- BOTÃO ENTRAR -->
-      <button
-        type="submit"
-        class="btn-entrar"
-      >
-        Entrar
-      </button>
-
-    </form>
-
-    <!-- RECUPERAÇÃO DE SENHA -->
-    <button
-      type="button"
-      class="esquecerSenha"
-    >
-      Esqueceu a senha?
-    </button>
-
-  </div>
+  </main>
 
 </div>

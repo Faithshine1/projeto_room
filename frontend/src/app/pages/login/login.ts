@@ -1,5 +1,9 @@
+
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import {
+  Component,
+  ChangeDetectorRef
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -11,48 +15,66 @@ import { Router } from '@angular/router';
   styleUrls: ['./login.css']
 })
 export class LoginComponent {
+
   email = '';
   senha = '';
+
   mostrarSenha = false;
+  carregando = false;
+  mostrarRecuperacao = false;
+
   erro = '';
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-  // Login do administrador: usuário ADMIN e senha ADMIN
+  // VERIFICAR ADMINISTRADOR
+  // Mantém a lógica original do projeto.
+  // Deve ser substituída por autenticação no backend.
   private ehAdmin(): boolean {
-    return this.email.trim().toLowerCase() === 'admin' && this.senha === 'ADMIN';
+    return (
+      this.email.trim().toLowerCase() === 'admin' &&
+      this.senha === 'ADMIN'
+    );
   }
 
-  entrar() {
-    console.log('Botão Entrar clicado');
+  // REALIZAR LOGIN
+  async entrar(): Promise<void> {
 
-    // Admin é verificado ANTES das validações de e-mail (@) e tamanho de senha
+    if (this.carregando) return;
+
+    this.erro = '';
+    this.email = this.email.trim();
+
+    // LOGIN ADMINISTRATIVO
     if (this.ehAdmin()) {
-      this.erro = '';
 
-      localStorage.setItem(
-        'usuario',
-        JSON.stringify({ nome: 'Administrador', email: 'admin', perfil: 'admin' })
+      await this.finalizarLogin(
+        {
+          nome: 'Administrador',
+          email: 'admin',
+          perfil: 'admin'
+        },
+        '/admin'
       );
 
-      this.router.navigate(['/admin']).then(sucesso => {
-        if (!sucesso) {
-          this.erro = 'Não foi possível abrir a área de administração.';
-        }
-      });
       return;
     }
 
+    // VALIDAR E-MAIL
     if (!this.email) {
       this.erro = 'Digite seu e-mail.';
       return;
     }
 
-    if (!this.email.includes('@')) {
-      this.erro = 'E-mail inválido!';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
+      this.erro = 'Informe um e-mail válido.';
       return;
     }
 
+    // VALIDAR SENHA
     if (!this.senha) {
       this.erro = 'Digite sua senha.';
       return;
@@ -60,30 +82,74 @@ export class LoginComponent {
 
     if (this.senha.length < 6) {
       this.erro =
-        'Senha inválida. A senha deve conter no mínimo 6 caracteres.';
+        'A senha deve conter no mínimo 6 caracteres.';
       return;
     }
 
-    this.erro = '';
-
+    // DADOS DO USUÁRIO
     const usuario = {
       nome: this.gerarNomeDoEmail(this.email),
       email: this.email
     };
 
-    localStorage.setItem('usuario', JSON.stringify(usuario));
-
-    this.router.navigate(['/dashboard']).then(sucesso => {
-      console.log('Navegação para dashboard:', sucesso);
-
-      if (!sucesso) {
-        this.erro =
-          'Não foi possível abrir o dashboard. Verifique as rotas.';
-      }
-    });
+    await this.finalizarLogin(
+      usuario,
+      '/dashboard'
+    );
   }
 
+  // SALVAR USUÁRIO E REDIRECIONAR
+  private async finalizarLogin(
+    usuario: {
+      nome: string;
+      email: string;
+      perfil?: string;
+    },
+    rota: string
+  ): Promise<void> {
+
+    this.carregando = true;
+    this.erro = '';
+
+    try {
+
+      localStorage.setItem(
+        'usuario',
+        JSON.stringify(usuario)
+      );
+
+      const sucesso = await this.router.navigate([rota]);
+
+      if (!sucesso) {
+
+        localStorage.removeItem('usuario');
+
+        this.erro = rota === '/admin'
+          ? 'Não foi possível abrir a área administrativa.'
+          : 'Não foi possível abrir o dashboard.';
+
+      }
+
+    } catch (error) {
+
+      console.error('Erro ao entrar:', error);
+
+      localStorage.removeItem('usuario');
+
+      this.erro =
+        'Não foi possível acessar o sistema. Tente novamente.';
+
+    } finally {
+
+      this.carregando = false;
+      this.cdr.markForCheck();
+
+    }
+  }
+
+  // GERAR NOME A PARTIR DO E-MAIL
   gerarNomeDoEmail(email: string): string {
+
     const parteLocal = email.split('@')[0];
 
     const palavras = parteLocal
@@ -103,7 +169,23 @@ export class LoginComponent {
       .join(' ');
   }
 
-  alternarSenha() {
+  // MOSTRAR OU OCULTAR SENHA
+  alternarSenha(): void {
     this.mostrarSenha = !this.mostrarSenha;
+  }
+
+  // LIMPAR MENSAGEM DE ERRO
+  limparErro(): void {
+    this.erro = '';
+  }
+
+  // ABRIR INFORMAÇÕES DE RECUPERAÇÃO
+  abrirRecuperacao(): void {
+    this.mostrarRecuperacao = true;
+  }
+
+  // FECHAR RECUPERAÇÃO
+  fecharRecuperacao(): void {
+    this.mostrarRecuperacao = false;
   }
 }

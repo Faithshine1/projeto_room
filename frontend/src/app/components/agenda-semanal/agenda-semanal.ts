@@ -28,10 +28,24 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
     'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'
   ];
 
+  // =========================================
+  // HORÁRIOS DAS RESERVAS
+  // =========================================
+
   horarios = [
-    '08:00', '09:00', '10:00', '11:00',
-    '13:00', '14:00', '17:00'
+    '07:30',
+    '08:30',
+    '09:30',
+    '10:30',
+    '11:30',
+    '12:30',
+    '13:30',
+    '14:30',
+    '15:30',
+    '16:30'
   ];
+
+  horariosSelecao = [...this.horarios, '17:30'];
 
   agendamentos: any[] = [];
 
@@ -46,13 +60,14 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   form = {
     sala: 'Laboratório de Ciências',
     data: '',
-    hora: '08:00',
+    hora: '07:30',
     materia: '',
   };
 
-  // NOVO: INTERVALO DE HORÁRIO
-  horaFim = '12:00';
+  horaFim = '11:30';
   diaTodo = false;
+
+  seletorHorarioAberto: 'inicio' | 'fim' | null = null;
 
   tipoReserva: 'dia' | 'semana' | 'mes' = 'dia';
 
@@ -123,10 +138,12 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
 
   private paraMinutos(hora: string): number {
     const [h, m] = hora.split(':').map(Number);
+
     return h * 60 + m;
   }
 
   private paraHorario(minutos: number): string {
+
     const h = String(
       Math.floor(minutos / 60)
     ).padStart(2, '0');
@@ -138,64 +155,108 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
     return `${h}:${m}`;
   }
 
-  // Horários de término permitidos.
-  // Não atravessa pausas entre os horários cadastrados.
   get horariosFimDisponiveis(): string[] {
-    const inicio = this.horarios.indexOf(this.form.hora);
-
-    if (inicio < 0) {
-      return [];
-    }
-
-    const opcoes: string[] = [];
-
-    for (let i = inicio; i < this.horarios.length; i++) {
-
-      if (i > inicio) {
-        const diferenca =
-          this.paraMinutos(this.horarios[i]) -
-          this.paraMinutos(this.horarios[i - 1]);
-
-        if (diferenca !== 60) {
-          break;
-        }
-      }
-
-      opcoes.push(
-        this.paraHorario(
-          this.paraMinutos(this.horarios[i]) + 60
-        )
-      );
-    }
-
-    return opcoes;
+    return this.horariosSelecao;
   }
 
-  // Corrige o término ao alterar o início.
+  get intervaloValido(): boolean {
+
+    if (this.diaTodo) {
+      return true;
+    }
+
+    return (
+      this.horarios.includes(this.form.hora) &&
+      this.horariosSelecao.includes(this.horaFim) &&
+      this.paraMinutos(this.horaFim) >
+      this.paraMinutos(this.form.hora)
+    );
+  }
+
   ajustarHoraFim(): void {
-    const opcoes = this.horariosFimDisponiveis;
 
-    if (!opcoes.includes(this.horaFim)) {
-      this.horaFim = opcoes[0] ?? '';
+    if (!this.horarios.includes(this.form.hora)) {
+      return;
+    }
+
+    const inicio = this.paraMinutos(this.form.hora);
+    const fim = this.paraMinutos(this.horaFim);
+
+    if (
+      !this.horariosSelecao.includes(this.horaFim) ||
+      fim <= inicio
+    ) {
+      this.horaFim = this.paraHorario(inicio + 60);
     }
   }
 
-  // Seleção rápida.
+  // =========================================
+  // SELETOR PERSONALIZADO DE HORÁRIOS
+  // =========================================
+
+  alternarSeletorHorario(
+    campo: 'inicio' | 'fim'
+  ): void {
+
+    if (this.diaTodo || this.enviandoSolicitacao) {
+      return;
+    }
+
+    this.seletorHorarioAberto =
+      this.seletorHorarioAberto === campo
+        ? null
+        : campo;
+  }
+
+  selecionarHorario(
+    campo: 'inicio' | 'fim',
+    horario: string
+  ): void {
+
+    if (
+      this.diaTodo ||
+      this.enviandoSolicitacao ||
+      !this.horariosSelecao.includes(horario)
+    ) {
+      return;
+    }
+
+    if (campo === 'inicio') {
+
+      this.form.hora = horario;
+      this.ajustarHoraFim();
+
+    } else {
+
+      this.horaFim = horario;
+
+    }
+
+    this.seletorHorarioAberto = null;
+  }
+
+  fecharSeletorHorario(): void {
+    this.seletorHorarioAberto = null;
+  }
+
   selecionarPeriodo(
     inicio: string,
     fim: string
   ): void {
+
     this.diaTodo = false;
     this.form.hora = inicio;
     this.horaFim = fim;
+
+    this.fecharSeletorHorario();
     this.ajustarHoraFim();
   }
 
-  // Indica qual botão está selecionado.
   periodoSelecionado(
     inicio: string,
     fim: string
   ): boolean {
+
     return (
       !this.diaTodo &&
       this.form.hora === inicio &&
@@ -203,24 +264,35 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
     );
   }
 
-  // Converte um intervalo em horários individuais.
-  // Exemplo: 08:00–12:00 = 08, 09, 10 e 11.
+  // Converte o intervalo em blocos de uma hora.
+  // Exemplo: 07:30 às 10:30 = 3 blocos.
+
   get horasSelecionadas(): string[] {
+
     if (this.diaTodo) {
       return [...this.horarios];
     }
 
-    if (!this.horariosFimDisponiveis.includes(this.horaFim)) {
+    if (!this.intervaloValido) {
       return [];
     }
 
     const inicio = this.paraMinutos(this.form.hora);
     const fim = this.paraMinutos(this.horaFim);
 
-    return this.horarios.filter((hora) => {
+    return this.horarios.filter(hora => {
+
       const atual = this.paraMinutos(hora);
+
       return atual >= inicio && atual < fim;
     });
+  }
+
+  get resumoHorario(): string {
+
+    return this.diaTodo
+      ? '07:30 às 17:30'
+      : `${this.form.hora} às ${this.horaFim}`;
   }
 
   // =========================================
@@ -228,7 +300,9 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   // =========================================
 
   async carregarSalas(): Promise<void> {
+
     try {
+
       const response = await fetch(this.apiSalas);
 
       if (!response.ok) {
@@ -241,10 +315,11 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
       const todas = [...this.salasPadrao];
 
       for (const sala of lista) {
+
         const nome = String(sala?.nome ?? '').trim();
 
         const jaExiste = todas.some(
-          (nomeExistente) =>
+          nomeExistente =>
             nomeExistente.toLowerCase() === nome.toLowerCase()
         );
 
@@ -262,14 +337,18 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
       this.cdr.detectChanges();
 
     } catch (error) {
+
       console.error('Erro ao buscar salas:', error);
+
     }
   }
 
   get nomeProfessor(): string {
+
     const usuario = localStorage.getItem('usuario');
 
     if (usuario) {
+
       try {
         return JSON.parse(usuario).nome || 'Professor';
       } catch {
@@ -289,6 +368,7 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   }
 
   private paraIso(data: Date): string {
+
     const mes = String(
       data.getMonth() + 1
     ).padStart(2, '0');
@@ -301,6 +381,7 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   }
 
   private deIso(dataString: string): Date {
+
     const [ano, mes, dia] = dataString.split('-');
 
     return new Date(
@@ -311,12 +392,16 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   }
 
   private somarDias(data: Date, dias: number): Date {
+
     const copia = new Date(data);
+
     copia.setDate(copia.getDate() + dias);
+
     return copia;
   }
 
   private segundaDe(data: Date): Date {
+
     const copia = new Date(
       data.getFullYear(),
       data.getMonth(),
@@ -324,6 +409,7 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
     );
 
     const deslocamento = (copia.getDay() + 6) % 7;
+
     copia.setDate(copia.getDate() - deslocamento);
 
     return copia;
@@ -332,11 +418,12 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   private datasDaSemanaDe(
     dataString: string
   ): string[] {
+
     const segunda = this.segundaDe(
       this.deIso(dataString)
     );
 
-    return [0, 1, 2, 3, 4].map((i) =>
+    return [0, 1, 2, 3, 4].map(i =>
       this.paraIso(this.somarDias(segunda, i))
     );
   }
@@ -344,6 +431,7 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   private datasDoMesDe(
     dataString: string
   ): string[] {
+
     const segundaInicial = this.segundaDe(
       this.deIso(dataString)
     );
@@ -351,7 +439,9 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
     const datas: string[] = [];
 
     for (let semana = 0; semana < 4; semana++) {
+
       for (let dia = 0; dia < 5; dia++) {
+
         datas.push(
           this.paraIso(
             this.somarDias(
@@ -367,24 +457,29 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   }
 
   formatarData(dataString: string): string {
+
     if (!dataString) {
       return '';
     }
 
     const [ano, mes, dia] = dataString.split('-');
+
     return `${dia}/${mes}/${ano}`;
   }
 
   private formatarDataCurta(
     dataString: string
   ): string {
+
     const [, mes, dia] = dataString.split('-');
+
     return `${dia}/${mes}`;
   }
 
   obterDiaDaSemana(
     dataString: string
   ): string | null {
+
     if (!dataString) {
       return null;
     }
@@ -399,9 +494,7 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
       'Sábado',
     ];
 
-    return dias[
-      this.deIso(dataString).getDay()
-    ];
+    return dias[this.deIso(dataString).getDay()];
   }
 
   // =========================================
@@ -409,9 +502,10 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   // =========================================
 
   private definirSemana(segunda: Date): void {
+
     this.semanaInicio = segunda;
 
-    this.datasDaSemana = [0, 1, 2, 3, 4].map((i) =>
+    this.datasDaSemana = [0, 1, 2, 3, 4].map(i =>
       this.paraIso(this.somarDias(segunda, i))
     );
 
@@ -429,38 +523,42 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   }
 
   semanaAnterior(): void {
+
     this.definirSemana(
       this.somarDias(this.semanaInicio, -7)
     );
   }
 
   proximaSemana(): void {
+
     this.definirSemana(
       this.somarDias(this.semanaInicio, 7)
     );
   }
 
   irParaHoje(): void {
+
     this.definirSemana(
       this.segundaDe(new Date())
     );
   }
 
-  private irParaSemanaDe(
-    dataString: string
-  ): void {
+  private irParaSemanaDe(dataString: string): void {
+
     this.definirSemana(
       this.segundaDe(this.deIso(dataString))
     );
   }
 
   ehHoje(indice: number): boolean {
+
     return (
       this.datasDaSemana[indice] === this.dataMinima
     );
   }
 
   numeroDoDia(indice: number): string {
+
     return this.datasDaSemana[indice].slice(8);
   }
 
@@ -469,6 +567,7 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   // =========================================
 
   get tituloMiniCalendario(): string {
+
     return this.mesReferencia.toLocaleDateString(
       'pt-BR',
       {
@@ -479,7 +578,8 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   }
 
   get quantidadeAgendamentosSemana(): number {
-    return this.agendamentos.filter((item) =>
+
+    return this.agendamentos.filter(item =>
       item.sala === this.form.sala &&
       item.status !== 'REJEITADO' &&
       this.datasDaSemana.includes(
@@ -489,6 +589,7 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   }
 
   private atualizarMiniCalendario(): void {
+
     const ano = this.mesReferencia.getFullYear();
     const mes = this.mesReferencia.getMonth();
 
@@ -501,6 +602,7 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
     this.miniCalendario = Array.from(
       { length: 42 },
       (_, indice) => {
+
         const dia = this.somarDias(
           primeiroDiaDaGrade,
           indice
@@ -520,6 +622,7 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   }
 
   mudarMesMini(direcao: number): void {
+
     this.mesReferencia = new Date(
       this.mesReferencia.getFullYear(),
       this.mesReferencia.getMonth() + direcao,
@@ -530,6 +633,7 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   }
 
   selecionarDiaMini(data: string): void {
+
     this.irParaSemanaDe(data);
   }
 
@@ -541,41 +645,60 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
     data?: string,
     hora?: string
   ): void {
+
+    if (this.enviandoSolicitacao) {
+      return;
+    }
+
+    this.fecharSeletorHorario();
+
     const hoje = this.dataMinima;
 
     if (data && data < hoje) {
+
       this.mostrarAviso(
         'Não é possível reservar uma data passada.',
         'erro'
       );
+
       return;
     }
 
     if (data) {
+
       this.form.data = data;
+
     } else if (
       !this.form.data ||
       this.form.data < hoje
     ) {
+
       this.form.data =
         this.datasDaSemana.find(
-          (dia) => dia >= hoje
+          dia => dia >= hoje
         ) ?? hoje;
     }
 
     if (hora) {
+
       this.form.hora = hora;
       this.diaTodo = false;
+
     }
 
     this.ajustarHoraFim();
 
     this.mostrarFormulario = true;
+
     this.cdr.detectChanges();
   }
 
   fecharFormulario(): void {
+
+    this.fecharSeletorHorario();
+
     this.mostrarFormulario = false;
+
     this.cdr.detectChanges();
   }
 
@@ -587,7 +710,9 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
     texto: string,
     tipo: 'sucesso' | 'erro' = 'sucesso'
   ): void {
+
     this.aviso = { texto, tipo };
+
     this.cdr.detectChanges();
 
     if (this.avisoTimer) {
@@ -595,8 +720,11 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
     }
 
     this.avisoTimer = setTimeout(() => {
+
       this.aviso = null;
+
       this.cdr.detectChanges();
+
     }, 4000);
   }
 
@@ -604,38 +732,56 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   // CARREGAR AGENDAMENTOS
   // =========================================
 
-  async carregarAgendamentos(): Promise<void> {
+  async carregarAgendamentos(): Promise<boolean> {
+
     try {
-      const response = await fetch(this.apiUrl);
+
+      const response = await fetch(this.apiUrl, {
+        cache: 'no-store'
+      });
 
       if (!response.ok) {
+
         throw new Error(
           `Erro HTTP ${response.status} ao buscar agendamentos.`
         );
       }
 
-      this.agendamentos = await response.json();
+      const lista = await response.json();
+
+      if (!Array.isArray(lista)) {
+
+        throw new Error(
+          'Resposta inválida ao buscar agendamentos.'
+        );
+      }
+
+      this.agendamentos = lista;
 
       this.dadosService.alterarAgendamentos(
         this.agendamentos.filter(
-          (agendamento) =>
+          agendamento =>
             agendamento.status !== 'REJEITADO'
         ).length
       );
 
       this.cdr.detectChanges();
 
+      return true;
+
     } catch (error) {
+
       console.error(
         'Erro ao buscar agendamentos:',
         error
       );
+
+      return false;
     }
   }
 
-  private extrairApenasData(
-    dataInput: any
-  ): string {
+  private extrairApenasData(dataInput: any): string {
+
     if (!dataInput) {
       return '';
     }
@@ -651,12 +797,14 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
 
   private horarioOcupado(
     data: string,
-    hora: string
+    hora: string,
+    sala: string = this.form.sala
   ): boolean {
-    return this.agendamentos.some((agendamento) => {
+
+    return this.agendamentos.some(agendamento => {
 
       const salaMatch =
-        agendamento.sala === this.form.sala;
+        agendamento.sala === sala;
 
       const dataMatch =
         this.extrairApenasData(agendamento.data) === data;
@@ -681,6 +829,7 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
     dia: string,
     hora: string
   ) {
+
     const indice = this.diasSemana.indexOf(dia);
 
     if (indice === -1) {
@@ -689,7 +838,7 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
 
     const dataAlvo = this.datasDaSemana[indice];
 
-    return this.agendamentos.find((agendamento) => {
+    return this.agendamentos.find(agendamento => {
 
       const salaMatch =
         agendamento.sala === this.form.sala;
@@ -718,11 +867,30 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   // =========================================
 
   handleSubmit(): void {
+
+    if (this.enviandoSolicitacao) {
+      return;
+    }
+
+    this.fecharSeletorHorario();
+
+    if (!this.intervaloValido) {
+
+      this.mostrarAviso(
+        'O horário de término deve ser posterior ao horário de início.',
+        'erro'
+      );
+
+      return;
+    }
+
     if (!this.form.data) {
+
       this.mostrarAviso(
         'Selecione uma data!',
         'erro'
       );
+
       return;
     }
 
@@ -732,51 +900,59 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
       this.tipoReserva === 'dia' &&
       this.form.data < hoje
     ) {
+
       this.mostrarAviso(
         'Não é possível reservar uma data passada.',
         'erro'
       );
+
       return;
     }
 
-    // O INTERVALO PASSA A SER USADO AQUI.
     const horasParaVerificar = this.horasSelecionadas;
 
     if (
       !this.form.sala ||
       horasParaVerificar.length === 0
     ) {
+
       this.mostrarAviso(
         'Selecione uma sala e um intervalo de horário válido.',
         'erro'
       );
+
       return;
     }
 
     // RESERVA DE 4 SEMANAS
+
     if (this.tipoReserva === 'mes') {
+
       const datas = this.datasDoMesDe(
         this.form.data
-      ).filter((data) => data >= hoje);
+      ).filter(data => data >= hoje);
 
       if (datas.length === 0) {
+
         this.mostrarAviso(
           'O período selecionado já passou.',
           'erro'
         );
+
         return;
       }
 
-      const ocupadas = datas.filter((data) =>
-        horasParaVerificar.some((hora) =>
+      const ocupadas = datas.filter(data =>
+        horasParaVerificar.some(hora =>
           this.horarioOcupado(data, hora)
         )
       );
 
       if (ocupadas.length > 0) {
+
         const lista = ocupadas
           .slice(0, 3)
-          .map((data) => this.formatarDataCurta(data))
+          .map(data => this.formatarDataCurta(data))
           .join(', ');
 
         const mais =
@@ -788,6 +964,7 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
           `Conflito: horário ocupado em ${lista}${mais}.`,
           'erro'
         );
+
         return;
       }
 
@@ -802,39 +979,47 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
 
       this.mostrarConfirmacao = true;
       this.mostrarFormulario = false;
+
       this.cdr.detectChanges();
+
       return;
     }
 
     // RESERVA SEMANAL
+
     if (this.tipoReserva === 'semana') {
+
       const datas = this.datasDaSemanaDe(
         this.form.data
-      ).filter((data) => data >= hoje);
+      ).filter(data => data >= hoje);
 
       if (datas.length === 0) {
+
         this.mostrarAviso(
           'Essa semana já passou.',
           'erro'
         );
+
         return;
       }
 
-      const ocupadas = datas.filter((data) =>
-        horasParaVerificar.some((hora) =>
+      const ocupadas = datas.filter(data =>
+        horasParaVerificar.some(hora =>
           this.horarioOcupado(data, hora)
         )
       );
 
       if (ocupadas.length > 0) {
+
         const lista = ocupadas
-          .map((data) => this.formatarDataCurta(data))
+          .map(data => this.formatarDataCurta(data))
           .join(', ');
 
         this.mostrarAviso(
           `O horário já está ocupado em: ${lista}.`,
           'erro'
         );
+
         return;
       }
 
@@ -845,16 +1030,19 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
         `${this.formatarData(datas[datas.length - 1])}`;
 
       this.diaConfirmacao = datas
-        .map((data) => this.obterDiaDaSemana(data))
+        .map(data => this.obterDiaDaSemana(data))
         .join(', ');
 
       this.mostrarConfirmacao = true;
       this.mostrarFormulario = false;
+
       this.cdr.detectChanges();
+
       return;
     }
 
     // RESERVA DE DIA ÚNICO
+
     const diaSemana = this.obterDiaDaSemana(
       this.form.data
     );
@@ -863,24 +1051,28 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
       diaSemana === 'Sábado' ||
       diaSemana === 'Domingo'
     ) {
+
       this.mostrarAviso(
         'Agendamentos apenas de Segunda a Sexta!',
         'erro'
       );
+
       return;
     }
 
     const horarioEstaOcupado =
-      horasParaVerificar.some((hora) =>
+      horasParaVerificar.some(hora =>
         this.horarioOcupado(this.form.data, hora)
       );
 
     if (horarioEstaOcupado) {
+
       this.mostrarAviso(
         `Um ou mais horários já estão ocupados em ` +
         `${this.formatarData(this.form.data)}!`,
         'erro'
       );
+
       return;
     }
 
@@ -890,6 +1082,7 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
       this.formatarData(this.form.data);
 
     this.diaConfirmacao = diaSemana;
+
     this.mostrarConfirmacao = true;
     this.mostrarFormulario = false;
 
@@ -901,9 +1094,12 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   // =========================================
 
   cancelarConfirmacao(): void {
+
     if (this.enviandoSolicitacao) {
       return;
     }
+
+    this.fecharSeletorHorario();
 
     this.mostrarConfirmacao = false;
     this.mostrarFormulario = true;
@@ -920,17 +1116,83 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
   // =========================================
 
   async confirmarAgendamento(): Promise<void> {
-    if (this.enviandoSolicitacao) {
+
+    // Impede duplo clique e envio repetido.
+
+    if (
+      this.enviandoSolicitacao ||
+      !this.mostrarConfirmacao
+    ) {
       return;
     }
 
     this.enviandoSolicitacao = true;
 
-    const datas = [...this.datasParaAgendar];
-    const sala = this.form.sala;
+    // Remove possíveis repetições de datas e horários.
 
-    // ENVIA TODOS OS HORÁRIOS DO INTERVALO.
-    const horasParaAgendar = this.horasSelecionadas;
+    const datas = [...new Set(this.datasParaAgendar)];
+
+    const sala = this.form.sala;
+    const materia = this.form.materia.trim() || 'Agendado';
+    const professor = this.nomeProfessor;
+
+    const horasParaAgendar = [
+      ...new Set(this.horasSelecionadas)
+    ];
+
+    if (
+      !sala ||
+      datas.length === 0 ||
+      horasParaAgendar.length === 0
+    ) {
+
+      this.enviandoSolicitacao = false;
+
+      this.mostrarAviso(
+        'Selecione um intervalo válido.',
+        'erro'
+      );
+
+      return;
+    }
+
+    this.cdr.detectChanges();
+
+    // Atualiza os agendamentos antes de cadastrar.
+
+    if (!(await this.carregarAgendamentos())) {
+
+      this.enviandoSolicitacao = false;
+
+      this.mostrarAviso(
+        'Não foi possível verificar os horários. Tente novamente.',
+        'erro'
+      );
+
+      return;
+    }
+
+    // Verifica novamente os horários ocupados.
+
+    if (
+      datas.some(data =>
+        horasParaAgendar.some(hora =>
+          this.horarioOcupado(data, hora, sala)
+        )
+      )
+    ) {
+
+      this.enviandoSolicitacao = false;
+
+      this.cancelarConfirmacao();
+
+      this.mostrarAviso(
+        'Um ou mais horários já estão ocupados. Escolha outro intervalo.',
+        'erro'
+      );
+
+      return;
+    }
 
     const esperado =
       datas.length * horasParaAgendar.length;
@@ -939,32 +1201,40 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
     let mensagemErroServidor = '';
 
     for (const data of datas) {
+
       for (const hora of horasParaAgendar) {
+
         try {
+
           const payload: any = {
             sala,
             data,
             hora,
-            materia:
-              this.form.materia.trim() || 'Agendado',
+            materia,
           };
 
-          if (this.nomeProfessor) {
-            payload.professor = this.nomeProfessor;
+          if (professor) {
+            payload.professor = professor;
           }
 
           const response = await fetch(this.apiUrl, {
+
             method: 'POST',
+
             headers: {
               'Content-Type': 'application/json',
             },
+
             body: JSON.stringify(payload),
+
           });
 
           if (response.ok) {
+
             criados++;
 
           } else {
+
             const erroJson = await response
               .json()
               .catch(() => ({}));
@@ -976,11 +1246,16 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
             );
 
             mensagemErroServidor =
-              erroJson.message ||
-              `Erro ${response.status} na API`;
+              Array.isArray(erroJson.message)
+                ? erroJson.message.join('; ')
+                : String(
+                    erroJson.message ||
+                    `Erro ${response.status} na API`
+                  );
           }
 
         } catch (error) {
+
           console.error(
             'Erro de conexão com o servidor:',
             error
@@ -1000,6 +1275,7 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
     }
 
     if (criados === 0) {
+
       this.enviandoSolicitacao = false;
 
       this.mostrarAviso(
@@ -1007,6 +1283,7 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
         'Erro ao criar agendamento.',
         'erro'
       );
+
       return;
     }
 
@@ -1023,12 +1300,15 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
     this.irParaSemanaDe(datas[0]);
 
     if (criados < esperado) {
+
       this.mostrarAviso(
         `Só ${criados} de ${esperado} horários ` +
         `foram solicitados. ${mensagemErroServidor}`,
         'erro'
       );
+
     } else {
+
       this.mostrarAviso(
         criados === 1
           ? 'Solicitação enviada! Aguardando aprovação do administrador.'

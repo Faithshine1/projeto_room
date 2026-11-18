@@ -629,6 +629,7 @@ button, input, select {
 .horario-intervalo {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
   gap: 12px;
 }
 
@@ -657,6 +658,124 @@ button, input, select {
   cursor: not-allowed;
   opacity: 0.65;
 }
+
+/* =========================================
+   CORREÇÃO DOS SELETORES DE HORÁRIO
+========================================= */
+
+.seletor-horario {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 11px 12px;
+  appearance: none;
+  background: #fff;
+  color: #312846;
+  border: 1px solid #ddd8e9;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.seletor-horario:not(:disabled):hover {
+  border-color: #bdaeee;
+}
+
+.seletor-horario[aria-expanded="true"],
+.seletor-horario:focus-visible {
+  border-color: var(--primary, #4420ab);
+  box-shadow: 0 0 0 3px rgba(85, 45, 177, 0.11);
+  outline: none;
+}
+
+.seletor-horario i {
+  margin-left: auto;
+  font-size: 11px;
+  color: #6540bd;
+}
+
+.seletor-horario:disabled {
+  background: #f7f5fb;
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* LISTA DE HORÁRIOS PARA BAIXO */
+
+.lista-horarios {
+  position: static;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  max-height: 190px;
+  padding: 5px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  background: #fff;
+  border: 1px solid #ddd8e9;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(45, 20, 100, 0.08);
+  scrollbar-width: thin;
+  scrollbar-color: #bda7e9 #f5f2fb;
+}
+
+.opcao-horario {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  width: 100%;
+  min-height: 35px;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #312846;
+  font-family: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.opcao-horario:hover {
+  background: #f4f0ff;
+  color: #4420ab;
+}
+
+.opcao-horario.selecionado {
+  background: #ede5ff;
+  color: #4420ab;
+  font-weight: 600;
+}
+
+.opcao-horario i {
+  font-size: 11px;
+  color: #4420ab;
+}
+
+.lista-horarios::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lista-horarios::-webkit-scrollbar-track {
+  background: #f5f2fb;
+  border-radius: 10px;
+}
+
+.lista-horarios::-webkit-scrollbar-thumb {
+  background: #bda7e9;
+  border-radius: 10px;
+}
+
+/* FIM DA CORREÇÃO DOS SELETORES */
 
 /* DIA TODO */
 
@@ -985,6 +1104,10 @@ button:focus-visible {
     left: 12px;
     bottom: 12px;
   }
+
+  .lista-horarios {
+    max-height: 160px;
+  }
 }
 
 @media (max-width: 390px) {
@@ -998,5 +1121,9 @@ button:focus-visible {
   .modal,
   .toast {
     animation: none;
+  }
+
+  .seletor-horario {
+    transition: none;
   }
 }

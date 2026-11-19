@@ -4,11 +4,13 @@ import {
   Input,
   OnInit,
   OnDestroy,
-  ChangeDetectorRef
+  ChangeDetectorRef,
+  inject
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
 
 import { DadosService } from '../../../Service/dados.service';
 import { environment } from '../../../environments/environment';
@@ -56,6 +58,8 @@ export class Inicio implements OnInit, OnDestroy {
 
   private readonly apiUrl =
     `${environment.apiUrl.replace(/\/+$/, '')}/agendamentos`;
+
+  private readonly auth = inject(AuthService);
 
   private readonly meses = [
     'jan', 'fev', 'mar', 'abr', 'mai', 'jun',
@@ -163,7 +167,9 @@ export class Inicio implements OnInit, OnDestroy {
     this.erroAgendamentos = '';
 
     try {
-      const response = await fetch(this.apiUrl);
+      const response = await fetch(this.apiUrl, {
+        headers: this.auth.cabecalhos()
+      });
 
       if (!response.ok) {
         throw new Error(

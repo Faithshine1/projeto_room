@@ -6,6 +6,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -27,41 +28,19 @@ export class LoginComponent {
 
   constructor(
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private auth: AuthService
   ) {}
 
-  // VERIFICAR ADMINISTRADOR
-  // Mantém a lógica original do projeto.
-  // Deve ser substituída por autenticação no backend.
-  private ehAdmin(): boolean {
-    return (
-      this.email.trim().toLowerCase() === 'admin' &&
-      this.senha === 'ADMIN'
-    );
-  }
-
   // REALIZAR LOGIN
+  // O servidor confere e-mail e senha e devolve o perfil:
+  // GESTOR vai para /admin e PROFESSOR vai para /dashboard.
   async entrar(): Promise<void> {
 
     if (this.carregando) return;
 
     this.erro = '';
     this.email = this.email.trim();
-
-    // LOGIN ADMINISTRATIVO
-    if (this.ehAdmin()) {
-
-      await this.finalizarLogin(
-        {
-          nome: 'Administrador',
-          email: 'admin',
-          perfil: 'admin'
-        },
-        '/admin'
-      );
-
-      return;
-    }
 
     // VALIDAR E-MAIL
     if (!this.email) {
@@ -80,64 +59,27 @@ export class LoginComponent {
       return;
     }
 
-    if (this.senha.length < 6) {
-      this.erro =
-        'A senha deve conter no mínimo 6 caracteres.';
-      return;
-    }
-
-    // DADOS DO USUÁRIO
-    const usuario = {
-      nome: this.gerarNomeDoEmail(this.email),
-      email: this.email
-    };
-
-    await this.finalizarLogin(
-      usuario,
-      '/dashboard'
-    );
-  }
-
-  // SALVAR USUÁRIO E REDIRECIONAR
-  private async finalizarLogin(
-    usuario: {
-      nome: string;
-      email: string;
-      perfil?: string;
-    },
-    rota: string
-  ): Promise<void> {
-
     this.carregando = true;
-    this.erro = '';
 
     try {
 
-      localStorage.setItem(
-        'usuario',
-        JSON.stringify(usuario)
+      const usuario = await this.auth.login(
+        this.email,
+        this.senha
       );
 
-      const sucesso = await this.router.navigate([rota]);
+      const sucesso = await this.router.navigate([
+        this.auth.rotaInicial(usuario.perfil)
+      ]);
 
       if (!sucesso) {
-
-        localStorage.removeItem('usuario');
-
-        this.erro = rota === '/admin'
-          ? 'Não foi possível abrir a área administrativa.'
-          : 'Não foi possível abrir o dashboard.';
-
+        this.auth.sair();
+        this.erro = 'Não foi possível abrir o sistema.';
       }
 
     } catch (error) {
 
-      console.error('Erro ao entrar:', error);
-
-      localStorage.removeItem('usuario');
-
-      this.erro =
-        'Não foi possível acessar o sistema. Tente novamente.';
+      this.erro = this.auth.mensagemDeErro(error);
 
     } finally {
 
@@ -145,28 +87,6 @@ export class LoginComponent {
       this.cdr.markForCheck();
 
     }
-  }
-
-  // GERAR NOME A PARTIR DO E-MAIL
-  gerarNomeDoEmail(email: string): string {
-
-    const parteLocal = email.split('@')[0];
-
-    const palavras = parteLocal
-      .replace(/[0-9]/g, '')
-      .split(/[._-]+/)
-      .filter(palavra => palavra.length > 0);
-
-    if (palavras.length === 0) {
-      return 'Usuário';
-    }
-
-    return palavras
-      .map(palavra =>
-        palavra.charAt(0).toUpperCase() +
-        palavra.slice(1).toLowerCase()
-      )
-      .join(' ');
   }
 
   // MOSTRAR OU OCULTAR SENHA

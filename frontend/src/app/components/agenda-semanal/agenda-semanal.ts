@@ -6,12 +6,14 @@ import {
   ChangeDetectorRef,
   Output,
   EventEmitter,
+  inject,
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DadosService } from '../../../Service/dados.service';
 import { environment } from '../../../environments/environment';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-agenda-semanal',
@@ -113,6 +115,8 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
 
   private readonly apiSalas =
     `${this.baseApiUrl}/salas`;
+
+  private readonly auth = inject(AuthService);
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -303,7 +307,9 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
 
     try {
 
-      const response = await fetch(this.apiSalas);
+      const response = await fetch(this.apiSalas, {
+        headers: this.auth.cabecalhos()
+      });
 
       if (!response.ok) {
         throw new Error(
@@ -737,7 +743,8 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
     try {
 
       const response = await fetch(this.apiUrl, {
-        cache: 'no-store'
+        cache: 'no-store',
+        headers: this.auth.cabecalhos()
       });
 
       if (!response.ok) {
@@ -1134,7 +1141,6 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
 
     const sala = this.form.sala;
     const materia = this.form.materia.trim() || 'Agendado';
-    const professor = this.nomeProfessor;
 
     const horasParaAgendar = [
       ...new Set(this.horasSelecionadas)
@@ -1213,17 +1219,13 @@ export class AgendaSemanalComponent implements OnInit, OnDestroy {
             materia,
           };
 
-          if (professor) {
-            payload.professor = professor;
-          }
-
           const response = await fetch(this.apiUrl, {
 
             method: 'POST',
 
-            headers: {
+            headers: this.auth.cabecalhos({
               'Content-Type': 'application/json',
-            },
+            }),
 
             body: JSON.stringify(payload),
 

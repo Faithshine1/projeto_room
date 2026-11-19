@@ -36,6 +36,10 @@ export class Agendamento {
   @Prop({ default: 'Professor' })
   professor: string;
 
+  // Id do usuário que fez a reserva (vem do token, nunca do cliente)
+  @Prop()
+  professorId?: string;
+
   @Prop({ default: () => new Date().toISOString() })
   criadaEm: string;
 }

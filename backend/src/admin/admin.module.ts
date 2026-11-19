@@ -2,6 +2,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { AuthModule } from '../auth/auth.module.js';
 import { AdminController } from './admin.controller.js';
 import { AdminService } from './admin.service.js';
 
@@ -13,6 +14,7 @@ import {
 
 @Module({
   imports: [
+    AuthModule,
     MongooseModule.forFeature([
       { name: Sala.name, schema: SalaSchema },
       { name: Solicitacao.name, schema: SolicitacaoSchema },

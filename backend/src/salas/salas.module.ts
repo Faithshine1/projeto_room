@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { AdminModule } from '../admin/admin.module.js';
+import { AuthModule } from '../auth/auth.module.js';
 import { SalasController } from './salas.controller.js';
 import { Entrada, EntradaSchema } from './schemas/entrada.schema.js';
 
@@ -9,6 +10,7 @@ import { Entrada, EntradaSchema } from './schemas/entrada.schema.js';
   imports: [
     // AdminModule exporta o AdminService, usado para listar as salas do painel
     AdminModule,
+    AuthModule,
     MongooseModule.forFeature([{ name: Entrada.name, schema: EntradaSchema }]),
   ],
   controllers: [SalasController],

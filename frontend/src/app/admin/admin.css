@@ -2312,3 +2312,34 @@ tbody tr.selecionada {
   }
 
 }
+
+
+/* Campo de seleção (perfil do usuário), igual aos demais campos do formulário */
+.room-form select {
+  width: 100%;
+  min-width: 0;
+  min-height: 45px;
+
+  padding: 12px 13px;
+
+  background: #fcfbfe;
+  color: var(--admin-ink);
+
+  border: 1px solid var(--admin-border);
+  border-radius: 9px;
+
+  font-size: 13px;
+  font-weight: 400;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.room-form select:focus {
+  border-color: #926be7;
+
+  box-shadow: 0 0 0 3px #eee7ff;
+}

@@ -3,6 +3,8 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { AdminService } from '../admin/admin.service.js';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { SalasController } from './salas.controller.js';
 import { Entrada } from './schemas/entrada.schema.js';
 
@@ -28,7 +30,13 @@ describe('SalasController', () => {
         { provide: AdminService, useValue: { listarSalas: async () => [] } },
         { provide: getModelToken(Entrada.name), useValue: entradaModel },
       ],
-    }).compile();
+    })
+      // Os guards precisam do banco e do token; no teste a rota fica liberada
+      .overrideGuard(JwtAuthGuard)
+      .useValue({ canActivate: () => true })
+      .overrideGuard(RolesGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<SalasController>(SalasController);
   });

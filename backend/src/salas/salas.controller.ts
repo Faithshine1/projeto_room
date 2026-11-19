@@ -4,11 +4,15 @@ import {
   Controller,
   Get,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { AdminService } from '../admin/admin.service.js';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { RolesGuard } from '../auth/guards/roles.guard.js';
+import { Roles } from '../auth/roles.decorator.js';
 import { Entrada, EntradaDocument } from './schemas/entrada.schema.js';
 
 const SALAS: Record<string, string> = {
@@ -18,6 +22,7 @@ const SALAS: Record<string, string> = {
 };
 
 @Controller('salas')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class SalasController {
   constructor(
     private readonly adminService: AdminService,
@@ -70,6 +75,8 @@ export class SalasController {
     };
   }
 
+  // Histórico de entradas: somente GESTOR
+  @Roles('GESTOR')
   @Get('entradas')
   async listarEntradas() {
     const entradas = await this.entradaModel.find().sort({ horario: 1 }).exec();

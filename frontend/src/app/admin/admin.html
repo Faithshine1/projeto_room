@@ -53,6 +53,15 @@
         </span>
       </button>
 
+      <button
+        type="button"
+        [class.active]="secao === 'usuarios'"
+        (click)="mudarSecao('usuarios')">
+
+        <i class="fa-solid fa-users"></i>
+        <span>Usuários</span>
+      </button>
+
     </nav>
 
     <!-- PERFIL ADMINISTRATIVO -->
@@ -872,6 +881,144 @@
          SOLICITAÇÕES
     ======================================= -->
 
+    <section *ngIf="secao === 'usuarios'" class="section-content">
+
+      <div class="section-banner">
+
+        <div class="section-banner-icon">
+          <i class="fa-solid fa-users"></i>
+        </div>
+
+        <div class="section-banner-info">
+          <h2>Contas de acesso</h2>
+          <p>Somente o gestor cria as contas de professores e gestores.</p>
+        </div>
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="abrirModalUsuario()">
+
+          <i class="fa-solid fa-user-plus"></i>
+          Novo usuário
+        </button>
+
+      </div>
+
+      <section class="panel">
+
+        <div class="panel-heading">
+
+          <div>
+            <h2>Todos os usuários</h2>
+
+            <p>
+              {{ usuariosCarregados
+                ? usuarios.length + ' conta(s) cadastrada(s).'
+                : 'Total indisponível.' }}
+            </p>
+          </div>
+
+          <span class="count-label">
+            {{ usuariosCarregados ? usuarios.length : '—' }}
+            contas
+          </span>
+
+        </div>
+
+        <div class="alert error" *ngIf="erroUsuarios" role="alert">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span>{{ erroUsuarios }}</span>
+        </div>
+
+        <div class="filter-toolbar">
+
+          <div class="search-field">
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input
+              type="search"
+              aria-label="Pesquisar usuários"
+              placeholder="Pesquisar por nome, e-mail ou perfil..."
+              [(ngModel)]="pesquisaUsuario">
+
+          </div>
+
+        </div>
+
+        <div class="table-wrap" *ngIf="usuariosFiltrados.length > 0">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Perfil</th>
+                <th>Situação</th>
+                <th class="col-acoes">Ações</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              <tr *ngFor="let usuario of usuariosFiltrados; trackBy: trackById">
+
+                <td><strong>{{ usuario.nome }}</strong></td>
+
+                <td>{{ usuario.email }}</td>
+
+                <td>
+                  {{ usuario.perfil === 'GESTOR' ? 'Gestor' : 'Professor' }}
+                </td>
+
+                <td>
+                  <span
+                    class="status"
+                    [class.aprovada]="usuario.ativo"
+                    [class.recusada]="!usuario.ativo">
+                    {{ usuario.ativo ? 'Ativo' : 'Desativado' }}
+                  </span>
+                </td>
+
+                <td class="col-acoes">
+
+                  <button
+                    type="button"
+                    [class.danger-button]="usuario.ativo"
+                    [class.secondary-button]="!usuario.ativo"
+                    [disabled]="usuario.id === meuId || processandoUsuario !== null"
+                    [attr.title]="usuario.id === meuId ? 'Você não pode desativar a própria conta.' : null"
+                    (click)="alternarAtivo(usuario)">
+
+                    {{ usuario.ativo ? 'Desativar' : 'Reativar' }}
+
+                  </button>
+
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+        <div
+          class="empty-state"
+          *ngIf="usuariosCarregados && usuariosFiltrados.length === 0">
+
+          <strong>Nenhum usuário encontrado</strong>
+          <p>Use "Novo usuário" para criar a primeira conta.</p>
+
+        </div>
+
+      </section>
+
+    </section>
+
     <section
       *ngIf="secao === 'solicitacoes'"
       class="section-content">
@@ -1138,6 +1285,145 @@
   <!-- ======================================
        MODAL DE CADASTRO DE SALA
   ======================================= -->
+
+  <dialog
+    #modalUsuario
+    class="room-modal"
+    aria-labelledby="modal-usuario-titulo"
+    (cancel)="cancelarModalUsuario($event)">
+
+    <div class="modal-heading">
+
+      <div class="modal-icon">
+        <i class="fa-solid fa-user-plus"></i>
+      </div>
+
+      <div class="modal-title">
+        <h2 id="modal-usuario-titulo">Criar conta</h2>
+        <p>Informe os dados de acesso da pessoa.</p>
+      </div>
+
+      <button
+        type="button"
+        class="modal-close"
+        aria-label="Fechar"
+        [disabled]="salvandoUsuario"
+        (click)="fecharModalUsuario()">
+
+        <i class="fa-solid fa-xmark"></i>
+
+      </button>
+
+    </div>
+
+    <form
+      class="room-form"
+      (ngSubmit)="criarUsuario()"
+      novalidate>
+
+      <label class="full-field">
+
+        Nome *
+
+        <input
+          name="nomeUsuario"
+          [(ngModel)]="novoUsuario.nome"
+          placeholder="Ex.: Maria Souza"
+          maxlength="120"
+          autocomplete="off"
+          [disabled]="salvandoUsuario"
+          required>
+
+      </label>
+
+      <label class="full-field">
+
+        E-mail *
+
+        <input
+          type="email"
+          name="emailUsuario"
+          [(ngModel)]="novoUsuario.email"
+          placeholder="professor@escola.com"
+          maxlength="150"
+          autocomplete="off"
+          [disabled]="salvandoUsuario"
+          required>
+
+      </label>
+
+      <label>
+
+        Senha provisória *
+
+        <input
+          type="text"
+          name="senhaUsuario"
+          [(ngModel)]="novoUsuario.password"
+          placeholder="Mínimo de 8 caracteres"
+          autocomplete="off"
+          [disabled]="salvandoUsuario"
+          required>
+
+      </label>
+
+      <label>
+
+        Perfil
+
+        <select
+          name="perfilUsuario"
+          [(ngModel)]="novoUsuario.perfil"
+          [disabled]="salvandoUsuario">
+
+          <option value="PROFESSOR">Professor (solicita salas)</option>
+          <option value="GESTOR">Gestor (acesso administrativo)</option>
+
+        </select>
+
+      </label>
+
+      <div
+        class="alert error full-field"
+        *ngIf="erroModalUsuario"
+        role="alert">
+
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>{{ erroModalUsuario }}</span>
+
+      </div>
+
+      <div class="form-actions">
+
+        <button
+          type="button"
+          class="secondary-button"
+          [disabled]="salvandoUsuario"
+          (click)="fecharModalUsuario()">
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="primary-button"
+          [disabled]="salvandoUsuario">
+
+          <i
+            class="fa-solid"
+            [ngClass]="salvandoUsuario
+              ? 'fa-spinner spin'
+              : 'fa-user-plus'">
+          </i>
+
+          {{ salvandoUsuario ? 'Criando...' : 'Criar conta' }}
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </dialog>
 
   <dialog
     #modalSala

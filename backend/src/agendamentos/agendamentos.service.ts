@@ -1,11 +1,14 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+
+import type { UsuarioLogado } from '../auth/guards/jwt-auth.guard.js';
 
 import {
   Agendamento,
@@ -32,6 +35,7 @@ export class AgendamentosService {
       hora: a.hora,
       status: a.status,
       professor: a.professor,
+      professorId: a.professorId,
       criadaEm: a.criadaEm,
     };
   }
@@ -52,13 +56,25 @@ export class AgendamentosService {
     return lista.map((a) => this.paraDto(a));
   }
 
-  async criar(dados: {
-    sala?: string;
-    data?: string;
-    hora?: string;
-    materia?: string;
-    professor?: string;
-  }) {
+  // Só as reservas do usuário logado
+  async listarMinhas(usuario: UsuarioLogado) {
+    const lista = await this.agendamentoModel
+      .find({ professorId: usuario.id })
+      .sort({ data: 1, hora: 1 })
+      .exec();
+
+    return lista.map((a) => this.paraDto(a));
+  }
+
+  async criar(
+    dados: {
+      sala?: string;
+      data?: string;
+      hora?: string;
+      materia?: string;
+    },
+    usuario: UsuarioLogado,
+  ) {
     const sala = String(dados?.sala ?? '').trim();
     const data = String(dados?.data ?? '').trim();
     const hora = String(dados?.hora ?? '').trim();
@@ -104,7 +120,9 @@ export class AgendamentosService {
       hora,
       materia: String(dados?.materia ?? '').trim() || 'Agendado',
       dia: DIAS[dataLocal.getDay()],
-      professor: String(dados?.professor ?? '').trim() || 'Professor',
+      // Professor e id vêm do token, nunca do que o cliente enviar
+      professor: usuario.nome,
+      professorId: usuario.id,
       status: 'PENDENTE',
     });
 
@@ -147,8 +165,19 @@ export class AgendamentosService {
     return this.alterarStatus(id, 'REJEITADO');
   }
 
-  async remover(id: string) {
+  // Professor só remove a própria reserva; GESTOR remove qualquer uma
+  async remover(id: string, usuario: UsuarioLogado) {
     this.validarId(id);
+
+    const existente = await this.agendamentoModel.findById(id).exec();
+
+    if (!existente) {
+      throw new NotFoundException('Agendamento não encontrado.');
+    }
+
+    if (usuario.perfil !== 'GESTOR' && existente.professorId !== usuario.id) {
+      throw new ForbiddenException('Você só pode remover as suas reservas.');
+    }
 
     const removido = await this.agendamentoModel.findByIdAndDelete(id).exec();
 
@@ -159,6 +188,18 @@ export class AgendamentosService {
     return {
       message: 'Agendamento removido com sucesso!',
       dados: this.paraDto(removido),
+    };
+  }
+
+  // Remove todas as reservas do usuário logado
+  async removerMinhas(usuario: UsuarioLogado) {
+    const resultado = await this.agendamentoModel
+      .deleteMany({ professorId: usuario.id })
+      .exec();
+
+    return {
+      message: 'Suas reservas foram removidas!',
+      total: resultado.deletedCount,
     };
   }
 

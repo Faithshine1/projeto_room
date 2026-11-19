@@ -2,12 +2,14 @@
 import {
   ChangeDetectorRef,
   Component,
-  OnInit
+  OnInit,
+  inject
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../environments/environment';
+import { AuthService } from '../../services/auth.service';
 
 interface Agendamento {
   id?: number | string;
@@ -51,6 +53,12 @@ export class MinhasReservasComponent implements OnInit {
   private readonly apiUrl =
     `${environment.apiUrl.replace(/\/+$/, '')}/agendamentos`;
 
+  // Só as reservas de quem está logado
+  private readonly apiMinhas =
+    `${environment.apiUrl.replace(/\/+$/, '')}/agendamentos/minhas`;
+
+  private readonly auth = inject(AuthService);
+
   constructor(
     private cdr: ChangeDetectorRef
   ) {}
@@ -74,7 +82,9 @@ export class MinhasReservasComponent implements OnInit {
     this.cdr.markForCheck();
 
     try {
-      const response = await fetch(this.apiUrl);
+      const response = await fetch(this.apiMinhas, {
+        headers: this.auth.cabecalhos()
+      });
 
       if (!response.ok) {
         throw new Error(
@@ -454,7 +464,8 @@ export class MinhasReservasComponent implements OnInit {
       const response = await fetch(
         `${this.apiUrl}/${encodeURIComponent(idTexto)}`,
         {
-          method: 'DELETE'
+          method: 'DELETE',
+          headers: this.auth.cabecalhos()
         }
       );
 
@@ -546,9 +557,10 @@ export class MinhasReservasComponent implements OnInit {
 
     try {
       const response = await fetch(
-        this.apiUrl,
+        this.apiMinhas,
         {
-          method: 'DELETE'
+          method: 'DELETE',
+          headers: this.auth.cabecalhos()
         }
       );
 

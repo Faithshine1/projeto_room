@@ -8,6 +8,7 @@ import { AppService } from './app.service.js';
 import { AgendamentosModule } from './agendamentos/agendamentos.module.js';
 import { AdminModule } from './admin/admin.module.js';
 import { SalasModule } from './salas/salas.module.js';
+import { AuthModule } from './auth/auth.module.js';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { SalasModule } from './salas/salas.module.js';
     AgendamentosModule,
     AdminModule,
     SalasModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

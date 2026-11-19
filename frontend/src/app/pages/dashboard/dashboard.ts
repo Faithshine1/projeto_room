@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../../services/auth.service';
 import * as QRCode from 'qrcode';
 
 import {
@@ -143,19 +144,9 @@ export class DashboardComponent implements OnInit {
   constructor(
     private router: Router,
     private http: HttpClient,
+    private auth: AuthService,
   ) {
-    if (typeof localStorage !== 'undefined') {
-      const salvo = localStorage.getItem('usuario');
-
-      if (salvo) {
-        try {
-          this.nomeUsuario =
-            JSON.parse(salvo).nome || 'Usuário';
-        } catch {
-          this.nomeUsuario = 'Usuário';
-        }
-      }
-    }
+    this.nomeUsuario = this.auth.usuario?.nome || 'Usuário';
   }
 
   ngOnInit(): void {
@@ -361,9 +352,7 @@ export class DashboardComponent implements OnInit {
 
   // AUTENTICAÇÃO
   logout(): void {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem('usuario');
-    }
+    this.auth.sair();
 
     this.router.navigate(['/login']);
   }

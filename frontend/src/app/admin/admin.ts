@@ -6,14 +6,16 @@ import {
   Component,
   ElementRef,
   OnInit,
-  ViewChild
+  ViewChild,
+  inject
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { AuthService } from '../services/auth.service';
 
-type Secao = 'inicio' | 'salas' | 'solicitacoes';
+type Secao = 'inicio' | 'salas' | 'solicitacoes' | 'usuarios';
 
 type StatusSolicitacao =
   | 'PENDENTE'
@@ -50,6 +52,14 @@ interface AgendamentoApi {
   criadaEm: string;
 }
 
+interface Usuario {
+  id: string;
+  nome: string;
+  email: string;
+  perfil: 'GESTOR' | 'PROFESSOR';
+  ativo: boolean;
+}
+
 interface Dashboard {
   totalSalas: number;
   pendentes: number;
@@ -72,8 +82,14 @@ export class Admin implements OnInit {
   private readonly apiAgendamentos =
     `${environment.apiUrl.replace(/\/+$/, '')}/agendamentos`;
 
+  private readonly apiUsuarios =
+    `${environment.apiUrl.replace(/\/+$/, '')}/auth/usuarios`;
+
   @ViewChild('modalSala', { static: true })
   modalSala!: ElementRef<HTMLDialogElement>;
+
+  @ViewChild('modalUsuario', { static: true })
+  modalUsuario!: ElementRef<HTMLDialogElement>;
 
   secao: Secao = 'inicio';
 
@@ -116,11 +132,34 @@ export class Admin implements OnInit {
     recursosTexto: '',
   };
 
+  // Usuários (contas criadas pelo gestor)
+  usuarios: Usuario[] = [];
+  usuariosCarregados = false;
+  erroUsuarios = '';
+  erroModalUsuario = '';
+  pesquisaUsuario = '';
+  salvandoUsuario = false;
+  processandoUsuario: string | null = null;
+
+  novoUsuario: {
+    nome: string;
+    email: string;
+    password: string;
+    perfil: 'GESTOR' | 'PROFESSOR';
+  } = {
+    nome: '',
+    email: '',
+    password: '',
+    perfil: 'PROFESSOR'
+  };
+
   graficoSemana: {
     dia: string;
     quantidade: number;
     altura: number;
   }[] = [];
+
+  private readonly auth = inject(AuthService);
 
   constructor(
     private http: HttpClient,
@@ -132,6 +171,7 @@ export class Admin implements OnInit {
     this.carregarAdministrador();
     this.atualizarGrafico();
     void this.carregarDados();
+    void this.carregarUsuarios();
   }
 
   // ==========================================
@@ -169,7 +209,7 @@ export class Admin implements OnInit {
 
     if (!confirmar) return;
 
-    localStorage.removeItem('usuario');
+    this.auth.sair();
 
     void this.router.navigate(['/login']);
   }
@@ -183,6 +223,9 @@ export class Admin implements OnInit {
       case 'salas':
         return 'Gerenciar salas';
 
+      case 'usuarios':
+        return 'Gerenciar usuários';
+
       case 'solicitacoes':
         return 'Solicitações de reservas';
 
@@ -195,6 +238,9 @@ export class Admin implements OnInit {
     switch (this.secao) {
       case 'salas':
         return 'Cadastre e organize os espaços da instituição.';
+
+      case 'usuarios':
+        return 'Crie as contas de professores e gestores.';
 
       case 'solicitacoes':
         return 'Acompanhe, aprove ou recuse os pedidos de reserva.';
@@ -212,6 +258,11 @@ export class Admin implements OnInit {
     this.pesquisaSolicitacao = '';
     this.pesquisaSala = '';
     this.salasSelecionadas = [];
+    this.pesquisaUsuario = '';
+
+    if (secao === 'usuarios') {
+      void this.carregarUsuarios();
+    }
   }
 
   abrirSolicitacoes(
@@ -630,6 +681,170 @@ export class Admin implements OnInit {
 
     } finally {
       this.cadastrandoSala = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  // ==========================================
+  // USUÁRIOS (somente o gestor cria as contas)
+  // ==========================================
+
+  get meuId(): string {
+    return this.auth.usuario?.id ?? '';
+  }
+
+  get usuariosFiltrados(): Usuario[] {
+    const termo = this.normalizar(this.pesquisaUsuario);
+
+    if (!termo) return this.usuarios;
+
+    return this.usuarios.filter(usuario =>
+      this.normalizar(
+        `${usuario.nome} ${usuario.email} ${usuario.perfil}`
+      ).includes(termo)
+    );
+  }
+
+  async carregarUsuarios(): Promise<void> {
+    this.erroUsuarios = '';
+
+    try {
+      const lista = await firstValueFrom(
+        this.http.get<Usuario[]>(this.apiUsuarios)
+      );
+
+      this.usuarios = Array.isArray(lista) ? lista : [];
+      this.usuariosCarregados = true;
+
+    } catch (error) {
+      this.erroUsuarios = this.obterMensagemErro(
+        error,
+        'Não foi possível carregar os usuários.'
+      );
+    }
+
+    this.cdr.markForCheck();
+  }
+
+  abrirModalUsuario(): void {
+    this.erroModalUsuario = '';
+    this.mensagem = '';
+    this.erro = '';
+
+    this.novoUsuario = {
+      nome: '',
+      email: '',
+      password: '',
+      perfil: 'PROFESSOR'
+    };
+
+    this.modalUsuario.nativeElement.showModal();
+  }
+
+  fecharModalUsuario(): void {
+    if (this.salvandoUsuario) return;
+
+    this.modalUsuario.nativeElement.close();
+    this.erroModalUsuario = '';
+  }
+
+  cancelarModalUsuario(evento: Event): void {
+    if (this.salvandoUsuario) {
+      evento.preventDefault();
+    }
+  }
+
+  async criarUsuario(): Promise<void> {
+    if (this.salvandoUsuario) return;
+
+    this.erroModalUsuario = '';
+    this.mensagem = '';
+    this.erro = '';
+
+    const nome = this.novoUsuario.nome.trim();
+    const email = this.novoUsuario.email.trim();
+    const { password, perfil } = this.novoUsuario;
+
+    if (nome.length < 2) {
+      this.erroModalUsuario = 'Informe o nome do usuário.';
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      this.erroModalUsuario = 'Informe um e-mail válido.';
+      return;
+    }
+
+    if (password.length < 8) {
+      this.erroModalUsuario =
+        'A senha deve ter no mínimo 8 caracteres.';
+      return;
+    }
+
+    this.salvandoUsuario = true;
+
+    try {
+      await firstValueFrom(
+        this.http.post(this.apiUsuarios, {
+          nome,
+          email,
+          password,
+          perfil
+        })
+      );
+
+      this.modalUsuario.nativeElement.close();
+      this.mudarSecao('usuarios');
+
+      this.mensagem =
+        `Conta de ${perfil === 'GESTOR' ? 'gestor' : 'professor'} criada! ` +
+        'Passe o e-mail e a senha provisória para a pessoa.';
+
+    } catch (error) {
+      this.erroModalUsuario = this.obterMensagemErro(
+        error,
+        'Não foi possível criar a conta.'
+      );
+
+    } finally {
+      this.salvandoUsuario = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  async alternarAtivo(usuario: Usuario): Promise<void> {
+    if (this.processandoUsuario) return;
+
+    if (usuario.ativo) {
+      const confirmar = window.confirm(
+        `Desativar a conta de ${usuario.nome}? Ela não poderá mais entrar no sistema.`
+      );
+
+      if (!confirmar) return;
+    }
+
+    this.mensagem = '';
+    this.erro = '';
+    this.processandoUsuario = usuario.id;
+
+    try {
+      await firstValueFrom(
+        this.http.patch(
+          `${this.apiUsuarios}/${usuario.id}/ativo`,
+          { ativo: !usuario.ativo }
+        )
+      );
+
+      await this.carregarUsuarios();
+
+    } catch (error) {
+      this.erro = this.obterMensagemErro(
+        error,
+        'Não foi possível alterar o usuário.'
+      );
+
+    } finally {
+      this.processandoUsuario = null;
       this.cdr.markForCheck();
     }
   }

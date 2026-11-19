@@ -17,6 +17,7 @@
   "description": "EduRoom - sistema web de gerenciamento de salas (Angular + NestJS)",
   "main": "index.js",
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "concurrently": "^10.0.5",
     "currently": "^0.0.8"
   },
